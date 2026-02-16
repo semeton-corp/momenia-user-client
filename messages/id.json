@@ -1,0 +1,44 @@
+{
+  "common": {
+    "siteName": "Memoria",
+    "signIn": "Masuk",
+    "signUp": "Daftar",
+    "toggleMenu": "Buka menu",
+    "close": "Tutup"
+  },
+  "nav": {
+    "home": "Beranda",
+    "about": "Tentang",
+    "services": "Layanan",
+    "contact": "Kontak"
+  },
+  "footer": {
+    "builtBy": "Dibuat oleh",
+    "sourceCode": "Kode sumber tersedia di",
+    "github": "GitHub"
+  },
+  "home": {
+    "demoTitle": "Halo dari Framer Motion!",
+    "demoDescription": "Komponen ini memakai utilitas shadcn/ui, ikon Lucide, dan Framer Motion.",
+    "demoButton": "Klik saya (Tombol shadcn)",
+    "demoClicked": "Sudah diklik. (Nanti ganti dengan toast.)"
+  },
+  "auth": {
+    "login": "Masuk",
+    "register": "Daftar",
+    "loginTitle": "Selamat datang kembali",
+    "loginSubtitle": "Masuk ke akun Anda",
+    "registerTitle": "Buat akun",
+    "registerSubtitle": "Mulai dengan Memoria",
+    "email": "Email",
+    "password": "Kata sandi",
+    "confirmPassword": "Konfirmasi kata sandi",
+    "name": "Nama lengkap",
+    "submitLogin": "Masuk",
+    "submitRegister": "Buat akun",
+    "noAccount": "Belum punya akun?",
+    "hasAccount": "Sudah punya akun?",
+    "goToRegister": "Daftar",
+    "goToLogin": "Masuk"
+  }
+}

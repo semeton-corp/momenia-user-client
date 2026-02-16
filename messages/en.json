@@ -1,0 +1,44 @@
+{
+  "common": {
+    "siteName": "Memoria",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "toggleMenu": "Toggle Menu",
+    "close": "Close"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact"
+  },
+  "footer": {
+    "builtBy": "Built by",
+    "sourceCode": "The source code is available on",
+    "github": "GitHub"
+  },
+  "home": {
+    "demoTitle": "Hello from Framer Motion!",
+    "demoDescription": "This component uses shadcn/ui utils, Lucide icons, and Framer Motion.",
+    "demoButton": "Click me (shadcn Button)",
+    "demoClicked": "Clicked. (Replace this with a proper toast later.)"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Register",
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your account",
+    "registerTitle": "Create an account",
+    "registerSubtitle": "Get started with Memoria",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "name": "Full name",
+    "submitLogin": "Sign in",
+    "submitRegister": "Create account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "goToRegister": "Sign up",
+    "goToLogin": "Sign in"
+  }
+}

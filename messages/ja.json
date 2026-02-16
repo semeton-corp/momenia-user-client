@@ -1,0 +1,44 @@
+{
+  "common": {
+    "siteName": "Memoria",
+    "signIn": "サインイン",
+    "signUp": "新規登録",
+    "toggleMenu": "メニューを開く",
+    "close": "閉じる"
+  },
+  "nav": {
+    "home": "ホーム",
+    "about": "会社概要",
+    "services": "サービス",
+    "contact": "お問い合わせ"
+  },
+  "footer": {
+    "builtBy": "制作",
+    "sourceCode": "ソースコードは",
+    "github": "GitHub"
+  },
+  "home": {
+    "demoTitle": "Framer Motion からのご挨拶！",
+    "demoDescription": "このコンポーネントは shadcn/ui、Lucide アイコン、Framer Motion を使用しています。",
+    "demoButton": "クリック（shadcn ボタン）",
+    "demoClicked": "クリックしました。（後でトーストに差し替えてください。）"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "新規登録",
+    "loginTitle": "おかえりなさい",
+    "loginSubtitle": "アカウントにサインイン",
+    "registerTitle": "アカウント作成",
+    "registerSubtitle": "Memoria を始めましょう",
+    "email": "メール",
+    "password": "パスワード",
+    "confirmPassword": "パスワード（確認）",
+    "name": "氏名",
+    "submitLogin": "サインイン",
+    "submitRegister": "アカウント作成",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "hasAccount": "すでにアカウントをお持ちですか？",
+    "goToRegister": "新規登録",
+    "goToLogin": "サインイン"
+  }
+}
