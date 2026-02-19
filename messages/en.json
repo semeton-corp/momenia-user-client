@@ -6,12 +6,7 @@
     "toggleMenu": "Toggle Menu",
     "close": "Close"
   },
-  "nav": {
-    "home": "Home",
-    "about": "About",
-    "services": "Services",
-    "contact": "Contact"
-  },
+  "nav": { "home": "Home", "about": "About", "services": "Services", "contact": "Contact" },
   "footer": {
     "builtBy": "Built by",
     "sourceCode": "The source code is available on",
@@ -39,6 +34,8 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "goToRegister": "Sign up",
-    "goToLogin": "Sign in"
-  }
+    "goToLogin": "Sign in",
+    "loginError": "Invalid email or password."
+  },
+  "user": { "welcome": "Welcome User" }
 }

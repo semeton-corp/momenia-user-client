@@ -2,20 +2,34 @@
 
 import * as React from "react"
 import { useTranslations } from "next-intl"
-import { Link } from "@/i18n/navigation"
+import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { DUMMY_CREDENTIALS, setDummyAuth } from "@/lib/auth-dummy"
 
 export function LoginForm() {
   const t = useTranslations("auth")
+  const router = useRouter()
   const [isPending, setIsPending] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setError(null)
+    const form = e.currentTarget
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim()
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value
+
+    if (email !== DUMMY_CREDENTIALS.email || password !== DUMMY_CREDENTIALS.password) {
+      setError(t("loginError"))
+      return
+    }
+
     setIsPending(true)
-    // TODO: call auth API
-    setTimeout(() => setIsPending(false), 1000)
+    setDummyAuth()
+    router.push("/user")
+    setIsPending(false)
   }
 
   return (
@@ -46,6 +60,11 @@ export function LoginForm() {
             required
           />
         </div>
+        {error && (
+          <p className="text-destructive text-sm" role="alert">
+            {error}
+          </p>
+        )}
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? "..." : t("submitLogin")}
         </Button>

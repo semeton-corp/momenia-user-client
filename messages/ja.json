@@ -12,11 +12,7 @@
     "services": "サービス",
     "contact": "お問い合わせ"
   },
-  "footer": {
-    "builtBy": "制作",
-    "sourceCode": "ソースコードは",
-    "github": "GitHub"
-  },
+  "footer": { "builtBy": "制作", "sourceCode": "ソースコードは", "github": "GitHub" },
   "home": {
     "demoTitle": "Framer Motion からのご挨拶！",
     "demoDescription": "このコンポーネントは shadcn/ui、Lucide アイコン、Framer Motion を使用しています。",
@@ -39,6 +35,8 @@
     "noAccount": "アカウントをお持ちでないですか？",
     "hasAccount": "すでにアカウントをお持ちですか？",
     "goToRegister": "新規登録",
-    "goToLogin": "サインイン"
-  }
+    "goToLogin": "サインイン",
+    "loginError": "メールまたはパスワードが正しくありません。"
+  },
+  "user": { "welcome": "ようこぞ、ユーザー" }
 }

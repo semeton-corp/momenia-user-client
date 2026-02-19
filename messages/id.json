@@ -6,12 +6,7 @@
     "toggleMenu": "Buka menu",
     "close": "Tutup"
   },
-  "nav": {
-    "home": "Beranda",
-    "about": "Tentang",
-    "services": "Layanan",
-    "contact": "Kontak"
-  },
+  "nav": { "home": "Beranda", "about": "Tentang", "services": "Layanan", "contact": "Kontak" },
   "footer": {
     "builtBy": "Dibuat oleh",
     "sourceCode": "Kode sumber tersedia di",
@@ -39,6 +34,8 @@
     "noAccount": "Belum punya akun?",
     "hasAccount": "Sudah punya akun?",
     "goToRegister": "Daftar",
-    "goToLogin": "Masuk"
-  }
+    "goToLogin": "Masuk",
+    "loginError": "Email atau kata sandi salah."
+  },
+  "user": { "welcome": "Selamat datang, User" }
 }
