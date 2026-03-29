@@ -40,5 +40,15 @@
     "hasAccount": "Sudah punya akun?",
     "goToRegister": "Daftar",
     "goToLogin": "Masuk"
-  }
+  },
+    "login": {
+      "title": "Masuk ke akun",
+      "description": "Masukkan email Google Anda melalui tombol di bawah untuk masuk ke akun Anda",
+      "googleButton": "Masuk dengan Google",
+      "noAccount": "Belum punya akun?",
+      "signUp": "Daftar",
+      "termsText": "Dengan mengklik Masuk, Anda menyetujui",
+      "termsOfService": "Syarat dan Ketentuan",
+      "privacyPolicy": "Kebijakan Privasi"
+    }
 }

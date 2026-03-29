@@ -40,5 +40,25 @@
     "hasAccount": "Already have an account?",
     "goToRegister": "Sign up",
     "goToLogin": "Sign in"
+  },
+  "login": {
+    "title": "Login to an account",
+    "description": "Enter your Google email by clicking the button below to access your account",
+    "googleButton": "Log in with Google",
+    "noAccount": "Don’t have an account?",
+    "signUp": "Sign up",
+    "termsText": "By clicking Login, you agree to our",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "register": {
+    "title": "Create an account",
+    "description": "Enter your Google email by clicking the button below to create your account",
+    "googleButton": "Sign up with Google",
+    "hasAccount": "Already have an account?",
+    "login": "Log in",
+    "termsText": "By clicking sign up, you agree to our",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy"
   }
 }
