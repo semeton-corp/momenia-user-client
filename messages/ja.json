@@ -40,5 +40,25 @@
     "hasAccount": "すでにアカウントをお持ちですか？",
     "goToRegister": "新規登録",
     "goToLogin": "サインイン"
+  },
+  "login": {
+    "title": "アカウントにログイン",
+    "description": "下のボタンをクリックして、Googleメールでアカウントにログインしてください",
+    "googleButton": "Googleでログイン",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "signUp": "登録",
+    "termsText": "ログインをクリックすることで、",
+    "termsOfService": "利用規約",
+    "privacyPolicy": "プライバシーポリシー"
+  },
+  "register": {
+    "title": "アカウントを作成",
+    "description": "下のボタンをクリックして、Googleメールでアカウントを作成してください",
+    "googleButton": "Googleで登録",
+    "hasAccount": "すでにアカウントをお持ちですか？",
+    "login": "ログイン",
+    "termsText": "登録をクリックすることで、",
+    "termsOfService": "利用規約",
+    "privacyPolicy": "プライバシーポリシー"
   }
 }
