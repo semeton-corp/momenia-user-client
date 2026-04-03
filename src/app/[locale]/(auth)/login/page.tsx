@@ -22,7 +22,7 @@ export default function LoginPage() {
         <div className="absolute w-[700px] h-[300px] bg-purple-500/40 blur-[120px] rounded-full top-[10%] left-1/2 -translate-x-1/2 z-0" />
 
         {/* back envelope */}
-        <div className="absolute bottom-0 left-0 w-full h-[95vh]">
+        <div className="absolute bottom-0 left-0 w-full h-[95vh] px-3">
           <svg
             viewBox="0 0 1440 400"
             className="w-full h-full"
@@ -41,7 +41,7 @@ export default function LoginPage() {
           <div className="
             h-[80vh] overflow-y-auto w-full 
             bg-white
-            rounded-3xl px-36 py-12 text-center z-10
+            rounded-3xl md:px-36 px-8 py-12 text-center z-10
             shadow-[0_8px_30px_rgba(0,0,0,0.15)]
             border border-white/40
             relative
@@ -49,9 +49,9 @@ export default function LoginPage() {
             <Image
               src={LogoMemoria}
               alt="Memoria Logo"
-              width={144}
-              height={144}
-              className="mx-auto pb-8 object-contain"
+              width={256}
+              height={256}
+              className="mx-auto pb-8 w-20 sm:w-32 md:w-48 lg:w-64 h-auto object-contain"
             />
             <h1 className="text-xl font-semibold mb-2">{t("title")}</h1>
             <p className="text-sm text-gray-500 mb-6">
@@ -91,9 +91,13 @@ export default function LoginPage() {
 
 
         {/* front envelope */}
-        <div className="absolute bottom-0 left-0 w-full h-[40vh] z-20 pointer-events-none overflow-hidden">
+        <div className="
+        absolute bottom-0 left-0 w-full h-[40vh]
+        translate-y-10
+        z-20 pointer-events-none overflow-hidden px-3
+        ">
           <div
-            className="w-full h-full bg-white/10 backdrop-blur-[20px]"
+            className="w-full h-full bg-white/10 backdrop-blur-[20px] "
             style={{
               clipPath:
                 "polygon(0 0, 40% 30%, 50% 20%, 60% 30%, 100% 0, 100% 100%, 0 100%)",
