@@ -7,13 +7,16 @@ import LogoGoogle from "@/assets/logo/logo-google.png"
 
 import { useTranslations } from "next-intl"
 import Link from "next/link"
+import { useGoogleOAuth } from "@/hooks/auth/useGoogleOAuth"
+import LoadingScreen from "@/components/ui/loadingScreen"
 
 export default function LoginPage() {
+  const { mutate, isPending } = useGoogleOAuth()
   const t = useTranslations("login")
 
   return (
     <main className="h-screen flex justify-center bg-[linear-gradient(to_bottom,#1e1b4b_45%,#4f46e5_70%,#7c3aed_100%)] relative overflow-hidden">
-
+      {isPending && <LoadingScreen />}
       <div className="absolute  bg-purple-500 opacity-40 blur-[120px] rounded-full bottom-0 right-0"></div>
 
       <div className="relative w-full max-w-4xl flex items-end justify-center px-8">
@@ -58,7 +61,13 @@ export default function LoginPage() {
               {t("description")}
             </p>
 
-            <button className="w-full flex cursor-pointer justify-center gap-2 bg-primary hover:bg-chart-2 text-white py-3 rounded-lg font-medium transition">
+            <button
+              onClick={() => {
+                localStorage.setItem("auth_type", "login")
+                mutate()
+              }}
+              className="w-full flex cursor-pointer justify-center gap-2 bg-primary hover:bg-chart-2 text-white py-3 rounded-lg font-medium transition"
+            >
               <Image
                 src={LogoGoogle}
                 alt="Google Logo"

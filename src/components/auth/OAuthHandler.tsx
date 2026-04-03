@@ -1,11 +1,12 @@
 "use client"
 
 import { useOAuthCallback } from "@/hooks/auth/useOAuthCallback"
-
-
+import LoadingScreen from "../ui/loadingScreen"
 
 export default function OAuthHandler() {
-    useOAuthCallback()
+    const { loading } = useOAuthCallback()
 
-    return null // no UI needed
+    if (loading) return <LoadingScreen />
+
+    return null
 }
