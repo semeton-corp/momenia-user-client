@@ -12,7 +12,111 @@
     "services": "Layanan",
     "contact": "Kontak"
   },
+  "navbar": {
+    "sections": {
+      "home": "Beranda",
+      "about": "Tentang",
+      "features": "Fitur",
+      "review": "Ulasan",
+      "faq": "FAQ"
+    },
+    "sheetTitle": "Navigasi",
+    "sheetLabel": "Navigasi",
+    "language": "Bahasa",
+    "signUp": "Daftar",
+    "login": "Masuk"
+  },
+  "landing": {
+    "hero": {
+      "headlineLine1": "Rancang, Kustomisasi, Bagikan",
+      "headlineLine2": "Semua dalam Satu Tempat",
+      "cta": "Buat undanganmu sekarang!"
+    },
+    "about": {
+      "title": "Tentang Kami",
+      "p1Part1": "MEMORIA adalah platform undangan berbasis web all-in-one yang dirancang untuk membantu orang ",
+      "p1Highlight": "membuat, mengelola, dan membagikan momen bermakna dengan mudah.",
+      "p1Part2": " Kami percaya bahwa setiap momen spesial layak mendapatkan lebih dari sekadar undangan biasa—undangan harus interaktif, personal, dan mudah dikelola tanpa membutuhkan keahlian teknis atau bantuan developer. Karena itu, MEMORIA memberdayakan kamu untuk mengontrol penuh undanganmu, mulai dari mendesain dan mengedit konten hingga mempublikasikan dan mengelola tamu, semuanya dalam satu platform yang mulus.",
+      "p2": "Dengan MEMORIA, kamu bisa membuat undangan digital yang indah dalam hitungan menit, mengubah detail kapan saja, dan membagikannya secara instan. Platform ini juga mendukung pelacakan RSVP serta memungkinkan tamu mengirim pesan dan hadiah digital, sehingga pengalaman jadi lebih interaktif. Di MEMORIA, kami bukan hanya membangun sebuah alat—kami menciptakan cara yang lebih cerdas, lebih sederhana, dan lebih berkesan untuk merayakan momen-momen terpenting dalam hidup."
+    },
+    "features": {
+      "titleSuffix": "Fitur",
+      "subtitle": "Semua yang kamu butuhkan untuk membuat, mengelola, dan membagikan undangan dengan mudah.",
+      "items": {
+        "selfEditable": {
+          "title": "Halaman Website yang Bisa Diedit Sendiri",
+          "description": "Kustomisasi undangan kapan saja tanpa perlu kemampuan teknis. Ubah konten, gambar, dan detail acara langsung dari perangkatmu."
+        },
+        "smartDashboard": {
+          "title": "Dashboard Pintar",
+          "description": "Kelola semua undanganmu dalam satu tempat lewat dashboard yang intuitif dan mudah digunakan."
+        },
+        "spotifyMusic": {
+          "title": "Musik dari Spotify",
+          "description": "Tambahkan sentuhan personal dengan lagu favorit dari Spotify untuk pengalaman undangan yang lebih imersif."
+        },
+        "rsvpDashboard": {
+          "title": "Dashboard RSVP Tamu",
+          "description": "Pantau kehadiran tamu secara real-time dan lihat ringkasan siapa saja yang akan datang."
+        },
+        "afterEventNotes": {
+          "title": "Catatan Setelah Acara",
+          "description": "Kirim ucapan terima kasih atau pesan setelah acara untuk membuat pengalaman jadi lebih bermakna."
+        },
+        "autoText": {
+          "title": "Teks Undangan Otomatis",
+          "description": "Buat wording undangan secara instan dengan bantuan teks, hemat waktu dan tenaga."
+        },
+        "addOnFeatures": {
+          "title": "Fitur Tambahan",
+          "description": "Lengkapi undangan dengan banyak fitur tambahan sesuai kebutuhan, agar setiap acara terasa lebih unik."
+        }
+      }
+    },
+    "catalog": {
+      "titleSuffix": "Katalog",
+      "subtitleLine1": "Pilih dari berbagai template yang menakjubkan,",
+      "subtitleLine2": "siap dikustomisasi dalam hitungan menit.",
+      "viewTemplate": "Lihat Template",
+      "viewAllTemplates": "Lihat Semua Template",
+      "prevAria": "Template sebelumnya",
+      "nextAria": "Template berikutnya"
+    },
+    "createNow": {
+      "title": "Mulai Sekarang!",
+      "subtitle1": "Mulai desain undangan digitalmu dalam hitungan menit",
+      "subtitle2": "tanpa coding, tanpa ribet.",
+      "cta": "Mulai"
+    },
+    "faq": {
+      "titlePrefix": "FAQ",
+      "subtitle": "Semua yang perlu kamu ketahui sebelum membuat undangan digitalmu.",
+      "items": {
+        "editAfterPublish": {
+          "q": "Apakah saya bisa mengedit undangan setelah dipublikasikan?",
+          "a": "Bisa. Kamu dapat memperbarui undangan kapan saja, bahkan setelah dipublikasikan. Semua perubahan akan langsung terlihat."
+        },
+        "startCreating": {
+          "q": "Bagaimana cara mulai membuat undangan?",
+          "a": "Mulai dengan memilih template, sesuaikan detail acaramu, lalu publikasikan dan bagikan link undangan dalam hitungan menit."
+        },
+        "shareWithGuests": {
+          "q": "Bagaimana cara membagikan undangan kepada tamu?",
+          "a": "Setelah dipublikasikan, kamu bisa membagikan link undangan lewat WhatsApp, Instagram, email, atau platform apa pun yang kamu gunakan."
+        },
+        "trackRsvp": {
+          "q": "Apakah saya bisa melacak siapa yang sudah melihat atau merespons undangan?",
+          "a": "Bisa. Kamu dapat memantau status RSVP dan respons tamu dari dashboard, jadi kamu selalu tahu siapa yang sudah mengonfirmasi atau membuka undangan."
+        },
+        "suitableEvents": {
+          "q": "Apakah Memoria cocok untuk berbagai jenis acara?",
+          "a": "Tentu. Memoria cocok untuk pernikahan, ulang tahun, acara kantor, dan banyak acara lainnya—tinggal pilih template yang sesuai."
+        }
+      }
+    }
+  },
   "footer": {
+    "copyright": "© 2026 Memoria. Hak cipta dilindungi. Dirancang untuk membuat momenmu lebih berkesan.",
     "builtBy": "Dibuat oleh",
     "sourceCode": "Kode sumber tersedia di",
     "github": "GitHub"

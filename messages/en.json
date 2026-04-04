@@ -12,7 +12,111 @@
     "services": "Services",
     "contact": "Contact"
   },
+  "navbar": {
+    "sections": {
+      "home": "Home",
+      "about": "About",
+      "features": "Features",
+      "review": "Review",
+      "faq": "FAQ"
+    },
+    "sheetTitle": "Navigation",
+    "sheetLabel": "Nav",
+    "language": "Language",
+    "signUp": "Sign Up",
+    "login": "Login"
+  },
+  "landing": {
+    "hero": {
+      "headlineLine1": "Design, Customize, Share",
+      "headlineLine2": "All in One Place",
+      "cta": "Create your invitation now!"
+    },
+    "about": {
+      "title": "About Us",
+      "p1Part1": "MEMORIA is an all in one web based invitation platform designed to help people ",
+      "p1Highlight": "create, manage, and share meaningful moments effortlessly.",
+      "p1Part2": " We believe that every special occasion deserves more than just an ordinary invitation, it should be interactive, personal, and easy to manage without requiring technical skills or relying on developers. That's why MEMORIA empowers you to take full control of your invitations, from designing and editing content to publishing and managing guests, all within one seamless platform.",
+      "p2": "With MEMORIA, you can create beautiful digital invitations in minutes, customize details anytime, and share them instantly. The platform also enables RSVP tracking and allows guests to send messages and digital gifts, creating a more engaging experience. At MEMORIA, we are not just building a tool, we are creating a smarter, simpler, and more memorable way to celebrate life's most important moments."
+    },
+    "features": {
+      "titleSuffix": "Features",
+      "subtitle": "Everything you need to create, manage, and share your invitation effortlessly.",
+      "items": {
+        "selfEditable": {
+          "title": "Self Editable Website Page",
+          "description": "Easily customize your invitation anytime without needing technical skills. Update content, images, and event details directly from your own device."
+        },
+        "smartDashboard": {
+          "title": "Smart Dashboard",
+          "description": "Manage all your invitations in one place with an intuitive dashboard designed for efficiency and ease of use."
+        },
+        "spotifyMusic": {
+          "title": "Music from Spotify",
+          "description": "Add a personal touch by adding your favorite Spotify song to create a more immersive invitation experience."
+        },
+        "rsvpDashboard": {
+          "title": "Guest's RSVP Dashboard",
+          "description": "Track guest attendance in real time and get a clear overview of who's coming to your event."
+        },
+        "afterEventNotes": {
+          "title": "After Event Notes",
+          "description": "Send thank you messages or follow-up notes to your guests after the event, making your experience more meaningful."
+        },
+        "autoText": {
+          "title": "Automated Invitation Text",
+          "description": "Generate invitation wording instantly with text assistance, saving time and effort."
+        },
+        "addOnFeatures": {
+          "title": "Add on Features",
+          "description": "Extend your invitation with many more additional features tailored to your needs, making every event truly unique."
+        }
+      }
+    },
+    "catalog": {
+      "titleSuffix": "Catalog",
+      "subtitleLine1": "Choose from a wide range of stunning templates,",
+      "subtitleLine2": "ready to customize in minutes.",
+      "viewTemplate": "View Template",
+      "viewAllTemplates": "View All Templates",
+      "prevAria": "Previous template",
+      "nextAria": "Next template"
+    },
+    "createNow": {
+      "title": "Create Now!",
+      "subtitle1": "Start designing your digital invitation in minutes",
+      "subtitle2": "no coding, no hassle.",
+      "cta": "Get Started"
+    },
+    "faq": {
+      "titlePrefix": "FAQ",
+      "subtitle": "Everything you need to know before creating your digital invitation.",
+      "items": {
+        "editAfterPublish": {
+          "q": "Can I edit my invitation after publishing it?",
+          "a": "Yes, you can update your invitation anytime, even after it has been published. All changes will be reflected instantly."
+        },
+        "startCreating": {
+          "q": "How do I start creating my invitation?",
+          "a": "Start by selecting a template, customize your event details, then publish and share your invitation link in minutes."
+        },
+        "shareWithGuests": {
+          "q": "How do I share my invitation with guests?",
+          "a": "After publishing, you can share your invitation link directly via WhatsApp, Instagram, email, or any platform you like."
+        },
+        "trackRsvp": {
+          "q": "Can I track who has seen or responded to my invitation?",
+          "a": "Yes. You can monitor RSVP status and guest responses from your dashboard, so you always know who has confirmed or opened the invitation."
+        },
+        "suitableEvents": {
+          "q": "Is Memoria suitable for different types of events?",
+          "a": "Absolutely. Memoria works great for weddings, birthdays, corporate events, and many other occasions—just pick a template that matches your vibe."
+        }
+      }
+    }
+  },
   "footer": {
+    "copyright": "© 2026 Memoria. All rights reserved. Designed to make your moments memorable.",
     "builtBy": "Built by",
     "sourceCode": "The source code is available on",
     "github": "GitHub"
