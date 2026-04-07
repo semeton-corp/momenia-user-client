@@ -2,33 +2,12 @@ import { getTranslations } from "next-intl/server"
 
 export async function Footer() {
   const t = await getTranslations("footer")
-
   return (
-    <footer className="bg-background w-full border-t py-6">
-      <div className="container mx-auto flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-        <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-          <p className="text-muted-foreground text-center text-sm leading-loose md:text-left">
-            {t("builtBy")}{" "}
-            <a
-              href="https://github.com/semeton-corp"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium underline underline-offset-4"
-            >
-              Semeton Corp
-            </a>
-            ❤️. {t("sourceCode")}{" "}
-            <a
-              href="https://github.com/semeton-corp/memoria-client"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium underline underline-offset-4"
-            >
-              {t("github")}
-            </a>
-            .
-          </p>
-        </div>
+    <footer className="w-full bg-[var(--chart-5)] py-8 md:py-10">
+      <div className="mx-auto w-full max-w-[1600px] px-4 md:px-12">
+        <p className="text-center text-sm font-semibold text-white/90 md:text-base" style={{ fontFamily: "var(--font-geist-sans)" }}>
+          {t("copyright")}
+        </p>
       </div>
     </footer>
   )
