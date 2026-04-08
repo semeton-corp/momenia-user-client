@@ -5,9 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build:staging": "dotenv -e .env.staging -- next build",
-    "start:staging": "next start -p 3001",
     "build:prod": "dotenv -e .env.production -- next build",
-    "start:prod": "next start -p 3000",
+    "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
