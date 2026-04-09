@@ -57,7 +57,6 @@ export default function LoginPage() {
               className="mx-auto pb-8 w-20 sm:w-32 md:w-48 lg:w-64 h-auto object-contain"
             />
             <h1 className="text-xl font-semibold mb-2">{t("title")}</h1>
-            <p>TESTING FOR AUTOMATION</p>
             <p className="text-sm text-gray-500 mb-6">
               {t("description")}
             </p>
