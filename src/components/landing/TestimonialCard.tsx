@@ -13,8 +13,6 @@ type Props = {
   rating?: number
   className?: string
   isExpanded?: boolean
-  expandedWidth?: number
-  pillWidth?: number
 }
 
 // Tambahkan 'as const' pada property type agar TypeScript tidak komplain
@@ -32,8 +30,6 @@ export function TestimonialCard({
   rating = 5,
   className,
   isExpanded = true,
-  expandedWidth = 340,
-  pillWidth = 80,
 }: Props) {
   const safeRating = Math.max(0, Math.min(5, Math.floor(rating)))
 
@@ -41,12 +37,12 @@ export function TestimonialCard({
     <motion.div
       initial={false}
       animate={{
-        width: isExpanded ? expandedWidth : pillWidth,
+        width: isExpanded ? 364 : 84,
       }}
       transition={smoothTransition}
       className={[
         "relative flex flex-col overflow-hidden bg-white rounded-[24px] shadow-[4px_4px_12.5px_rgba(0,0,0,0.1),_-1px_-1px_3.8px_rgba(0,0,0,0.04)]",
-        "h-[340px] shrink-0",
+        "h-[353px] shrink-0",
         className,
       ]
         .filter(Boolean)
@@ -57,11 +53,11 @@ export function TestimonialCard({
         initial={false}
         animate={{ opacity: isExpanded ? 1 : 0 }}
         transition={{ duration: 0.2 }}
-        className="absolute inset-0 flex flex-col justify-between p-7 md:p-8"
-        style={{ pointerEvents: isExpanded ? "auto" : "none", width: expandedWidth, fontFamily: "var(--font-geist-sans)" }}
+        className="absolute inset-0 flex w-[364px] flex-col justify-between p-8 md:p-9"
+        style={{ pointerEvents: isExpanded ? "auto" : "none" }}
       >
         <div className="flex flex-col gap-3">
-          <p className="text-[17px] font-normal leading-[1.5] text-zinc-900 md:text-[18px]">{quote}</p>
+          <p className="text-[17px] leading-[1.5] text-zinc-900 md:text-[18px]">{quote}</p>
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, idx) => (
               <Star
@@ -86,7 +82,7 @@ export function TestimonialCard({
             </div>
             <div className="flex min-w-0 flex-col">
               <div className="text-xl font-semibold leading-snug text-zinc-900">{name}</div>
-              <div className="text-sm font-normal leading-snug text-zinc-500">{product}</div>
+              <div className="text-sm leading-snug text-zinc-500">{product}</div>
             </div>
           </div>
         </div>
@@ -97,8 +93,8 @@ export function TestimonialCard({
         initial={false}
         animate={{ opacity: isExpanded ? 0 : 1 }}
         transition={{ duration: 0.2 }}
-        className="absolute inset-0 flex flex-col items-center justify-between py-9"
-        style={{ pointerEvents: isExpanded ? "none" : "auto", width: pillWidth }}
+        className="absolute inset-0 flex w-[84px] flex-col items-center justify-between py-9"
+        style={{ pointerEvents: isExpanded ? "none" : "auto" }}
       >
         <Quote className="h-10 w-10 text-indigo-600" fill="currentColor" strokeWidth={0} />
         <div className="relative mt-auto h-14 w-14 shrink-0 overflow-hidden rounded-full bg-zinc-200">
