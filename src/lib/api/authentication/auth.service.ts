@@ -35,6 +35,18 @@ export const getGoogleOAuth = async (): Promise<OAuthResponse> => {
     })
 }
 
+export const getOauthSignUpGoogle = async (): Promise<OAuthResponse> => {
+    return http(`${BASE_USERS}/signup/google`, {
+        method: "GET",
+    })
+}
+
+export const getOauthSignInGoogle = async (): Promise<OAuthResponse> => {
+    return http(`${BASE_USERS}/signin/google`, {
+        method: "GET",
+    })
+}
+
 export const refreshToken = async (
     data: RefreshTokenRequest
 ): Promise<RefreshTokenResponse> => {

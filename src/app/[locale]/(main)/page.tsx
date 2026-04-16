@@ -7,7 +7,6 @@ import { CatalogSection } from "@/components/landing/CatalogSection"
 import { CreateNowBanner } from "@/components/landing/CreateNowBanner"
 import { FaqSection } from "@/components/landing/FaqSection"
 import { TestimonialSection } from "@/components/landing/TestimonialSection"
-import OAuthHandler from "@/components/auth/OAuthHandler"
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -20,7 +19,6 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 pb-12">
-      <OAuthHandler />
       <HeroSection />
       <div className="relative isolate w-full overflow-hidden">
         <div
