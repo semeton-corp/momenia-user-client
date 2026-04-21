@@ -59,10 +59,16 @@ const testimonials: Testimonial[] = [
 ]
 
 export function TestimonialSection() {
-  const [activeVirtualIdx, setActiveVirtualIdx] = React.useState(1)
+  const [activeVirtualIdx, setActiveVirtualIdx] = React.useState(2)
   const [isAnimating, setIsAnimating] = React.useState(false)
+  const [viewportWidth, setViewportWidth] = React.useState(0)
 
-  const activeIdx = ((activeVirtualIdx % testimonials.length) + testimonials.length) % testimonials.length
+  React.useEffect(() => {
+    const update = () => setViewportWidth(window.innerWidth)
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [])
 
   const handleNext = () => {
     if (isAnimating) return
@@ -78,13 +84,30 @@ export function TestimonialSection() {
     window.setTimeout(() => setIsAnimating(false), 420)
   }
 
-  // Array offset bayangan untuk memaksa render 11 elemen sekaligus (looping data)
-  const visibleOffsets = [ -4, -3, -2, -1, 0, 1, 2, 3, 4,]
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isAnimating) {
+        setIsAnimating(true)
+        setActiveVirtualIdx((prev) => prev + 1)
+        window.setTimeout(() => setIsAnimating(false), 420)
+      }
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [activeVirtualIdx, isAnimating])
+
+  const isDesktop = viewportWidth >= 1024
+  const isTablet = viewportWidth >= 768 && viewportWidth < 1024
+  const isMobile = viewportWidth < 768
+
+  const expandedWidth = isDesktop ? 340 : isTablet ? 320 : 260
+  const pillWidth = viewportWidth >= 768 ? 80 : 60
+
+  const visibleOffsets = isDesktop ? [-4, -3, -2, -1, 0, 1, 2, 3, 4] : [-2, -1, 0, 1, 2]
 
   return (
-    <section className="relative w-full overflow-x-hidden" aria-label="Testimonials">
-      
-      {/* Background Section (tetap full-width) */}
+    <section id="review" className="relative w-full overflow-x-hidden" aria-label="Testimonials">
+      {/* Background Section */}
       <div className="pointer-events-none absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2400&auto=format&fit=crop"
@@ -99,26 +122,30 @@ export function TestimonialSection() {
 
       {/* Kontainer Utama */}
       <div className="relative z-10 w-full px-4 py-10 md:px-6 md:py-14 lg:py-16">
-        
-        {/* max-w untuk tombol ditarik jauh keluar container */}
         <div className="relative mx-auto flex w-full max-w-[1500px] items-center justify-center">
           
-          {/* Tombol Back: Digeser jauh ke luar menggunakan md:left-6 lg:left-12 xl:left-24 */}
-          <button
+          {/* Tombol Back */}
+          <button 
             onClick={handlePrev}
             disabled={isAnimating}
-            className="absolute left-2 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-sm backdrop-blur transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 md:left-6 lg:left-12 xl:left-24"
+            className="absolute left-3 top-1/2 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-sm backdrop-blur transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 md:left-6 lg:left-12 xl:left-24"
             aria-label="Previous testimonial"
             type="button"
+            style={{
+              transform: isMobile
+                ? "translate3d(-10px, -50%, 0)"   // sedikit mendekat ke card di mobile
+                : isTablet
+                  ? "translate3d(-12px, -50%, 0)"
+                  : "translate3d(calc(-1 * clamp(36px, 14vw, 220px)), -50%, 0)",
+            }}
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
 
-          {/* Container Card Stack dengan batas max-w sendiri agar rapi di tengah */}
+          {/* Container Card Stack */}
           <div
             className="relative w-full max-w-[1400px]"
-            // Tentukan card-step yang lega agar card tidak saling tumpang tindih
-            style={{ height: "420px", ["--card-step" as any]: "clamp(390px, 30vw, 420px)" }}
+            style={{ height: "420px", ["--card-step" as string]: "clamp(390px, 30vw, 420px)" }}
           >
             {visibleOffsets.map((offset) => {
               const virtualIndex = activeVirtualIdx + offset
@@ -128,89 +155,123 @@ export function TestimonialSection() {
               const absOffset = Math.abs(offset)
               const sign = Math.sign(offset)
 
-              const isExpanded = absOffset <= 1
-              
-              // KUNCI: Scale dikunci di 1. Tidak ada yang membesar/mengecil!
-              const scale = 1 
-              
-              // KUNCI PERBAIKAN: Opacity dikunci di 1. Tidak ada yang pudar!
-              const opacity = 1
-              const blur = 0 // Blur juga dimatikan
+              // Penentuan Expand: Desktop expand 3 card, Tablet hanya 1 di tengah, Mobile hanya 1 di tengah
+              const showExpandedNeighbors = isDesktop
+              const isExpanded = absOffset === 0 || (showExpandedNeighbors && absOffset === 1)
+
+              const isMobileStack = isMobile && absOffset >= 1 // stack kiri/kanan di mobile
+
+              const scale = 1
+              const blur = 0
+              let opacity = 1
               const zIndex = 10 - absOffset
 
-              // Perhitungan Posisi X yang lebih aman agar tidak tabrakan
-              const expandedWidth = 364
-              const pillWidth = 84
-              const gap = 24 // Jarak antar card
+              // Mobile stack dibuat lebih "di dalam" supaya tidak menimpa tombol, dan tidak menarik perhatian.
+              const mobileStackExtraInset = isMobileStack ? 18 : 0
 
+              const gap = isDesktop ? 24 : 16
               let xOffset = 0
+
               if (absOffset === 1) {
-                xOffset = sign * (expandedWidth + gap)
+                if (isDesktop) {
+                  xOffset = sign * (expandedWidth + gap)
+                } else if (isTablet) {
+                  xOffset = sign * (expandedWidth / 2 + gap + pillWidth / 2)
+                } else {
+                  // Mobile: stack tepat di belakang card utama, mengintip sedikit (lebih masuk agar tidak menabrak tombol)
+                  const peekAmount = 2
+                  xOffset = sign * (expandedWidth / 2 + peekAmount - mobileStackExtraInset)
+                }
               } else if (absOffset >= 2) {
-                // Tentukan titik mulai tumpukan pil
-                const base = expandedWidth + gap + expandedWidth / 2 + pillWidth / 2 + gap
-                // Geser pil ke-1, ke-2, ke-3 berdasarkan urutannya
-                const stackIndex = absOffset - 2
-                // stackX adalah jarak pergeseran antar tumpukan pil
-                xOffset = sign * (base + stackIndex * 28)
+                if (isDesktop) {
+                  const base = expandedWidth + gap + expandedWidth / 2 + pillWidth / 2 + gap
+                  const stackIndex = absOffset - 2
+                  xOffset = sign * (base + stackIndex * 28)
+                } else if (isTablet) {
+                  const base = expandedWidth / 2 + gap + pillWidth / 2 + gap
+                  const stackIndex = absOffset - 2
+                  xOffset = sign * (base + stackIndex * 24)
+                } else {
+                  // Mobile: lebih masuk & lebih redup
+                  const base = expandedWidth / 2 + 6
+                  const stackIndex = absOffset - 2
+                  xOffset = sign * (base + stackIndex * 6 - mobileStackExtraInset)
+                  opacity = 0.18
+                }
               }
 
               return (
                 <motion.div
-                  key={virtualIndex} // Wajib virtualIndex agar FramerMotion bisa melacak pergeserannya
+                  key={virtualIndex}
                   initial={false}
                   animate={{
                     x: xOffset,
                     y: "-50%",
-                    scale, // Tetap 1
-                    opacity, // Tetap 1
+                    scale,
+                    opacity,
                     filter: blur === 0 ? "none" : `blur(${blur}px)`,
+                    width: isExpanded ? expandedWidth : pillWidth,
                   }}
                   transition={{
                     x: { type: "spring", stiffness: 240, damping: 30 },
                     y: { type: "spring", stiffness: 240, damping: 30 },
                     opacity: { duration: 0.2 },
-                    scale: { type: "spring", stiffness: 240, damping: 30 },
+                    width: { type: "spring", stiffness: 240, damping: 30 },
                   }}
                   className={[
                     "absolute left-1/2 top-1/2 flex justify-center -translate-x-1/2",
-                    isExpanded ? "w-full max-w-[364px]" : `w-[${pillWidth}px]`,
-                    absOffset === 1 ? "hidden md:flex" : "",
-                    // Pil akan ditumpuk sampai 3 tingkat di layer desktop (offset 2, 3, 4)
-                    absOffset >= 2 && absOffset <= 4 ? "hidden xl:flex" : "",
-                    absOffset === 0 ? "!flex" : "" // Memastikan yang tengah selalu muncul (mobile)
+                    // Mobile stacked white box: jangan clip (bisa bikin "bayangan" pinggir terlihat)
+                    !isMobileStack && "overflow-hidden",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                   style={{ transformOrigin: "center", zIndex }}
                 >
-                  <TestimonialCard
-                    quote={t.quote}
-                    name={t.name}
-                    product={t.product}
-                    avatarSrc={t.avatarSrc}
-                    rating={t.rating}
-                    isExpanded={isExpanded} 
-                  />
+                  {/* MOBILE: untuk card yang ditumpuk kiri/kanan, pakai kotak putih sederhana (tanpa shadow) */}
+                  {isMobileStack ? (
+                    <div
+                      className="pointer-events-none rounded-[24px] bg-white shadow-none"
+                      style={{
+                        width: 210,
+                        height: 300,
+                        boxShadow: "none",
+                      }}
+                    />
+                  ) : (
+                    <TestimonialCard
+                      quote={t.quote}
+                      name={t.name}
+                      product={t.product}
+                      avatarSrc={t.avatarSrc}
+                      rating={t.rating}
+                      isExpanded={isExpanded}
+                      expandedWidth={expandedWidth}
+                      pillWidth={pillWidth}
+                    />
+                  )}
                 </motion.div>
               )
             })}
           </div>
 
-          {/* Tombol Next: Digeser jauh ke luar menggunakan md:right-6 lg:right-12 xl:right-24 */}
+          {/* Tombol Next */}
           <button
             onClick={handleNext}
             disabled={isAnimating}
-            className="absolute right-2 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-sm backdrop-blur transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 md:right-6 lg:right-12 xl:right-24"
+            className="absolute right-3 top-1/2 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-sm backdrop-blur transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 md:right-6 lg:right-12 xl:right-24"
             aria-label="Next testimonial"
             type="button"
+            style={{
+              transform: isMobile
+                ? "translate3d(10px, -50%, 0)"    // sedikit mendekat ke card di mobile
+                : isTablet
+                  ? "translate3d(12px, -50%, 0)"
+                  : "translate3d(clamp(36px, 14vw, 220px), -50%, 0)",
+            }}
           >
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
-        
-        {/* Kontainer Mobile Nav (dihilangkan karena tombol sudah di kiri-kanan) */}
-        
       </div>
     </section>
   )

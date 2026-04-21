@@ -35,8 +35,6 @@ const templates = [
   },
 ]
 
-// PERUBAHAN: Kita gandakan array-nya di balik layar menjadi 10 item.
-// Ini memberikan elemen "buffer" tersembunyi agar animasi looping sangat mulus dan tidak ada yang "terbang".
 const displayTemplates = [
   ...templates,
   ...templates.map((t) => ({ ...t, id: `${t.id}-dup` })),
@@ -48,7 +46,6 @@ export function CatalogSection() {
   const t = useTranslations("landing.catalog")
   const tCommon = useTranslations("common")
 
-  // PERUBAHAN: Menggunakan panjang dari displayTemplates (10)
   const activeIdx = ((activeVirtualIdx % displayTemplates.length) + displayTemplates.length) % displayTemplates.length
   const activeTemplate = displayTemplates[activeIdx]
 
@@ -135,9 +132,6 @@ export function CatalogSection() {
             const zIndex = 30 - absOffset * 2
             const step = absOffset === 1 ? 84 : 76 
             const blurPx = isActive ? 0 : absOffset === 1 ? 1.5 : 2.5
-            
-            // PERUBAHAN: Kini kita menampilkan HINGGA 2 item di setiap sisi (Total 5 item terlihat di layar).
-            // Sisanya (offset 3 dan 4) akan menjadi 0 opacity (tak terlihat) saat mereka berputar dari ujung ke ujung.
             const isVisible = absOffset <= 2
             
             return (
@@ -156,13 +150,13 @@ export function CatalogSection() {
                 style={{ aspectRatio: "438/798", transformOrigin: "center" }}
               >
                 <div 
-                   className="absolute overflow-hidden bg-transparent flex flex-col justify-center"
+                   className="absolute overflow-hidden bg-transparent flex flex-col justify-end"
                    style={{ 
                       left: "8.9%", top: "2.5%", width: "82.2%", height: "92.5%",
                       borderRadius: "max(24px, 5%)" 
                    }}
                 >
-                  <div className="w-full" style={{ height: "88.7%" }}>
+                  <div className="w-full" style={{ height: "94%" }}>
                     <div className="flex h-full w-full flex-col">
                       <div className="flex-1 p-3 md:p-4">
                         <div 
@@ -172,7 +166,8 @@ export function CatalogSection() {
                           <Image src={template.image} alt={template.title} fill className="object-cover" />
                         </div>
                       </div>
-                      <div className="flex shrink-0 flex-col items-center justify-center gap-2 px-4 pb-4 md:px-5 md:pb-5 opacity-0">
+                      {/* DIUBAH: pb-3 jadi pb-5, md:pb-4 jadi md:pb-6 agar sedikit terdorong ke atas */}
+                      <div className="flex shrink-0 flex-col items-center justify-center gap-2 px-4 pb-5 md:px-5 md:pb-6 opacity-0">
                         <h3 className="text-[10px] md:text-sm">{template.title}</h3>
                         <button className="py-1.5 md:py-2">{t("viewTemplate")}</button>
                       </div>
@@ -189,16 +184,17 @@ export function CatalogSection() {
             style={{ aspectRatio: "438/798" }}
           >
              <div
-               className="absolute flex flex-col justify-center"
+               className="absolute flex flex-col justify-end"
                style={{
                   left: "8.9%", top: "2.5%", width: "82.2%", height: "92.5%"
                }}
              >
-                <div className="w-full" style={{ height: "88.7%" }}>
+                <div className="w-full" style={{ height: "94%" }}>
                   <div className="flex h-full w-full flex-col">
                     <div className="flex-1 p-3 md:p-4" />
 
-                    <div className="flex shrink-0 flex-col items-center justify-center gap-2 px-4 pb-4 md:px-5 md:pb-5">
+                    {/* DIUBAH: pb-3 jadi pb-5, md:pb-4 jadi md:pb-6 agar sedikit terdorong ke atas sinkron dengan LAYER 2 */}
+                    <div className="flex shrink-0 flex-col items-center justify-center gap-2 px-4 pb-5 md:px-5 md:pb-6">
                       <motion.h3
                         key={activeTemplate.id}
                         initial={{ opacity: 0, y: 3 }}
