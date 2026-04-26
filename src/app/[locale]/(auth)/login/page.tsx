@@ -50,7 +50,7 @@ export default function LoginPage() {
             ">
             <Image
               src={LogoMemoria}
-              alt="Memoria Logo"
+              alt="Momenia Logo"
               width={256}
               height={256}
               className="mx-auto pb-8 w-20 sm:w-32 md:w-48 lg:w-64 h-auto object-contain"

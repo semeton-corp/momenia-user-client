@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
-import { Menu, Mountain, Globe } from "lucide-react"
+import { Menu, Globe } from "lucide-react"
+import LogoMemoria from "@/assets/logo/logo-memoria.png"
 import { AnimatePresence, motion } from "framer-motion"
 
 import { Link, usePathname } from "@/i18n/navigation"
@@ -26,13 +28,11 @@ const sectionItems: SectionItem[] = [
 const localeLabels: Record<(typeof routing.locales)[number], string> = {
   id: "ID",
   en: "EN",
-  ja: "JA",
 }
 
 const localeNames: Record<(typeof routing.locales)[number], string> = {
   id: "Indonesia",
   en: "English",
-  ja: "日本語",
 }
 
 export function Navbar() {
@@ -41,13 +41,56 @@ export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)
   const [localeMenuOpen, setLocaleMenuOpen] = React.useState(false)
   const [mobileLocaleMenuOpen, setMobileLocaleMenuOpen] = React.useState(false)
-  const [isVisible, setIsVisible] = React.useState(true)
+  const [hasMounted, setHasMounted] = React.useState(false)
+  const [zoomLevel, setZoomLevel] = React.useState(1)
+  const [isDesktop, setIsDesktop] = React.useState(false)
+  const scaleWrapperRef = React.useRef<HTMLDivElement>(null)
   const tCommon = useTranslations("common")
   const tNavbar = useTranslations("navbar")
   const menuRef = React.useRef<HTMLDivElement>(null)
   const mobileMenuRef = React.useRef<HTMLDivElement>(null)
-  const lastScrollYRef = React.useRef(0)
-  const tickingRef = React.useRef(false)
+
+  React.useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
+  // Detect zoom via devicePixelRatio
+  React.useEffect(() => {
+    const updateZoom = () => setZoomLevel(globalThis.devicePixelRatio || 1)
+    updateZoom()
+    globalThis.addEventListener("resize", updateZoom)
+    return () => globalThis.removeEventListener("resize", updateZoom)
+  }, [])
+
+  // Desktop breakpoint (lg = 1024px+). Below that (mobile + iPad/tablet), use sidebar.
+  React.useEffect(() => {
+    const mq = globalThis.matchMedia("(min-width: 1024px)")
+    setIsDesktop(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }, [])
+
+  // Scale mapping (desktop only): 100%→1.00, 110%→0.93, 125%→0.86, 150%→0.75
+  const zoomScale = React.useMemo(() => {
+    const z = Number.isFinite(zoomLevel) ? zoomLevel : 1
+    const clamped = Math.min(1.5, Math.max(1, z))
+    const progress = (clamped - 1) / 0.5
+    const scale = 1 - progress * 0.25
+    return Math.round(scale * 1000) / 1000
+  }, [zoomLevel])
+
+  const activeScale = isDesktop ? zoomScale : 1
+
+  // Compensate layout gap caused by transform: scale() on desktop
+  React.useEffect(() => {
+    const el = scaleWrapperRef.current
+    if (!el) return
+    const naturalHeight = el.scrollHeight
+    const compensation = (activeScale - 1) * naturalHeight
+    el.style.transition = "margin-bottom 200ms ease-out"
+    el.style.marginBottom = `${compensation}px`
+  }, [activeScale])
 
   React.useEffect(() => {
     if (!localeMenuOpen) return
@@ -72,7 +115,7 @@ export function Navbar() {
   }, [mobileLocaleMenuOpen])
 
   React.useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 768px)")
+  const mediaQuery = globalThis.matchMedia("(min-width: 1024px)")
     const update = () => {
       if (mediaQuery.matches) {
         setIsOpen(false)
@@ -85,40 +128,8 @@ export function Navbar() {
     return () => mediaQuery.removeEventListener("change", update)
   }, [])
 
-  React.useEffect(() => {
-    lastScrollYRef.current = window.scrollY
-    const threshold = 12
-
-    const update = () => {
-      const currentY = window.scrollY
-      const delta = currentY - lastScrollYRef.current
-
-      if (currentY <= 8) {
-        setIsVisible(true)
-        lastScrollYRef.current = currentY
-        tickingRef.current = false
-        return
-      }
-
-      if (delta > threshold) setIsVisible(false)
-      if (delta < -threshold) setIsVisible(true)
-
-      lastScrollYRef.current = currentY
-      tickingRef.current = false
-    }
-
-    const onScroll = () => {
-      if (tickingRef.current) return
-      tickingRef.current = true
-      window.requestAnimationFrame(update)
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
   const scrollToSection = (id: SectionItem["id"]) => {
-    const headerOffset = window.innerWidth >= 768 ? 80 : 64
+  const headerOffset = globalThis.innerWidth >= 1024 ? 80 : 64
     const extraOffset = 12
 
     if (id === "home") {
@@ -146,19 +157,25 @@ export function Navbar() {
       )}
       style={{ fontFamily: "var(--font-geist-sans)" }}
       initial={{ y: -72, opacity: 0 }}
-      animate={{ y: isVisible ? 0 : -120, opacity: 1 }}
+  animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 170, damping: 26, mass: 1.05 }}
     >
-      <div className="container relative mx-auto flex h-16 items-center px-4 md:h-20 md:px-8">
-        <div className="hidden md:flex items-center">
+      <div
+        ref={scaleWrapperRef}
+        style={{
+          transform: `scale(${activeScale})`,
+          transformOrigin: "top center",
+          transition: "transform 200ms ease-out",
+          willChange: "transform",
+        }}
+      >
+      <div className="container relative mx-auto flex h-16 items-center px-4 lg:h-20 lg:px-8">
+        <div className="hidden lg:flex items-center">
           <button type="button" onClick={() => handleSectionClick("home")} className="flex items-center space-x-3">
-            <Mountain className="h-7 w-7 md:h-8 md:w-8 text-primary" />
-            <span className="hidden font-bold sm:inline-block text-lg md:text-xl tracking-tight text-foreground">
-              {tCommon("siteName")}
-            </span>
+            <Image src={LogoMemoria} alt="Momenia" className="h-8 w-auto lg:h-9" />
           </button>
         </div>
-        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-10 text-sm md:text-base">
+        <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-10 text-sm lg:text-base">
           {sectionItems.map((item) => (
             <button
               key={item.id}
@@ -173,17 +190,16 @@ export function Navbar() {
         <button
           type="button"
           onClick={() => handleSectionClick("home")}
-          className="flex items-center gap-2 md:hidden"
+          className="flex items-center gap-2 lg:hidden"
         >
-          <Mountain className="h-7 w-7 text-primary" />
-          <span className="text-sm font-semibold text-foreground">{tCommon("siteName")}</span>
+          <Image src={LogoMemoria} alt="Momenia" className="h-7 w-auto" />
         </button>
 
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button
               variant="ghost"
-              className="ml-auto h-10 w-10 px-0 text-foreground hover:bg-accent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+              className="ml-auto h-10 w-10 px-0 text-foreground hover:bg-accent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 lg:hidden"
             >
               <Menu className="h-6 w-6" />
               <span className="sr-only">{tCommon("toggleMenu")}</span>
@@ -271,18 +287,18 @@ export function Navbar() {
           </SheetContent>
         </Sheet>
 
-        <div className="hidden md:flex ml-auto items-center gap-3 md:gap-4">
+    <div className="hidden lg:flex ml-auto items-center gap-3 lg:gap-4">
           <div className="relative" ref={menuRef}>
             <Button
               variant="outline"
               size="default"
-              className="h-9 gap-2 border-border/80 bg-white px-3 text-foreground shadow-sm hover:bg-accent hover:text-foreground md:h-10 md:px-4 font-medium"
+      className="h-9 gap-2 border-border/80 bg-white px-3 text-foreground shadow-sm hover:bg-accent hover:text-foreground lg:h-10 lg:px-4 font-medium"
               onClick={() => setLocaleMenuOpen((o) => !o)}
               type="button"
               aria-expanded={localeMenuOpen}
               aria-haspopup="true"
             >
-              <Globe className="h-4 w-4 md:h-5 md:w-5" />
+      <Globe className="h-4 w-4 lg:h-5 lg:w-5" />
               <span className="sr-only">{tNavbar("language")}</span>
               <span className="text-sm font-medium md:text-base">
                 {localeLabels[locale as keyof typeof localeLabels] ?? locale}
@@ -295,7 +311,7 @@ export function Navbar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.98 }}
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                  className="bg-background border-border absolute top-full right-0 z-50 mt-2 min-w-[8rem] rounded-lg border py-1.5 shadow-lg"
+      className="bg-background border-border absolute top-full right-0 z-50 mt-2 min-w-[8rem] rounded-lg border py-1.5 shadow-lg"
                 >
                   {routing.locales.map((loc) => (
                     <Link
@@ -303,7 +319,7 @@ export function Navbar() {
                       href={pathname}
                       locale={loc}
                       className={cn(
-                        "hover:bg-accent block w-full px-4 py-2.5 text-left text-sm md:text-base transition-colors",
+        "hover:bg-accent block w-full px-4 py-2.5 text-left text-sm lg:text-base transition-colors",
                         locale === loc ? "text-primary font-medium bg-accent/50" : "text-foreground/70",
                       )}
                       onClick={() => setLocaleMenuOpen(false)}
@@ -316,12 +332,12 @@ export function Navbar() {
             </AnimatePresence>
           </div>
           <div className="hidden sm:block h-8 w-px bg-border" />
-          <div className="hidden sm:flex items-center gap-2 md:gap-3">
+      <div className="hidden sm:flex items-center gap-2 lg:gap-3">
             <Link href="/register">
               <Button
                 size="default"
                 variant="outline"
-                className="h-9 px-4 font-medium border-primary text-primary hover:bg-primary/5 md:h-10 md:px-6"
+        className="h-9 px-4 font-medium border-primary text-primary hover:bg-primary/5 lg:h-10 lg:px-6"
               >
                 {tNavbar("signUp")}
               </Button>
@@ -329,7 +345,7 @@ export function Navbar() {
             <Link href="/login">
               <Button
                 size="default"
-                className="h-9 bg-primary px-4 font-medium text-primary-foreground hover:bg-primary/90 md:h-10 md:px-6"
+        className="h-9 bg-primary px-4 font-medium text-primary-foreground hover:bg-primary/90 lg:h-10 lg:px-6"
               >
                 {tNavbar("login")}
               </Button>
@@ -337,6 +353,7 @@ export function Navbar() {
           </div>
         </div>
       </div>
+  </div>
     </motion.header>
   )
 }
