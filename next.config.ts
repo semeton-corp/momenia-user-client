@@ -22,6 +22,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "is3.cloudhost.id",
+        pathname: "/**",
+      },
     ],
   },
   webpack(config: WebpackConfigLike) {
