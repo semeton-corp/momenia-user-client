@@ -6,12 +6,19 @@ import LogoGoogle from "@/assets/logo/logo-google.png"
 
 import { useTranslations } from "next-intl"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import LoadingScreen from "@/components/ui/loadingScreen"
 import { useSignInGoogleOAuth } from "@/hooks/auth/useGoogleOAuth"
 
 export default function LoginPage() {
   const { mutate, isPending } = useSignInGoogleOAuth()
   const t = useTranslations("login")
+  const router = useRouter()
+
+  const handleDemoLogin = () => {
+    localStorage.setItem("demo_user", "true")
+    router.push("/en/admin/templates")
+  }
 
   return (
     <main className="h-screen flex justify-center bg-[linear-gradient(to_bottom,#1e1b4b_45%,#4f46e5_70%,#7c3aed_100%)] relative overflow-hidden">
@@ -75,6 +82,19 @@ export default function LoginPage() {
                 className="object-contain"
               />
               {t("googleButton")}
+            </button>
+
+            <div className="relative flex items-center gap-3 py-5">
+              <div className="h-px flex-1 bg-gray-200" />
+              <span className="text-xs text-gray-400">atau</span>
+              <div className="h-px flex-1 bg-gray-200" />
+            </div>
+
+            <button
+              onClick={handleDemoLogin}
+              className="w-full flex cursor-pointer justify-center gap-2 border border-gray-200 text-gray-600 hover:bg-gray-50 py-3 rounded-lg font-medium text-sm transition"
+            >
+              Masuk sebagai Demo
             </button>
 
             <p className="text-xs text-gray-400 py-8">

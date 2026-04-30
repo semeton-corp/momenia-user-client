@@ -69,7 +69,7 @@ export const useOAuthCallback = () => {
                 localStorage.setItem("refreshToken", result.session.refreshToken)
                 localStorage.removeItem("auth_type")
 
-                router.replace(`/${locale}/dashboard`)
+                router.replace(`/${locale}/edit`)
             } catch (err) {
                 console.error(err)
                 setError(
