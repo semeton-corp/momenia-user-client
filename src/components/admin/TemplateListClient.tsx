@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { listTemplates, deleteTemplate, saveTemplate, createBlankTemplate } from "@/lib/invitation/template-store"
 import type { StoredTemplate } from "@/lib/invitation/template-store"
@@ -22,6 +22,7 @@ export default function TemplateListClient() {
   const [importJson, setImportJson] = useState("")
   const [importError, setImportError] = useState("")
   const [importLoading, setImportLoading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setTemplates(listTemplates())
@@ -42,6 +43,22 @@ export default function TemplateListClient() {
     if (!confirm(`Delete template "${id}"? This cannot be undone.`)) return
     deleteTemplate(id)
     setTemplates(listTemplates())
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const content = event.target?.result as string
+      setImportJson(content)
+      setImportError("")
+    }
+    reader.onerror = () => {
+      setImportError("Gagal membaca file")
+    }
+    reader.readAsText(file)
   }
 
   const handleImport = () => {
@@ -286,6 +303,28 @@ export default function TemplateListClient() {
             <h2 className="mb-4 text-base font-semibold text-gray-100">Import Template</h2>
 
             <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-xs font-medium text-gray-400">
+                  Select JSON File
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".json"
+                  onChange={handleFileSelect}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 file:mr-3 file:px-3 file:py-1 file:rounded file:border-0 file:bg-amber-600 file:text-xs file:font-semibold file:text-white hover:file:bg-amber-500 cursor-pointer"
+                />
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-700" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-gray-900 px-2 text-gray-500">Or paste JSON</span>
+                </div>
+              </div>
+
               <div>
                 <label className="mb-2 block text-xs font-medium text-gray-400">
                   Paste Template JSON

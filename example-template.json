@@ -1,0 +1,167 @@
+{
+  "template": {
+    "id": "minimalist-01",
+    "name": "Minimalist Modern",
+    "theme_defaults": {
+      "color_primary": "#1a1a1a",
+      "color_accent": "#d4af37",
+      "color_background": "#ffffff",
+      "font_title": "Playfair Display",
+      "font_body": "Inter"
+    },
+    "pages": [
+      {
+        "id": "cover",
+        "label": "Cover",
+        "sections": [
+          {
+            "id": "cover_section",
+            "section_type_id": "minimalist_cover"
+          }
+        ]
+      },
+      {
+        "id": "main",
+        "label": "Main Invitation",
+        "sections": [
+          {
+            "id": "hero_section",
+            "section_type_id": "minimalist_hero"
+          },
+          {
+            "id": "couple_section",
+            "section_type_id": "minimalist_couple"
+          },
+          {
+            "id": "details_section",
+            "section_type_id": "minimalist_details"
+          }
+        ]
+      }
+    ],
+    "schema": {
+      "fields": [
+        {
+          "key": "headline",
+          "label": "Nama Pasangan",
+          "type": "text",
+          "section": "hero_section",
+          "required": true,
+          "placeholder": "Budi & Rina"
+        },
+        {
+          "key": "couple_photo",
+          "label": "Foto Pasangan",
+          "type": "image",
+          "section": "cover_section",
+          "required": false,
+          "placeholder": "https://example.com/couple.jpg"
+        },
+        {
+          "key": "bride_name",
+          "label": "Nama Pengantin Wanita",
+          "type": "text",
+          "section": "couple_section",
+          "required": true,
+          "placeholder": "Rina Astuti"
+        },
+        {
+          "key": "groom_name",
+          "label": "Nama Pengantin Pria",
+          "type": "text",
+          "section": "couple_section",
+          "required": true,
+          "placeholder": "Budi Santoso"
+        },
+        {
+          "key": "bride_photo",
+          "label": "Foto Pengantin Wanita",
+          "type": "image",
+          "section": "couple_section",
+          "required": false,
+          "placeholder": "https://example.com/bride.jpg"
+        },
+        {
+          "key": "groom_photo",
+          "label": "Foto Pengantin Pria",
+          "type": "image",
+          "section": "couple_section",
+          "required": false,
+          "placeholder": "https://example.com/groom.jpg"
+        },
+        {
+          "key": "event_date",
+          "label": "Tanggal Acara",
+          "type": "date",
+          "section": "details_section",
+          "required": true
+        },
+        {
+          "key": "event_time",
+          "label": "Waktu Acara",
+          "type": "time",
+          "section": "details_section",
+          "required": true
+        },
+        {
+          "key": "venue_name",
+          "label": "Nama Venue",
+          "type": "text",
+          "section": "details_section",
+          "required": true,
+          "placeholder": "Gedung Balai Kartini"
+        },
+        {
+          "key": "venue_address",
+          "label": "Alamat Venue",
+          "type": "text",
+          "section": "details_section",
+          "required": false,
+          "placeholder": "Jl. Gatot Subroto No. 37, Jakarta Selatan"
+        }
+      ]
+    }
+  },
+  "sectionTypes": {
+    "minimalist_cover": {
+      "id": "minimalist_cover",
+      "html": "<section class=\"min-cover\">\n  <div class=\"min-cover__bg\">\n    <img data-field-img=\"couple_photo\" src=\"{{couple_photo}}\" alt=\"\" class=\"min-cover__img\" />\n    <div class=\"min-cover__overlay\"></div>\n  </div>\n  <div class=\"min-cover__content\">\n    <h1 class=\"min-cover__title\">{{headline}}</h1>\n    <p class=\"min-cover__subtitle\">Undangan Pernikahan</p>\n    <button class=\"min-cover__btn\">Buka Undangan ↓</button>\n  </div>\n</section>",
+      "css": ".min-cover {\n  position: relative;\n  height: 812px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  text-align: center;\n  background: var(--color-primary);\n  overflow: hidden;\n}\n.min-cover__bg {\n  position: absolute;\n  inset: 0;\n}\n.min-cover__img {\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  display: block;\n  filter: brightness(0.5);\n}\n.min-cover__overlay {\n  position: absolute;\n  inset: 0;\n  background: rgba(0, 0, 0, 0.4);\n}\n.min-cover__content {\n  position: relative;\n  z-index: 10;\n  color: var(--color-background);\n  padding: 2rem;\n}\n.min-cover__title {\n  font-family: var(--font-title);\n  font-size: 3.5rem;\n  font-weight: 300;\n  margin-bottom: 1rem;\n  line-height: 1.1;\n}\n.min-cover__subtitle {\n  font-family: var(--font-body);\n  font-size: 0.95rem;\n  letter-spacing: 0.2em;\n  text-transform: uppercase;\n  opacity: 0.8;\n  margin-bottom: 2.5rem;\n}\n.min-cover__btn {\n  background: transparent;\n  border: 1px solid var(--color-accent);\n  color: var(--color-accent);\n  padding: 0.8rem 2rem;\n  font-family: var(--font-body);\n  font-size: 0.9rem;\n  cursor: pointer;\n  transition: all 0.3s;\n}\n.min-cover__btn:hover {\n  background: var(--color-accent);\n  color: var(--color-primary);\n}",
+      "js": "(function() {\n  var btn = document.querySelector('.min-cover__btn');\n  if(btn) {\n    btn.addEventListener('click', function() {\n      window.__memoriaGoTo && window.__memoriaGoTo('main');\n    });\n  }\n})();",
+      "schema": {
+        "slots": ["headline", "couple_photo"],
+        "styles": []
+      }
+    },
+    "minimalist_hero": {
+      "id": "minimalist_hero",
+      "html": "<section class=\"min-hero\">\n  <div class=\"min-hero__content\">\n    <p class=\"min-hero__label\">The Wedding of</p>\n    <h1 class=\"min-hero__title\">{{headline}}</h1>\n    <div class=\"min-hero__divider\"></div>\n  </div>\n</section>",
+      "css": ".min-hero {\n  padding: 6rem 2rem;\n  background: var(--color-background);\n  text-align: center;\n}\n.min-hero__content {\n  max-width: 600px;\n  margin: 0 auto;\n}\n.min-hero__label {\n  font-family: var(--font-body);\n  font-size: 0.9rem;\n  letter-spacing: 0.3em;\n  text-transform: uppercase;\n  color: var(--color-accent);\n  margin-bottom: 1.5rem;\n}\n.min-hero__title {\n  font-family: var(--font-title);\n  font-size: clamp(2rem, 8vw, 4rem);\n  font-weight: 300;\n  color: var(--color-primary);\n  margin-bottom: 2rem;\n  line-height: 1.2;\n}\n.min-hero__divider {\n  width: 60px;\n  height: 2px;\n  background: var(--color-accent);\n  margin: 0 auto;\n}",
+      "js": "",
+      "schema": {
+        "slots": ["headline"],
+        "styles": []
+      }
+    },
+    "minimalist_couple": {
+      "id": "minimalist_couple",
+      "html": "<section class=\"min-couple\">\n  <div class=\"min-couple__container\">\n    <h2 class=\"min-couple__title\">The Couple</h2>\n    <div class=\"min-couple__grid\">\n      <div class=\"min-couple__person\">\n        <div class=\"min-couple__photo-frame\">\n          <img data-field-img=\"bride_photo\" src=\"{{bride_photo}}\" alt=\"\" class=\"min-couple__photo\" />\n        </div>\n        <h3 class=\"min-couple__name\">{{bride_name}}</h3>\n        <p class=\"min-couple__role\">Mempelai Wanita</p>\n      </div>\n      <div class=\"min-couple__divider-v\"></div>\n      <div class=\"min-couple__person\">\n        <div class=\"min-couple__photo-frame\">\n          <img data-field-img=\"groom_photo\" src=\"{{groom_photo}}\" alt=\"\" class=\"min-couple__photo\" />\n        </div>\n        <h3 class=\"min-couple__name\">{{groom_name}}</h3>\n        <p class=\"min-couple__role\">Mempelai Pria</p>\n      </div>\n    </div>\n  </div>\n</section>",
+      "css": ".min-couple {\n  padding: 5rem 2rem;\n  background: var(--color-primary);\n  color: var(--color-background);\n}\n.min-couple__container {\n  max-width: 600px;\n  margin: 0 auto;\n}\n.min-couple__title {\n  font-family: var(--font-title);\n  font-size: 2rem;\n  font-weight: 300;\n  text-align: center;\n  margin-bottom: 3rem;\n}\n.min-couple__grid {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 3rem;\n  flex-wrap: wrap;\n}\n.min-couple__person {\n  flex: 1;\n  min-width: 140px;\n  text-align: center;\n}\n.min-couple__photo-frame {\n  width: 160px;\n  height: 160px;\n  margin: 0 auto 1.5rem;\n  border: 1px solid var(--color-accent);\n  border-radius: 8px;\n  overflow: hidden;\n  background: #2a2a2a;\n}\n.min-couple__photo {\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  display: block;\n}\n.min-couple__name {\n  font-family: var(--font-title);\n  font-size: 1.3rem;\n  font-weight: 400;\n  margin-bottom: 0.5rem;\n}\n.min-couple__role {\n  font-family: var(--font-body);\n  font-size: 0.8rem;\n  color: var(--color-accent);\n  letter-spacing: 0.15em;\n  text-transform: uppercase;\n}\n.min-couple__divider-v {\n  width: 1px;\n  height: 120px;\n  background: rgba(255, 255, 255, 0.15);\n  flex-shrink: 0;\n}",
+      "js": "",
+      "schema": {
+        "slots": ["bride_name", "groom_name", "bride_photo", "groom_photo"],
+        "styles": []
+      }
+    },
+    "minimalist_details": {
+      "id": "minimalist_details",
+      "html": "<section class=\"min-details\">\n  <div class=\"min-details__container\">\n    <h2 class=\"min-details__title\">Wedding Details</h2>\n    <div class=\"min-details__grid\">\n      <div class=\"min-details__item\">\n        <p class=\"min-details__label\">📅 Date</p>\n        <p class=\"min-details__value\" data-field=\"event_date\">{{event_date}}</p>\n      </div>\n      <div class=\"min-details__item\">\n        <p class=\"min-details__label\">🕐 Time</p>\n        <p class=\"min-details__value\" data-field=\"event_time\">{{event_time}}</p>\n      </div>\n      <div class=\"min-details__item\">\n        <p class=\"min-details__label\">📍 Venue</p>\n        <p class=\"min-details__value\" data-field=\"venue_name\">{{venue_name}}</p>\n        <p class=\"min-details__address\" data-field=\"venue_address\">{{venue_address}}</p>\n      </div>\n    </div>\n  </div>\n</section>",
+      "css": ".min-details {\n  padding: 5rem 2rem;\n  background: var(--color-background);\n}\n.min-details__container {\n  max-width: 700px;\n  margin: 0 auto;\n}\n.min-details__title {\n  font-family: var(--font-title);\n  font-size: 2rem;\n  font-weight: 300;\n  text-align: center;\n  color: var(--color-primary);\n  margin-bottom: 3rem;\n}\n.min-details__grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n  gap: 2rem;\n}\n.min-details__item {\n  text-align: center;\n  padding: 2rem;\n  border: 1px solid #e0e0e0;\n  border-radius: 8px;\n}\n.min-details__label {\n  font-family: var(--font-body);\n  font-size: 0.9rem;\n  color: var(--color-accent);\n  margin-bottom: 0.8rem;\n}\n.min-details__value {\n  font-family: var(--font-title);\n  font-size: 1.2rem;\n  font-weight: 400;\n  color: var(--color-primary);\n  margin-bottom: 0.5rem;\n}\n.min-details__address {\n  font-family: var(--font-body);\n  font-size: 0.85rem;\n  color: #666;\n  line-height: 1.5;\n}",
+      "js": "",
+      "schema": {
+        "slots": ["event_date", "event_time", "venue_name", "venue_address"],
+        "styles": []
+      }
+    }
+  }
+}
