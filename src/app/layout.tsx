@@ -27,6 +27,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
+        style={{ fontFamily: "var(--font-geist-sans)" }}
       >
         <QueryProvider>
           {children}
