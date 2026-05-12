@@ -68,6 +68,8 @@ export function TestimonialSection({ testimonials: apiTestimonials, locale = "en
     return () => clearTimeout(timer)
   }, [activeVirtualIdx, isAnimating])
 
+  if (testimonials.length === 0) return null
+
   const isDesktop = viewportWidth >= 1024
   const isTablet = viewportWidth >= 768 && viewportWidth < 1024
   const isMobile = viewportWidth < 768

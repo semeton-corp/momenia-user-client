@@ -122,5 +122,52 @@
     "termsText": "By clicking sign up, you agree to our",
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy"
+  },
+  "dashboard": {
+    "sidebar": {
+      "template": "Template",
+      "myInvitation": "My Invitation",
+      "favorite": "Favorite",
+      "transaction": "Transaction"
+    },
+    "banner": {
+      "title": "Template Catalog",
+      "subtitle": "Discover the perfect invitation design for your special moments. Each template is curated by top designers to ensure exclusivity.",
+      "searchPlaceholder": "Search templates...",
+      "category": "Category",
+      "sort": "Sort"
+    },
+    "tags": {
+      "allStyles": "All styles",
+      "classy": "Classy",
+      "minimalism": "Minimalism",
+      "colorful": "Colorful",
+      "modern": "Modern",
+      "vintage": "Vintage",
+      "clean": "Clean",
+      "bold": "Bold",
+      "retro": "Retro",
+      "cute": "Cute",
+      "softColor": "Soft color"
+    },
+    "modal": {
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "demo": "Demo",
+      "seeAddOns": "See add ons and Payment",
+      "addOns": "Add ons",
+      "featureAddOns": "Feature Add ons",
+      "durationAddOns": "Duration Add ons",
+      "instagramFilter": "Instagram filter & add yours",
+      "multiLanguage": "Additional multi language invitation",
+      "galleryMomenia": "Gallery Momenia",
+      "galleryMomeniaDesc": "Gallery Momenia is an add-on feature that allows both hosts and guests to upload and share photos in one centralized gallery. Guests can easily contribute photos directly from their own devices, making the event more interactive and capturing moments from different perspectives.",
+      "customDomainLink": "Custom Domain Link",
+      "basic2week": "Basic 2 week duration",
+      "month3": "Basic + 3 Month invitation duration",
+      "month6": "Basic + 6 Month invitation duration",
+      "month8": "Basic + 8 Month invitation duration",
+      "continueToPayment": "Continue to Payment"
+    }
   }
 }
