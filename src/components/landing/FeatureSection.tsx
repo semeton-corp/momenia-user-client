@@ -40,10 +40,10 @@ export function FeatureSection({ features: apiFeatures, locale = "en", promoTitl
 
   const featuresData: FeatureItem[] = (apiFeatures ?? []).map((f) => ({
     id: String(f.id),
-    title: locale === "id" ? f.titleIdn : f.titleEn,
-    description: locale === "id" ? f.descriptionIdn : f.descriptionEn,
+    title: f.title,
+    description: f.description,
     icon: f.icon
-      ? <img src={f.icon} alt={locale === "id" ? f.titleIdn : f.titleEn} className="h-5 w-5 md:h-6 md:w-6 object-contain" />
+      ? <img src={f.icon} alt={f.title} className="h-5 w-5 md:h-6 md:w-6 object-contain" />
       : <PenTool className={iconClass} />,
   }))
 

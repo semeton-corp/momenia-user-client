@@ -22,7 +22,7 @@ type TestimonialSectionProps = {
 export function TestimonialSection({ testimonials: apiTestimonials, locale = "en" }: TestimonialSectionProps) {
   const testimonials = (apiTestimonials ?? []).map((t) => ({
     id: String(t.id),
-    quote: locale === "id" ? t.testimonialIdn : t.testimonialEn,
+    quote: t.testimonial,
     name: t.name,
     product: "",
     avatarSrc: t.profileImage || FALLBACK_AVATAR,
@@ -98,6 +98,8 @@ export function TestimonialSection({ testimonials: apiTestimonials, locale = "en
   } else if (isLowZoom) {
     btnSize = 44
   }
+
+  if (testimonials.length === 0) return null
 
   return (
     <section id="review" className="relative w-full overflow-x-hidden" aria-label="Testimonials">
