@@ -34,3 +34,5 @@ export type LandingPageResponse = {
   features: LandingPageFeature[]
   faqs: LandingPageFaq[]
 }
+
+// test

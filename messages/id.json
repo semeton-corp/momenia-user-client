@@ -122,5 +122,52 @@
     "termsText": "Dengan mengklik daftar, Anda menyetujui",
     "termsOfService": "Syarat dan Ketentuan",
     "privacyPolicy": "Kebijakan Privasi"
+  },
+  "dashboard": {
+    "sidebar": {
+      "template": "Template",
+      "myInvitation": "Undangan Saya",
+      "favorite": "Favorit",
+      "transaction": "Transaksi"
+    },
+    "banner": {
+      "title": "Katalog Template",
+      "subtitle": "Temukan desain undangan yang sempurna untuk momen spesialmu. Setiap template dikurasi oleh desainer terbaik untuk memastikan eksklusivitasnya.",
+      "searchPlaceholder": "Cari template...",
+      "category": "Kategori",
+      "sort": "Urutan"
+    },
+    "tags": {
+      "allStyles": "Semua gaya",
+      "classy": "Elegan",
+      "minimalism": "Minimalis",
+      "colorful": "Berwarna",
+      "modern": "Modern",
+      "vintage": "Vintage",
+      "clean": "Bersih",
+      "bold": "Tebal",
+      "retro": "Retro",
+      "cute": "Lucu",
+      "softColor": "Warna lembut"
+    },
+    "modal": {
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "demo": "Demo",
+      "seeAddOns": "Lihat add on dan Pembayaran",
+      "addOns": "Add ons",
+      "featureAddOns": "Fitur Add ons",
+      "durationAddOns": "Durasi Add ons",
+      "instagramFilter": "Filter Instagram & tambahkan milikmu",
+      "multiLanguage": "Undangan multi bahasa tambahan",
+      "galleryMomenia": "Galeri Momenia",
+      "galleryMomeniaDesc": "Galeri Momenia adalah fitur add-on yang memungkinkan host dan tamu untuk mengunggah dan berbagi foto dalam satu galeri terpusat. Tamu dapat berkontribusi foto langsung dari perangkat mereka sendiri, membuat acara lebih interaktif dan mengabadikan momen dari berbagai sudut pandang.",
+      "customDomainLink": "Link Domain Kustom",
+      "basic2week": "Durasi dasar 2 minggu",
+      "month3": "Durasi undangan Basic + 3 Bulan",
+      "month6": "Durasi undangan Basic + 6 Bulan",
+      "month8": "Durasi undangan Basic + 8 Bulan",
+      "continueToPayment": "Lanjut ke Pembayaran"
+    }
   }
 }
