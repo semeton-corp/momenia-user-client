@@ -17,18 +17,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /var/www/app/memoria-user-client
+            cd /var/www/app/momenia-user-client
 
             echo "Pull latest code..."
             git fetch origin
             git reset --hard origin/develop
 
-            echo "Rebuild docker..."
-            docker build -t momenia-staging \
-              --build-arg ENV_FILE=.env.staging .
-
-            echo "Restart container..."
-            docker rm -f app-staging || true
-            docker run -d -p 3001:3000 --name app-staging momenia-staging
+            echo "Rebuild and restart docker..."
+            docker compose -f docker-compose.staging.yaml up -d --build
 
             echo "Done 🚀"
