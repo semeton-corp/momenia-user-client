@@ -50,6 +50,7 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 pb-12">
+      <p>TEST CI/CD</p>
       <HeroSection />
       <div className="relative isolate w-full overflow-hidden -mt-8 md:-mt-14">
         <div
