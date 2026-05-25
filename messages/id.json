@@ -168,6 +168,21 @@
       "month6": "Durasi undangan Basic + 6 Bulan",
       "month8": "Durasi undangan Basic + 8 Bulan",
       "continueToPayment": "Lanjut ke Pembayaran"
+    },
+    "payment": {
+      "title": "Pembayaran",
+      "back": "Kembali",
+      "itemDetails": "Detail Item",
+      "orderSummary": "Ringkasan Pesanan",
+      "basePrice": "Harga Dasar",
+      "duration": "Durasi",
+      "addons": "Fitur Tambahan",
+      "noAddons": "Tidak ada fitur tambahan",
+      "subtotal": "Subtotal",
+      "discount": "Diskon",
+      "total": "Total",
+      "payWith": "Bayar dengan",
+      "payOrder": "Bayar Sekarang"
     }
   }
 }

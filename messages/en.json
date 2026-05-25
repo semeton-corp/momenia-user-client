@@ -168,6 +168,21 @@
       "month6": "Basic + 6 Month invitation duration",
       "month8": "Basic + 8 Month invitation duration",
       "continueToPayment": "Continue to Payment"
+    },
+    "payment": {
+      "title": "Payment",
+      "back": "Back",
+      "itemDetails": "Item Details",
+      "orderSummary": "Order Summary",
+      "basePrice": "Base Price",
+      "duration": "Duration",
+      "addons": "Add-ons",
+      "noAddons": "No add-ons selected",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total",
+      "payWith": "Pay with",
+      "payOrder": "Pay Order"
     }
   }
 }

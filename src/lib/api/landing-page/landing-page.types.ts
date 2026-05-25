@@ -8,9 +8,10 @@ export type LandingPageTestimonial = {
 
 export type LandingPageCatalog = {
   id: number
-  catalogPreview: string
-  title: string
-  templateId: string
+  invitationTemplateId: string
+  invitationTemplateName: string
+  invitationTemplateMobileThumbnail: string
+  isNew: boolean
 }
 
 export type LandingPageFeature = {
