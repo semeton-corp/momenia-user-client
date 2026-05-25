@@ -1,0 +1,12 @@
+version: "3.3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.staging
+    container_name: app-staging
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env.staging
