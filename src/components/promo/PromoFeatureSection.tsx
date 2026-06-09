@@ -10,10 +10,9 @@ const ease = [0.22, 1, 0.36, 1] as const
 
 type Props = {
   readonly features?: LandingPageFeature[]
-  readonly locale?: string
 }
 
-export function PromoFeatureSection({ features, locale }: Props) {
+export function PromoFeatureSection({ features }: Props) {
   const t = useTranslations("promo.features")
   const tCommon = useTranslations("common")
 
@@ -21,7 +20,7 @@ export function PromoFeatureSection({ features, locale }: Props) {
     <div id="promo-features" className="relative overflow-hidden">
       {/* Real FeatureSection isolated so its internal z-indices don't escape */}
       <div className="pointer-events-none isolate select-none" aria-hidden="true">
-        <FeatureSection features={features} locale={locale} />
+        <FeatureSection features={features} />
       </div>
 
       {/* COMING SOON overlay — frosted glass on the light feature background */}

@@ -311,7 +311,7 @@ export function HeroSection({ promoContent }: HeroSectionProps = {}) {
           </div>
 
           {!promoContent && (
-            <div className="pointer-events-none absolute inset-0 z-[80]" style={zoomScaleStyle}>
+            <div className="pointer-events-none absolute inset-0 z-30" style={zoomScaleStyle}>
               <div className="relative h-full w-full lg:scale-[1.07]">
                 <motion.div
                   style={{ y: reduceMotion || !isParallaxReady ? 0 : statsY }}

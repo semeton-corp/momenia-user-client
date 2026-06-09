@@ -124,6 +124,10 @@
     "privacyPolicy": "Privacy Policy"
   },
   "dashboard": {
+    "favourite": {
+      "title": "My Favourites",
+      "empty": "You haven't added any favourites yet."
+    },
     "sidebar": {
       "template": "Template",
       "myInvitation": "My Invitation",
@@ -168,6 +172,151 @@
       "month6": "Basic + 6 Month invitation duration",
       "month8": "Basic + 8 Month invitation duration",
       "continueToPayment": "Continue to Payment"
+    },
+  "payment": {
+    "title": "Payment",
+    "back": "Back",
+    "itemDetails": "Item Details",
+      "orderSummary": "Order Summary",
+      "basePrice": "Base Price",
+      "duration": "Duration",
+      "addons": "Add-ons",
+      "noAddons": "No add-ons selected",
+      "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "payWith": "Pay with",
+    "payOrder": "Pay Order"
+  },
+  "workspace": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "edit": "Edit",
+      "guests": "Guests",
+      "rsvp": "RSVP",
+      "notes": "Notes",
+      "messages": "Messages",
+      "gifts": "Gifts",
+      "addOns": "Add Ons"
+    },
+    "common": {
+      "vip": "VIP",
+      "regular": "Regular",
+      "attending": "Attending",
+      "declined": "Declined",
+      "pending": "Pending",
+      "rowsPerPage": "Rows per page",
+      "pageLabel": "Page {current} of {total}",
+      "selectedRows": "{count} of {total} row(s) selected.",
+      "searchGuests": "Search guest name...",
+      "sort": "Sort",
+      "save": "Save",
+      "cancel": "Cancel",
+      "copy": "Copy",
+      "editLink": "Edit Link",
+      "hide": "Hide",
+      "delete": "Delete"
+    },
+    "launcher": {
+      "title": "My Invitation",
+      "subtitle": "This page is the temporary bypass entry to the invitation workspace.",
+      "demoBadge": "Payment bypass",
+      "helper": "After a user clicks Pay Order, we can redirect to this invitation workspace while the backend is still in slicing mode.",
+      "openDemo": "Open Demo Workspace"
+    },
+    "overview": {
+      "title": "Dashboard Invitation",
+      "publishNow": "Publish Now",
+      "editTemplate": "Edit Template",
+      "manageGuests": "Manage Guests",
+      "guestStatsTitle": "Guest Statistics",
+      "invitationLink": "Invitation Link",
+      "messageTemplateTitle": "Guest Message Template",
+      "generateText": "Generate Invitation Text",
+      "countdownUnits": {
+        "days": "Days",
+        "hours": "Hours",
+        "minutes": "Minutes",
+        "seconds": "Seconds"
+      }
+    },
+    "guests": {
+      "title": "Manage Guests",
+      "listTitle": "Guest List",
+      "addTitle": "Add Guest",
+      "totalGuests": "Total Guests: {count}",
+      "deleteRows": "Delete Rows",
+      "table": {
+        "name": "Name",
+        "whatsApp": "WhatsApp",
+        "email": "Email",
+        "category": "Category",
+        "actions": "Actions",
+        "delivered": "Delivered?"
+      },
+      "form": {
+        "name": "Full Name",
+        "whatsApp": "WhatsApp Number",
+        "email": "Email",
+        "category": "Category",
+        "chooseCategory": "Choose Category",
+        "categoryHint": "Adjust the guest category as needed."
+      }
+    },
+    "rsvp": {
+      "title": "RSVP",
+      "listTitle": "Guest List",
+      "totalGuests": "Total Guests",
+      "estimatedGuests": "Estimated total guests (including plus ones)",
+      "table": {
+        "attendance": "Attendance",
+        "guestCount": "Guest Count"
+      }
+    },
+    "messages": {
+      "title": "Messages from Guests",
+      "searchPlaceholder": "Search guest name...",
+      "voiceNote": "Voice Note from {name}"
+    },
+    "notes": {
+      "title": "After Party Notes",
+      "stepOne": "Step 1: Create Notes",
+      "stepTwo": "Step 2: Pick Guests and Send",
+      "formTitle": "Create Notes",
+      "formSubtitle": "Create after party notes to share with your invited guests.",
+      "galleryLink": "Photo Gallery Link",
+      "souvenirLabel": "Online Souvenir",
+      "messageLabel": "Message",
+      "messageHint": "Adjust the after party note before sharing it with guests.",
+      "recipientTitle": "Pick Guests and Send",
+      "recipientSubtitle": "Select invitation guests and distribute your after party notes."
+    },
+    "addOns": {
+      "title": "Add Ons",
+      "active": "ACTIVE",
+      "locked": "LOCKED"
+    },
+    "edit": {
+      "title": "Edit Template",
+      "subtitle": "Adjust the main invitation settings and publish state.",
+      "settingsTitle": "Main Settings",
+      "settingsDescription": "This slicing screen already follows a clean component structure and is ready to be connected to the real API.",
+      "slugLabel": "Invitation Slug",
+      "hostLabel": "Host Name",
+      "themeLabel": "Theme",
+      "colorLabel": "Accent Color",
+      "previewTitle": "Preview Status",
+      "previewDescription": "The preview still uses mock data, but the screen is already split into reusable components for the real integration phase."
+    },
+    "gifts": {
+      "title": "Gifts",
+      "summaryTitle": "Gift Methods",
+      "summaryDescription": "Manage digital gift methods that will appear on the invitation page.",
+      "bankTransfer": "Bank Transfer",
+      "digitalWallet": "Digital Wallet",
+      "shippingGift": "Gift Delivery",
+      "comingSoon": "Gift checkout integration will be connected after the API is ready."
     }
   }
+}
 }

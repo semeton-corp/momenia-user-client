@@ -5,9 +5,9 @@ import LogoMemoria from "@/assets/logo/logo-memoria.png"
 import LogoGoogle from "@/assets/logo/logo-google.png"
 
 import { useTranslations } from "next-intl"
-import Link from "next/link"
 import LoadingScreen from "@/components/ui/loadingScreen"
 import { useSignUpGoogleOAuth } from "@/hooks/auth/useGoogleOAuth"
+import { Link } from "@/i18n/navigation"
 
 export default function LoginPage() {
   const { mutate, isPending } = useSignUpGoogleOAuth();

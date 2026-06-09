@@ -4,7 +4,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import Image from "next/image"
 import { Heart, Star, Smartphone, Monitor, Eye, X, ArrowLeft, ChevronDown, ChevronRight, Info } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { CheckboxTile } from "@/components/ui/checkbox-tile"
@@ -49,6 +49,7 @@ const DURATION_ADDONS = [
 
 export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, onClose }: Props) {
   const t = useTranslations("dashboard.modal")
+  const locale = useLocale()
   const scale = useZoomScale()
   const [view, setView] = React.useState<"mobile" | "desktop">("mobile")
   const [step, setStep] = React.useState<"detail" | "addons">("detail")
@@ -71,6 +72,23 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
       else next.add(key)
       return next
     })
+  }
+
+  const handleContinueToPayment = () => {
+    if (!template) return
+    const durationPrice = DURATION_ADDONS.find((d) => d.key === selectedDuration)?.price ?? 0
+    const params = new URLSearchParams({
+      title: template.title,
+      price: String(template.price),
+      image: template.imageUrl,
+      category: template.categoryLabel,
+      duration: selectedDuration,
+      durationPrice: String(durationPrice),
+    })
+    const featureKeys = Array.from(selectedFeatures).join(",")
+    if (featureKeys) params.set("features", featureKeys)
+    if (template.originalPrice) params.set("originalPrice", String(template.originalPrice))
+    window.open(`/${locale}/payment?${params.toString()}`, "_blank")
   }
 
   return (
@@ -306,26 +324,32 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                       const isExpanded = expandable && expandedAddon === addon.key
                       return (
                         <div key={addon.key} className="rounded-xl border border-indigo-300 bg-indigo-50">
-                          <div
-                            className={cn("flex h-20 cursor-pointer items-center px-4 transition-colors rounded-xl", !isExpanded && "hover:bg-indigo-100")}
-                            onClick={() => {
-                              toggleFeature(addon.key)
-                              if (expandable) setExpandedAddon((prev) => (prev === addon.key ? null : addon.key))
-                            }}
-                          >
+                          <div className="flex h-20 items-center px-4 rounded-xl">
                             <div className="flex flex-1 items-center gap-1.5">
                               <span className="text-lg font-medium text-foreground">{t(addon.key)}</span>
                               <Info className="h-5 w-5 shrink-0 text-indigo-400" />
                               {expandable && (
-                                isExpanded
-                                  ? <ChevronDown className="h-5 w-5 shrink-0 text-zinc-400" />
-                                  : <ChevronRight className="h-5 w-5 shrink-0 text-zinc-400" />
+                                <button
+                                  type="button"
+                                  className="rounded p-0.5 transition-colors hover:bg-indigo-200"
+                                  onClick={() => setExpandedAddon((prev) => (prev === addon.key ? null : addon.key))}
+                                >
+                                  {isExpanded
+                                    ? <ChevronDown className="h-5 w-5 shrink-0 text-zinc-400" />
+                                    : <ChevronRight className="h-5 w-5 shrink-0 text-zinc-400" />}
+                                </button>
                               )}
                             </div>
                             <span className="mr-3 text-lg font-medium text-foreground">
                               Rp {addon.price.toLocaleString("id-ID")}
                             </span>
-                            <CheckboxTile checked={selectedFeatures.has(addon.key)} />
+                            <button
+                              type="button"
+                              onClick={() => toggleFeature(addon.key)}
+                              className="flex items-center"
+                            >
+                              <CheckboxTile checked={selectedFeatures.has(addon.key)} />
+                            </button>
                           </div>
 
                           {isExpanded && (
@@ -370,7 +394,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
 
               {/* CTA */}
               <div className="shrink-0 border-t border-zinc-100 p-6">
-                <Button size="lg" className="h-15 w-full rounded-xl text-base font-semibold">
+                <Button size="lg" className="h-15 w-full rounded-xl text-base font-semibold" onClick={handleContinueToPayment}>
                   {t("continueToPayment")}
                 </Button>
               </div>

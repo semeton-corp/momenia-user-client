@@ -16,10 +16,9 @@ function getZoomLevel(): number {
 
 type TestimonialSectionProps = {
   readonly testimonials?: LandingPageTestimonial[]
-  readonly locale?: string
 }
 
-export function TestimonialSection({ testimonials: apiTestimonials, locale = "en" }: TestimonialSectionProps) {
+export function TestimonialSection({ testimonials: apiTestimonials }: TestimonialSectionProps) {
   const testimonials = (apiTestimonials ?? []).map((t) => ({
     id: String(t.id),
     quote: t.testimonial,
@@ -68,8 +67,6 @@ export function TestimonialSection({ testimonials: apiTestimonials, locale = "en
     return () => clearTimeout(timer)
   }, [activeVirtualIdx, isAnimating])
 
-  if (testimonials.length === 0) return null
-
   const isDesktop = viewportWidth >= 1024
   const isTablet = viewportWidth >= 768 && viewportWidth < 1024
   const isMobile = viewportWidth < 768
@@ -90,7 +87,7 @@ export function TestimonialSection({ testimonials: apiTestimonials, locale = "en
     // Tablet
     if (zoomLevel >= 1.2) return [0]
     return [-2, -1, 0, 1, 2]
-  }, [isDesktop, isTablet, isMobile, zoomLevel])
+  }, [isDesktop, isMobile, zoomLevel])
 
   const isLowZoom = zoomLevel <= 1.1
   const lowZoomButtonMargin = isLowZoom && !isMobile ? 48 : 0

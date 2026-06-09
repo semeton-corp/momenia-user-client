@@ -18,7 +18,7 @@ export default async function ComingSoonPage({ params }: Props) {
       <PromoNavbar />
       <main className="flex-1 pt-16 md:pt-20">
         <PromoHeroSection />
-        <PromoFeatureSection features={landingPage?.features} locale={locale} />
+        <PromoFeatureSection features={landingPage?.features} />
       </main>
       <Footer />
     </>

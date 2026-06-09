@@ -8,10 +8,13 @@ import { useTranslations } from "next-intl"
 import MobileDarkCatalogSVG from "@/assets/llandingpage/Mobile-dark-catalog.svg"
 import { LandingPageCatalog } from "@/lib/api/landing-page/landing-page.types"
 
+type TemplateBadge = "new" | "choice"
+
 type Template = {
   id: string | number
   title: string
   image: string
+  badge?: TemplateBadge
 }
 
 const DUMMY_CATALOGS: Template[] = [
@@ -19,21 +22,25 @@ const DUMMY_CATALOGS: Template[] = [
     id: "dummy-1",
     title: "Ethereal Wedding",
     image: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=438&q=80",
+    badge: "new",
   },
   {
     id: "dummy-2",
     title: "Garden Romance",
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=438&q=80",
+    badge: "choice",
   },
   {
     id: "dummy-3",
     title: "Minimalist Chic",
     image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=438&q=80",
+    badge: "new",
   },
   {
     id: "dummy-4",
     title: "Floral Bliss",
     image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=438&q=80",
+    badge: "choice",
   },
   {
     id: "dummy-5",
@@ -49,19 +56,15 @@ type CatalogSectionProps = {
 export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
   const apiTemplates: Template[] = (apiCatalogs ?? []).map((c) => ({
     id: c.id,
-    title: c.title,
-    image: c.catalogPreview,
+    title: c.invitationTemplateName,
+    image: c.invitationTemplateMobileThumbnail,
+    badge: c.isNew ? ("new" as TemplateBadge) : undefined,
   }))
 
   const baseTemplates = apiTemplates.length > 0 ? apiTemplates : DUMMY_CATALOGS
 
-  const displayTemplates = [
-    ...baseTemplates,
-    ...baseTemplates.map((t) => ({ ...t, id: `${t.id}-dup` })),
-  ]
-  if (displayTemplates.length === 0) {
-  return null // atau loading UI
-}
+  const displayTemplates = baseTemplates.slice(0, 5)
+
   // ── Semua hooks dideklarasikan di atas, berurutan, tanpa kondisi ──
 
   const [activeVirtualIdx, setActiveVirtualIdx] = React.useState(2)
@@ -113,6 +116,8 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
     el.style.transition = "margin-bottom 200ms ease-out"
     el.style.marginBottom = `${compensation}px`
   }, [activeScale])
+
+  if (displayTemplates.length === 0) return null
 
   const activeIdx =
     ((activeVirtualIdx % displayTemplates.length) + displayTemplates.length) %
@@ -212,7 +217,8 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
               const offset = virtualIndex - activeVirtualIdx
               const absOffset = Math.abs(offset)
               const isActive = offset === 0
-              const isVisible = absOffset <= 2
+              const maxSide = Math.floor((displayTemplates.length - 1) / 2)
+              const isVisible = absOffset <= Math.min(2, maxSide)
 
               return (
                 <motion.div
@@ -241,6 +247,16 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
                             style={{ filter: `blur(${isActive ? 0 : absOffset === 1 ? 1.5 : 2.5}px)` }}
                           >
                             <Image src={template.image} alt={template.title} fill className="object-cover" />
+                            {template.badge === "new" && (
+                              <div className="absolute left-0 top-0 rounded-br-2xl bg-orange-500 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-md md:px-4 md:py-2 md:text-xs">
+                                NEW
+                              </div>
+                            )}
+                            {template.badge === "choice" && (
+                              <div className="absolute left-0 top-0 rounded-br-2xl bg-primary px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-md md:px-4 md:py-2 md:text-[10px]">
+                                MOMENIA&apos;S CHOICE
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex shrink-0 flex-col items-center justify-center gap-2 px-4 pb-5 md:px-5 md:pb-6 opacity-0">
