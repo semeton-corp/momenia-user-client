@@ -6,7 +6,6 @@ import { CatalogSection } from "@/components/landing/CatalogSection"
 import { CreateNowBanner } from "@/components/landing/CreateNowBanner"
 import { FaqSection } from "@/components/landing/FaqSection"
 import { TestimonialSection } from "@/components/landing/TestimonialSection"
-import OAuthHandler from "@/components/auth/OAuthHandler"
 import { getLandingPage } from "@/lib/api/landing-page/landing-page.service"
 
 type Props = {
@@ -36,7 +35,6 @@ export default async function HomePage({ params }: Props) {
         <div className="mt-16 md:mt-24">
           <FeatureSection
             features={landingPage?.features}
-            locale={locale}
             promoTitle={{
               badge: tPromo("features.badge"),
               title: siteName,
@@ -61,12 +59,12 @@ export default async function HomePage({ params }: Props) {
         />
         <div className="relative flex flex-col items-center gap-8">
           <AboutSection />
-          <FeatureSection features={landingPage?.features} locale={locale} />
+          <FeatureSection features={landingPage?.features} />
           <CatalogSection catalogs={landingPage?.catalogs} />
         </div>
       </div>
       <CreateNowBanner />
-      <TestimonialSection testimonials={landingPage?.testimonials} locale={locale} />
+      <TestimonialSection testimonials={landingPage?.testimonials} />
       <FaqSection faqs={landingPage?.faqs} locale={locale} />
     </main>
   )

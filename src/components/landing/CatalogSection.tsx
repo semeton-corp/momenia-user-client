@@ -65,7 +65,6 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
 
   const displayTemplates = baseTemplates.slice(0, 5)
 
-  if (displayTemplates.length === 0) return null
   // ── Semua hooks dideklarasikan di atas, berurutan, tanpa kondisi ──
 
   const [activeVirtualIdx, setActiveVirtualIdx] = React.useState(2)
@@ -117,6 +116,8 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
     el.style.transition = "margin-bottom 200ms ease-out"
     el.style.marginBottom = `${compensation}px`
   }, [activeScale])
+
+  if (displayTemplates.length === 0) return null
 
   const activeIdx =
     ((activeVirtualIdx % displayTemplates.length) + displayTemplates.length) %

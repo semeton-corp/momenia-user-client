@@ -2,13 +2,12 @@
 
 import * as React from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { LayoutGrid, FolderOpen, Heart, CircleDollarSign } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
 import LogoIcon from "@/assets/logo/logo-momenia.svg"
+import { Link, usePathname } from "@/i18n/navigation"
 
 const navItems = [
   { id: "template",      labelKey: "template",      icon: LayoutGrid,       href: "/dashboard" },
@@ -32,9 +31,9 @@ export function DashboardSidebar() {
       className="fixed left-0 top-0 z-50 flex w-24 flex-col items-center py-6"
       style={{
         height: sidebarHeight,
-        background: "#E8EAFF",
+        background: "#FAFAFA",
         borderRadius: "0 24px 24px 0",
-        borderRight: "1.5px solid #A5B4FC",
+        borderRight: "1.5px solid #E5E5E5",
         boxShadow: "4px 0 24px 0 rgba(99,102,241,0.13)",
       }}
     >

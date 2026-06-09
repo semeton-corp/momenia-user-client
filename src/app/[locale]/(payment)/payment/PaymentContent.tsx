@@ -1,12 +1,12 @@
 "use client"
 
-import * as React from "react"
 import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import QrisIcon from "@/assets/logo/Qris-icon.svg"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "@/i18n/navigation"
 
 const FEATURE_ADDONS = [
   { key: "instagramFilter", price: 10000 },
@@ -26,6 +26,7 @@ type ModalKey =
   | "month8"
 
 export function PaymentContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const t = useTranslations("dashboard.payment")
   const tModal = useTranslations("dashboard.modal")
@@ -61,7 +62,14 @@ export function PaymentContent() {
         <div className="relative mb-10 flex items-center justify-center">
           <button
             type="button"
-            onClick={() => window.close()}
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back()
+                return
+              }
+
+              router.push("/dashboard")
+            }}
             className="absolute left-0 flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-800"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -183,6 +191,7 @@ export function PaymentContent() {
               <Button
                 className="w-full rounded-xl text-lg font-semibold shadow-md shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95"
                 style={{ height: "80px" }}
+                onClick={() => router.push(`/dashboard/my-invitation/demo`)}
               >
                 {t("payOrder")}
               </Button>

@@ -41,7 +41,6 @@ export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)
   const [localeMenuOpen, setLocaleMenuOpen] = React.useState(false)
   const [mobileLocaleMenuOpen, setMobileLocaleMenuOpen] = React.useState(false)
-  const [hasMounted, setHasMounted] = React.useState(false)
   const [zoomLevel, setZoomLevel] = React.useState(1)
   const [isDesktop, setIsDesktop] = React.useState(false)
   const scaleWrapperRef = React.useRef<HTMLDivElement>(null)
@@ -49,10 +48,6 @@ export function Navbar() {
   const tNavbar = useTranslations("navbar")
   const menuRef = React.useRef<HTMLDivElement>(null)
   const mobileMenuRef = React.useRef<HTMLDivElement>(null)
-
-  React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
 
   // Detect zoom via devicePixelRatio
   React.useEffect(() => {

@@ -24,11 +24,10 @@ type PromoTitle = {
 
 type FeatureSectionProps = {
   readonly features?: LandingPageFeature[]
-  readonly locale?: string
   readonly promoTitle?: PromoTitle
 }
 
-export function FeatureSection({ features: apiFeatures, locale = "en", promoTitle }: FeatureSectionProps) {
+export function FeatureSection({ features: apiFeatures, promoTitle }: FeatureSectionProps) {
   // ── Semua hooks dideklarasikan di atas, berurutan ──
   const [activeCardIndex, setActiveCardIndex] = React.useState<number | null>(0)
   const [zoomLevel, setZoomLevel]             = React.useState(1)
@@ -43,7 +42,10 @@ export function FeatureSection({ features: apiFeatures, locale = "en", promoTitl
     title: f.title,
     description: f.description,
     icon: f.icon
-      ? <img src={f.icon} alt={f.title} className="h-5 w-5 md:h-6 md:w-6 object-contain" />
+      ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={f.icon} alt={f.title} className="h-5 w-5 object-contain md:h-6 md:w-6" />
+        )
       : <PenTool className={iconClass} />,
   }))
 
