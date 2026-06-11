@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
+import { useRouter } from "@/i18n/navigation"
 import MobileDarkCatalogSVG from "@/assets/llandingpage/Mobile-dark-catalog.svg"
 import { LandingPageCatalog } from "@/lib/api/landing-page/landing-page.types"
 
@@ -75,6 +76,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
 
   const t = useTranslations("landing.catalog")
   const tCommon = useTranslations("common")
+  const router = useRouter()
 
   // Detect browser zoom via devicePixelRatio
   React.useEffect(() => {
@@ -331,7 +333,10 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
               </button>
             </div>
 
-            <button className="w-[300px] md:w-[350px] rounded-xl bg-primary py-3.5 text-sm font-medium text-white shadow-lg shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95 md:text-base">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="w-[300px] md:w-[350px] rounded-xl bg-primary py-3.5 text-sm font-medium text-white shadow-lg shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95 md:text-base"
+            >
               {t("viewAllTemplates")}
             </button>
           </div>

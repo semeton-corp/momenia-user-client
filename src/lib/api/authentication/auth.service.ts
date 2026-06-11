@@ -6,10 +6,16 @@ import {
     RefreshTokenRequest,
     RefreshTokenResponse,
     LogoutResponse,
+    UserProfile,
 } from "./auth.types"
 
 const BASE_USERS = "/api/v1/users"
 const BASE_SESSIONS = "/api/v1/sessions"
+
+function authHeader(): Record<string, string> {
+    const token = globalThis.localStorage?.getItem("accessToken") ?? null
+    return token ? { Authorization: `Bearer ${token}` } : {}
+}
 
 export const signUpWithGoogle = async (
     data: GoogleAuthRequest
@@ -59,5 +65,13 @@ export const refreshToken = async (
 export const logout = async (): Promise<LogoutResponse> => {
     return http(`${BASE_SESSIONS}/logout`, {
         method: "POST",
+        headers: authHeader(),
+    })
+}
+
+export const getMe = async (): Promise<UserProfile> => {
+    return http(`${BASE_USERS}/me`, {
+        method: "GET",
+        headers: authHeader(),
     })
 }

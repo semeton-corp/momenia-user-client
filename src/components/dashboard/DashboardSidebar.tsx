@@ -3,11 +3,13 @@
 import * as React from "react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
-import { LayoutGrid, FolderOpen, Heart, CircleDollarSign } from "lucide-react"
+import { LayoutGrid, FolderOpen, Heart, CircleDollarSign, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
 import LogoIcon from "@/assets/logo/logo-momenia.svg"
 import { Link, usePathname } from "@/i18n/navigation"
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
+import { useLogout } from "@/hooks/auth/useLogout"
 
 const navItems = [
   { id: "template",      labelKey: "template",      icon: LayoutGrid,       href: "/dashboard" },
@@ -19,9 +21,26 @@ const navItems = [
 export function DashboardSidebar() {
   const pathname = usePathname()
   const t = useTranslations("dashboard.sidebar")
+  const tNavbar = useTranslations("navbar")
   const scale = useZoomScale()
+  const { user, isLoggedIn } = useCurrentUser()
+  const { mutate: doLogout, isPending: isLoggingOut } = useLogout()
+  const [avatarMenuOpen, setAvatarMenuOpen] = React.useState(false)
+  const avatarMenuRef = React.useRef<HTMLDivElement>(null)
+
   // strip locale prefix e.g. /en/dashboard → /dashboard
   const path = "/" + pathname.split("/").slice(2).join("/")
+
+  React.useEffect(() => {
+    if (!avatarMenuOpen) return
+    const handler = (e: MouseEvent) => {
+      if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target as Node)) {
+        setAvatarMenuOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [avatarMenuOpen])
 
   // compensate: h-screen (100vh) gets scaled down by zoom, so inflate it inversely
   const sidebarHeight = scale > 0 && scale < 1 ? `${100 / scale}vh` : "100vh"
@@ -76,13 +95,63 @@ export function DashboardSidebar() {
         })}
       </nav>
 
-      {/* User Avatar */}
-      <div className="mt-auto flex flex-col items-center gap-3 pb-2">
-        <div className="h-10 w-10 overflow-hidden rounded-full ring-2 ring-white">
-          <div className="flex h-full w-full items-center justify-center bg-zinc-300 text-xs font-semibold text-zinc-600">
-            U
+      {/* User section */}
+      <div className="mt-auto flex flex-col items-center gap-2 pb-3 px-2 w-full">
+        {isLoggedIn && user ? (
+          <div className="relative w-full flex justify-center" ref={avatarMenuRef}>
+            <button
+              type="button"
+              onClick={() => setAvatarMenuOpen((v) => !v)}
+              className="h-10 w-10 overflow-hidden rounded-full ring-2 ring-white transition-all hover:ring-indigo-300"
+              title={user.name}
+            >
+              {user.profilePicture ? (
+                <Image src={user.profilePicture} alt={user.name} width={40} height={40} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-xs font-semibold text-indigo-700">
+                  {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                </div>
+              )}
+            </button>
+
+            {avatarMenuOpen && (
+              <div className="absolute bottom-full left-1/2 mb-2 w-44 -translate-x-1/2 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl">
+                <div className="border-b border-zinc-100 px-3 py-2.5">
+                  <p className="truncate text-xs font-semibold text-zinc-900">{user.name}</p>
+                  <p className="truncate text-[10px] text-zinc-400">{user.email}</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isLoggingOut}
+                  onClick={() => { setAvatarMenuOpen(false); doLogout() }}
+                  className="flex w-full items-center gap-2 px-3 py-2.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Keluar
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        ) : (
+          <>
+            <Link href="/login" className="w-full">
+              <button
+                type="button"
+                className="w-full rounded-xl border border-indigo-200 py-1.5 text-[10px] font-semibold text-indigo-700 hover:bg-indigo-50 transition-colors"
+              >
+                {tNavbar("login")}
+              </button>
+            </Link>
+            <Link href="/register" className="w-full">
+              <button
+                type="button"
+                className="w-full rounded-xl bg-indigo-600 py-1.5 text-[10px] font-semibold text-white hover:bg-indigo-700 transition-colors"
+              >
+                {tNavbar("signUp")}
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </aside>
   )

@@ -3,13 +3,11 @@
 import * as React from "react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
+import { useRouter } from "@/i18n/navigation"
 import Ambient from "@/assets/llandingpage/banner-create-now.svg"
 
-type Props = {
-  onClick?: () => void
-}
-
-export function CreateNowBanner({ onClick }: Props) {
+export function CreateNowBanner() {
+  const router = useRouter()
   // ── Semua hooks dideklarasikan di atas, berurutan ──
   const [zoomLevel, setZoomLevel] = React.useState(1)
   const [isDesktop, setIsDesktop] = React.useState(false)
@@ -110,15 +108,13 @@ export function CreateNowBanner({ onClick }: Props) {
               </p>
               <p className="text-xs font-normal md:text-sm lg:text-lg">{t("subtitle2")}</p>
 
-              {onClick && (
-                <button
-                  onClick={onClick}
-                  className="mt-2 md:mt-4 inline-flex items-center justify-center rounded-md bg-white/90 shadow hover:bg-white text-[#4F46E5] font-medium h-8 px-4 text-xs md:h-10 md:px-6 md:text-sm"
-                  type="button"
-                >
-                  {t("cta")}
-                </button>
-              )}
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="mt-2 md:mt-4 inline-flex items-center justify-center rounded-md bg-white/90 shadow hover:bg-white text-[#4F46E5] font-medium h-8 px-4 text-xs md:h-10 md:px-6 md:text-sm"
+                type="button"
+              >
+                {t("cta")}
+              </button>
             </div>
           </div>
         </div>

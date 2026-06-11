@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { setRequestLocale, getTranslations } from "next-intl/server"
 import { FeatureSection } from "@/components/landing/FeatureSection"
 import { HeroSection } from "@/components/landing/HeroSection"
@@ -7,14 +8,32 @@ import { CreateNowBanner } from "@/components/landing/CreateNowBanner"
 import { FaqSection } from "@/components/landing/FaqSection"
 import { TestimonialSection } from "@/components/landing/TestimonialSection"
 import { getLandingPage } from "@/lib/api/landing-page/landing-page.service"
+import AuthCallbackClient from "@/components/auth/AuthCallbackClient"
 
 type Props = {
   readonly params: Promise<{ locale: string }>
+  readonly searchParams?: Promise<{ code?: string; action?: string; app?: string }>
 }
 
-export default async function HomePage({ params }: Props) {
+export default async function HomePage({ params, searchParams }: Props) {
   const { locale } = await params
   setRequestLocale(locale)
+
+  // Handle Google OAuth callback (code lands on homepage)
+  const sp = searchParams ? await searchParams : {}
+  if (sp.code) {
+    return (
+      <Suspense
+        fallback={
+          <main className="flex min-h-screen items-center justify-center bg-white">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+          </main>
+        }
+      >
+        <AuthCallbackClient />
+      </Suspense>
+    )
+  }
 
   const landingPage = await getLandingPage().catch(() => null)
 

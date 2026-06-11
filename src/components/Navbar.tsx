@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
-import { Menu, Globe } from "lucide-react"
+import { Menu, Globe, LogOut, LayoutGrid } from "lucide-react"
 import LogoMemoria from "@/assets/logo/logo-memoria.png"
 import { AnimatePresence, motion } from "framer-motion"
 
@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { routing } from "@/i18n/routing"
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
+import { useLogout } from "@/hooks/auth/useLogout"
 
 type SectionItem = {
   id: "home" | "about" | "features" | "review" | "faq"
@@ -48,6 +50,11 @@ export function Navbar() {
   const tNavbar = useTranslations("navbar")
   const menuRef = React.useRef<HTMLDivElement>(null)
   const mobileMenuRef = React.useRef<HTMLDivElement>(null)
+  const userMenuRef = React.useRef<HTMLDivElement>(null)
+  const [userMenuOpen, setUserMenuOpen] = React.useState(false)
+
+  const { user, isLoggedIn, isLoading: isAuthLoading } = useCurrentUser()
+  const { mutate: doLogout, isPending: isLoggingOut } = useLogout()
 
   // Detect zoom via devicePixelRatio
   React.useEffect(() => {
@@ -108,6 +115,17 @@ export function Navbar() {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [mobileLocaleMenuOpen])
+
+  React.useEffect(() => {
+    if (!userMenuOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [userMenuOpen])
 
   React.useEffect(() => {
   const mediaQuery = globalThis.matchMedia("(min-width: 1024px)")
@@ -220,6 +238,29 @@ export function Navbar() {
               </div>
 
               <div className="mt-auto px-6 pb-6">
+                {/* User info (when logged in) */}
+                {isLoggedIn && user && (
+                  <div className="mb-4 flex items-center gap-3 rounded-xl bg-zinc-50 px-3 py-3">
+                    {user.profilePicture ? (
+                      <Image
+                        src={user.profilePicture}
+                        alt={user.name}
+                        width={36}
+                        height={36}
+                        className="h-9 w-9 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">
+                        {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-zinc-900">{user.name}</p>
+                      <p className="truncate text-xs text-zinc-400">{user.email}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="relative" ref={mobileMenuRef}>
                   <Button
                     variant="outline"
@@ -266,16 +307,38 @@ export function Navbar() {
 
                 <div className="my-5 h-px w-full max-w-[230px] bg-border" />
                 <div className="flex flex-col gap-3">
-                  <Link href="/register" onClick={() => setIsOpen(false)}>
-                    <Button variant="outline" className="w-full border-primary text-primary font-medium hover:bg-primary/5">
-                      {tNavbar("signUp")}
-                    </Button>
-                  </Link>
-                  <Link href="/login" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full bg-primary text-primary-foreground font-medium hover:bg-primary/90">
-                      {tNavbar("login")}
-                    </Button>
-                  </Link>
+                  {isLoggedIn ? (
+                    <>
+                      <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                        <Button variant="outline" className="w-full gap-2 font-medium">
+                          <LayoutGrid className="h-4 w-4" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        disabled={isLoggingOut}
+                        className="w-full gap-2 font-medium text-red-600 hover:bg-red-50 hover:text-red-700"
+                        onClick={() => { setIsOpen(false); doLogout() }}
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Keluar
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/register" onClick={() => setIsOpen(false)}>
+                        <Button variant="outline" className="w-full border-primary text-primary font-medium hover:bg-primary/5">
+                          {tNavbar("signUp")}
+                        </Button>
+                      </Link>
+                      <Link href="/login" onClick={() => setIsOpen(false)}>
+                        <Button className="w-full bg-primary text-primary-foreground font-medium hover:bg-primary/90">
+                          {tNavbar("login")}
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -327,24 +390,87 @@ export function Navbar() {
             </AnimatePresence>
           </div>
           <div className="hidden sm:block h-8 w-px bg-border" />
-      <div className="hidden sm:flex items-center gap-2 lg:gap-3">
-            <Link href="/register">
-              <Button
-                size="default"
-                variant="outline"
-        className="h-9 px-4 font-medium border-primary text-primary hover:bg-primary/5 lg:h-10 lg:px-6"
-              >
-                {tNavbar("signUp")}
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button
-                size="default"
-        className="h-9 bg-primary px-4 font-medium text-primary-foreground hover:bg-primary/90 lg:h-10 lg:px-6"
-              >
-                {tNavbar("login")}
-              </Button>
-            </Link>
+          <div className="hidden sm:flex items-center gap-2 lg:gap-3">
+            {isAuthLoading ? (
+              <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-100" />
+            ) : isLoggedIn && user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  className="flex items-center gap-2 rounded-full ring-2 ring-transparent transition-all hover:ring-indigo-200"
+                >
+                  {user.profilePicture ? (
+                    <Image
+                      src={user.profilePicture}
+                      alt={user.name}
+                      width={36}
+                      height={36}
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">
+                      {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                </button>
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl"
+                    >
+                      <div className="border-b border-zinc-100 px-4 py-3">
+                        <p className="truncate text-sm font-semibold text-zinc-900">{user.name}</p>
+                        <p className="truncate text-xs text-zinc-400">{user.email}</p>
+                      </div>
+                      <div className="p-1">
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors"
+                        >
+                          <LayoutGrid className="h-4 w-4 text-zinc-400" />
+                          Dashboard
+                        </Link>
+                        <button
+                          type="button"
+                          disabled={isLoggingOut}
+                          onClick={() => { setUserMenuOpen(false); doLogout() }}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Keluar
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <>
+                <Link href="/register">
+                  <Button
+                    size="default"
+                    variant="outline"
+                    className="h-9 px-4 font-medium border-primary text-primary hover:bg-primary/5 lg:h-10 lg:px-6"
+                  >
+                    {tNavbar("signUp")}
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button
+                    size="default"
+                    className="h-9 bg-primary px-4 font-medium text-primary-foreground hover:bg-primary/90 lg:h-10 lg:px-6"
+                  >
+                    {tNavbar("login")}
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
