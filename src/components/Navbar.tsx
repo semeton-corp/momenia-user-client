@@ -193,7 +193,7 @@ export function Navbar() {
             <button
               key={item.id}
               type="button"
-              className="py-2 font-medium text-foreground/70 transition-colors hover:text-foreground"
+              className="cursor-pointer py-2 font-medium text-foreground/70 transition-colors hover:text-foreground"
               onClick={() => handleSectionClick(item.id)}
             >
               {tNavbar(`sections.${item.id}`)}

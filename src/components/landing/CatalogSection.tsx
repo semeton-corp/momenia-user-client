@@ -234,7 +234,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
                     opacity: isVisible ? 1 : 0,
                   }}
                   transition={{ type: "spring", stiffness: 220, damping: 28 }}
-                  className="absolute left-1/2 top-1/2 h-full w-auto pointer-events-none"
+                  className="absolute left-1/2 top-1/2 h-full w-auto pointer-events-none cursor-pointer"
                   style={{ aspectRatio: "438/798", transformOrigin: "center" }}
                 >
                   <div
@@ -294,7 +294,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
                       >
                         {activeTemplate.title}
                       </motion.h3>
-                      <button className="pointer-events-auto w-full rounded-[8px] border border-blue-500 py-1.5 text-[10px] font-medium text-blue-600 outline-none transition-colors hover:bg-blue-50 md:rounded-[10px] md:py-2 md:text-xs">
+                      <button className="pointer-events-auto cursor-pointer w-full rounded-[8px] border border-blue-500 py-1.5 text-[10px] font-medium text-blue-600 outline-none transition-colors hover:bg-blue-50 md:rounded-[10px] md:py-2 md:text-xs">
                         {t("viewTemplate")}
                       </button>
                     </div>
@@ -318,7 +318,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
               <button
                 onClick={handlePrev}
                 disabled={isAnimating}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition-all hover:bg-zinc-50 hover:text-primary active:scale-90 disabled:cursor-not-allowed disabled:opacity-60 md:h-12 md:w-12"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition-all hover:bg-zinc-50 hover:text-primary active:scale-90 disabled:cursor-not-allowed disabled:opacity-60 md:h-12 md:w-12"
                 aria-label={t("prevAria")}
               >
                 <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
@@ -326,7 +326,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
               <button
                 onClick={handleNext}
                 disabled={isAnimating}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition-all hover:bg-zinc-50 hover:text-primary active:scale-90 disabled:cursor-not-allowed disabled:opacity-60 md:h-12 md:w-12"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition-all hover:bg-zinc-50 hover:text-primary active:scale-90 disabled:cursor-not-allowed disabled:opacity-60 md:h-12 md:w-12"
                 aria-label={t("nextAria")}
               >
                 <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
@@ -335,7 +335,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
 
             <button
               onClick={() => router.push("/dashboard")}
-              className="w-[300px] md:w-[350px] rounded-xl bg-primary py-3.5 text-sm font-medium text-white shadow-lg shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95 md:text-base"
+              className="w-[300px] md:w-[350px] cursor-pointer rounded-xl bg-primary py-3.5 text-sm font-medium text-white shadow-lg shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95 md:text-base"
             >
               {t("viewAllTemplates")}
             </button>

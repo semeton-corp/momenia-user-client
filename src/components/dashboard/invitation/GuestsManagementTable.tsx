@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
-import { ArrowUpDown, ChevronDown, Copy, GripVertical, ListPlus, PencilLine, Trash2 } from "lucide-react"
+import { ChevronDown, Copy, GripVertical, ListPlus, PencilLine, Settings2, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { CheckboxTile } from "@/components/ui/checkbox-tile"
 import type { InvitationWorkspaceGuest } from "@/lib/types/invitation-workspace"
@@ -138,27 +138,28 @@ export function GuestsManagementTable({
   }
 
   return (
-    <WorkspaceCard className="flex flex-col gap-4 px-4 py-4 sm:px-6 xl:p-5 border-0 shadow-none xl:border xl:shadow-sm">
+    <WorkspaceCard className="flex flex-col gap-4 px-4 py-4 sm:px-6 xl:gap-0 xl:py-8 xl:px-5 border-0 shadow-none xl:border xl:shadow-sm xl:min-h-[798px]">
 
       {/* Title */}
-      <h2 className="text-2xl font-semibold text-zinc-900">{title}</h2>
+      <h2 className="text-2xl font-semibold text-zinc-900 xl:mb-8">{title}</h2>
 
       {/* Toolbar */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 xl:mb-4 xl:justify-between">
         <Input
           aria-label={searchPlaceholder}
           placeholder={searchPlaceholder}
-          className="h-9 min-w-0 flex-1 border-zinc-200 text-sm xl:max-w-80"
+          className="h-9 min-w-0 flex-1 border-zinc-200 text-sm xl:w-[402px] xl:flex-none xl:rounded-lg xl:border xl:text-base xl:font-normal"
+          style={{ background: "#ffffff", color: "var(--foreground)" }}
         />
         <div className="flex shrink-0 items-center gap-2">
-          <span className="hidden rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 whitespace-nowrap xl:inline-flex">
+          <span className="hidden whitespace-nowrap rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 xl:inline-flex xl:items-center xl:rounded-lg xl:text-xs xl:font-medium" style={{ background: "#ffffff", color: "var(--foreground)" }}>
             {totalLabel}
           </span>
-          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-50 transition-colors whitespace-nowrap">
-            <ArrowUpDown className="h-3.5 w-3.5" />
+          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 transition-colors whitespace-nowrap hover:bg-zinc-50 xl:rounded-lg xl:text-xs xl:font-medium" style={{ background: "#ffffff", color: "var(--foreground)" }}>
+            <Settings2 className="h-3.5 w-3.5" />
             {sortLabel}
           </button>
-          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-50 transition-colors">
+          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:bg-zinc-50 xl:rounded-lg xl:text-xs xl:font-medium" style={{ background: "#ffffff", color: "var(--foreground)" }}>
             <Trash2 className="h-3.5 w-3.5" />
             <span className="hidden xl:inline">{deleteLabel}</span>
           </button>

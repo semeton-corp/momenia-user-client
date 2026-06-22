@@ -10,6 +10,10 @@ import { TestimonialSection } from "@/components/landing/TestimonialSection"
 import { getLandingPage } from "@/lib/api/landing-page/landing-page.service"
 import AuthCallbackClient from "@/components/auth/AuthCallbackClient"
 
+// Ensure the OAuth callback branch (?code=...) is always evaluated server-side
+// instead of being served from a static/cached render that ignores searchParams.
+export const dynamic = "force-dynamic"
+
 type Props = {
   readonly params: Promise<{ locale: string }>
   readonly searchParams?: Promise<{ code?: string; action?: string; app?: string }>

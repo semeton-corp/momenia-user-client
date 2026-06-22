@@ -21,6 +21,7 @@ export function useLogout() {
         onSettled: () => {
             globalThis.localStorage?.removeItem("accessToken")
             globalThis.localStorage?.removeItem("refreshToken")
+            globalThis.localStorage?.removeItem("user")
             queryClient.clear()
             router.replace(`/${locale}`)
         },

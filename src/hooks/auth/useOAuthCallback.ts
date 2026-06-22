@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useLocale } from "next-intl"
+import { useQueryClient } from "@tanstack/react-query"
 import {
     signInWithGoogle,
     signUpWithGoogle,
@@ -26,6 +27,7 @@ export const useOAuthCallback = () => {
     const searchParams = useSearchParams()
     const router = useRouter()
     const locale = useLocale()
+    const queryClient = useQueryClient()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const hasRun = useRef(false)
@@ -69,6 +71,17 @@ export const useOAuthCallback = () => {
                 localStorage.setItem("refreshToken", result.session.refreshToken)
                 localStorage.removeItem("auth_type")
 
+                // The login response already carries the user profile — persist it and
+                // seed the query cache so the UI reflects the logged-in state immediately
+                // (and does not depend on a separate /me request succeeding).
+                const profile = {
+                    email: result.email,
+                    name: result.name,
+                    profilePicture: result.profilePicture,
+                }
+                localStorage.setItem("user", JSON.stringify(profile))
+                queryClient.setQueryData(["currentUser"], profile)
+
                 router.replace(`/${locale}/dashboard`)
             } catch (err) {
                 console.error(err)
@@ -83,7 +96,7 @@ export const useOAuthCallback = () => {
         }
 
         run()
-    }, [locale, router, searchParams])
+    }, [locale, router, searchParams, queryClient])
 
     return { loading, error }
 }
