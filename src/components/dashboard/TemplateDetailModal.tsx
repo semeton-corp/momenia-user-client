@@ -12,6 +12,7 @@ import { RadioDot } from "@/components/ui/radio-dot"
 import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
 import MobileFrame from "@/assets/dashboard/mobile.svg"
+import { useInvitationDurations } from "@/hooks/useInvitationDurations"
 
 export type TemplateDetail = {
   id: string | number
@@ -40,14 +41,8 @@ const FEATURE_ADDONS = [
   { key: "customDomainLink", price: 10000 },
 ] as const
 
-const DURATION_ADDONS = [
-  { key: "basic2week", price: 0 },
-  { key: "month3", price: 10000 },
-  { key: "month6", price: 10000 },
-  { key: "month8", price: 10000 },
-] as const
-
 export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, onClose }: Props) {
+  const { data: durations = [], isLoading: isDurationsLoading } = useInvitationDurations()
   const t = useTranslations("dashboard.modal")
   const locale = useLocale()
   const scale = useZoomScale()
@@ -55,7 +50,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
   const [view, setView] = React.useState<"mobile" | "desktop">("mobile")
   const [step, setStep] = React.useState<"detail" | "addons">("detail")
   const [selectedFeatures, setSelectedFeatures] = React.useState<Set<string>>(new Set())
-  const [selectedDuration, setSelectedDuration] = React.useState("basic2week")
+  const [selectedDuration, setSelectedDuration] = React.useState("")
   const [expandedAddon, setExpandedAddon] = React.useState<string | null>(null)
 
   React.useEffect(() => {
@@ -70,9 +65,15 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
     setView("mobile")
     setStep("detail")
     setSelectedFeatures(new Set())
-    setSelectedDuration("basic2week")
+    setSelectedDuration("")
     setExpandedAddon(null)
   }, [template?.id])
+
+  React.useEffect(() => {
+    if (durations.length > 0 && !selectedDuration) {
+      setSelectedDuration(durations[0].id)
+    }
+  }, [durations, selectedDuration])
 
   const toggleFeature = (key: string) => {
     setSelectedFeatures((prev) => {
@@ -85,8 +86,10 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
 
   const handleContinueToPayment = () => {
     if (!template) return
-    const durationPrice = DURATION_ADDONS.find((d) => d.key === selectedDuration)?.price ?? 0
+    const selectedDurationObj = durations.find((d) => d.id === selectedDuration)
+    const durationPrice = selectedDurationObj ? Number(selectedDurationObj.price) : 0
     const params = new URLSearchParams({
+      templateId: String(template.id),
       title: template.title,
       price: String(template.price),
       image: template.imageUrl,
@@ -692,20 +695,25 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   <p className="text-lg text-zinc-900 xl:text-2xl">{t("durationAddOns")}</p>
                   <p className="mb-3 mt-1 text-sm text-zinc-400 xl:mb-4">{t("durationAddOnsSubtitle")}</p>
                   <div className="space-y-2">
-                    {DURATION_ADDONS.map(({ key, price }) => (
-                      <div
-                        key={key}
-                        className="flex min-h-20 cursor-pointer items-center gap-3 rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-3 transition-colors hover:bg-indigo-100 xl:gap-4 xl:py-0"
-                        onClick={() => setSelectedDuration(key)}
-                      >
-                        <span className="flex-1 text-sm font-medium text-foreground xl:text-lg">{t(key)}</span>
-                        <span className="whitespace-nowrap text-sm font-medium text-foreground xl:text-lg">
-                          {price === 0 ? "Rp 0" : `Rp ${price.toLocaleString("id-ID")}`}
-                        </span>
-                        <RadioDot checked={selectedDuration === key} className="ml-3"
-                        />
-                      </div>
-                    ))}
+                    {isDurationsLoading ? (
+                      <div className="flex items-center justify-center py-6 text-sm text-zinc-400">Loading...</div>
+                    ) : durations.map((duration) => {
+                      const price = Number(duration.price)
+                      const label = `${duration.value} ${duration.duration}`
+                      return (
+                        <div
+                          key={duration.id}
+                          className="flex min-h-20 cursor-pointer items-center gap-3 rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-3 transition-colors hover:bg-indigo-100 xl:gap-4 xl:py-0"
+                          onClick={() => setSelectedDuration(duration.id)}
+                        >
+                          <span className="flex-1 text-sm font-medium text-foreground xl:text-lg">{label}</span>
+                          <span className="whitespace-nowrap text-sm font-medium text-foreground xl:text-lg">
+                            {price === 0 ? "Rp 0" : `Rp ${price.toLocaleString("id-ID")}`}
+                          </span>
+                          <RadioDot checked={selectedDuration === duration.id} className="ml-3" />
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               </div>

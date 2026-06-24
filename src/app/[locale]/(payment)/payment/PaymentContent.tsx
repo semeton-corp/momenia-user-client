@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl"
 import QrisIcon from "@/assets/logo/Qris-icon.svg"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "@/i18n/navigation"
+import { useCreateTransaction } from "@/hooks/useCreateTransaction"
 
 const FEATURE_ADDONS = [
   { key: "instagramFilter", price: 10000 },
@@ -30,7 +31,9 @@ export function PaymentContent() {
   const searchParams = useSearchParams()
   const t = useTranslations("dashboard.payment")
   const tModal = useTranslations("dashboard.modal")
+  const { mutate: createTransaction, isPending } = useCreateTransaction()
 
+  const templateId = searchParams.get("templateId") ?? ""
   const title = searchParams.get("title") ?? ""
   const price = Number(searchParams.get("price") ?? 0)
   const image = searchParams.get("image") ?? ""
@@ -189,11 +192,16 @@ export function PaymentContent() {
 
               {/* Pay Order — height 80px */}
               <Button
-                className="w-full rounded-xl text-lg font-semibold shadow-md shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95"
+                className="w-full rounded-xl text-lg font-semibold shadow-md shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-70"
                 style={{ height: "80px" }}
-                onClick={() => router.push(`/dashboard/my-invitation/demo`)}
+                disabled={isPending}
+                onClick={() => createTransaction({
+                  invitationTemplateId: templateId,
+                  invitationDurationId: durationKey,
+                  paymentMethod: "qris",
+                })}
               >
-                {t("payOrder")}
+                {isPending ? "Processing..." : t("payOrder")}
               </Button>
             </div>
 
