@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "Memoria",
+    "siteName": "Momenia",
     "signIn": "Masuk",
     "signUp": "Daftar",
     "toggleMenu": "Buka menu",
@@ -34,44 +34,14 @@
     },
     "about": {
       "title": "Tentang Kami",
-      "p1Part1": "MEMORIA adalah platform undangan berbasis web all-in-one yang dirancang untuk membantu orang ",
+      "p1Part1": "MOMENIA adalah platform undangan berbasis web all-in-one yang dirancang untuk membantu orang ",
       "p1Highlight": "membuat, mengelola, dan membagikan momen bermakna dengan mudah.",
-      "p1Part2": " Kami percaya bahwa setiap momen spesial layak mendapatkan lebih dari sekadar undangan biasa—undangan harus interaktif, personal, dan mudah dikelola tanpa membutuhkan keahlian teknis atau bantuan developer. Karena itu, MEMORIA memberdayakan kamu untuk mengontrol penuh undanganmu, mulai dari mendesain dan mengedit konten hingga mempublikasikan dan mengelola tamu, semuanya dalam satu platform yang mulus.",
-      "p2": "Dengan MEMORIA, kamu bisa membuat undangan digital yang indah dalam hitungan menit, mengubah detail kapan saja, dan membagikannya secara instan. Platform ini juga mendukung pelacakan RSVP serta memungkinkan tamu mengirim pesan dan hadiah digital, sehingga pengalaman jadi lebih interaktif. Di MEMORIA, kami bukan hanya membangun sebuah alat—kami menciptakan cara yang lebih cerdas, lebih sederhana, dan lebih berkesan untuk merayakan momen-momen terpenting dalam hidup."
+      "p1Part2": " Kami percaya bahwa setiap momen spesial layak mendapatkan lebih dari sekadar undangan biasa—undangan harus interaktif, personal, dan mudah dikelola tanpa membutuhkan keahlian teknis atau bantuan developer. Karena itu, MOMENIA memberdayakan kamu untuk mengontrol penuh undanganmu, mulai dari mendesain dan mengedit konten hingga mempublikasikan dan mengelola tamu, semuanya dalam satu platform yang mulus.",
+      "p2": "Dengan MOMENIA, kamu bisa membuat undangan digital yang indah dalam hitungan menit, mengubah detail kapan saja, dan membagikannya secara instan. Platform ini juga mendukung pelacakan RSVP serta memungkinkan tamu mengirim pesan dan hadiah digital, sehingga pengalaman jadi lebih interaktif. Di MOMENIA, kami bukan hanya membangun sebuah alat—kami menciptakan cara yang lebih cerdas, lebih sederhana, dan lebih berkesan untuk merayakan momen-momen terpenting dalam hidup."
     },
     "features": {
       "titleSuffix": "Fitur",
-      "subtitle": "Semua yang kamu butuhkan untuk membuat, mengelola, dan membagikan undangan dengan mudah.",
-      "items": {
-        "selfEditable": {
-          "title": "Halaman Website yang Bisa Diedit Sendiri",
-          "description": "Kustomisasi undangan kapan saja tanpa perlu kemampuan teknis. Ubah konten, gambar, dan detail acara langsung dari perangkatmu."
-        },
-        "smartDashboard": {
-          "title": "Dashboard Pintar",
-          "description": "Kelola semua undanganmu dalam satu tempat lewat dashboard yang intuitif dan mudah digunakan."
-        },
-        "spotifyMusic": {
-          "title": "Musik dari Spotify",
-          "description": "Tambahkan sentuhan personal dengan lagu favorit dari Spotify untuk pengalaman undangan yang lebih imersif."
-        },
-        "rsvpDashboard": {
-          "title": "Dashboard RSVP Tamu",
-          "description": "Pantau kehadiran tamu secara real-time dan lihat ringkasan siapa saja yang akan datang."
-        },
-        "afterEventNotes": {
-          "title": "Catatan Setelah Acara",
-          "description": "Kirim ucapan terima kasih atau pesan setelah acara untuk membuat pengalaman jadi lebih bermakna."
-        },
-        "autoText": {
-          "title": "Teks Undangan Otomatis",
-          "description": "Buat wording undangan secara instan dengan bantuan teks, hemat waktu dan tenaga."
-        },
-        "addOnFeatures": {
-          "title": "Fitur Tambahan",
-          "description": "Lengkapi undangan dengan banyak fitur tambahan sesuai kebutuhan, agar setiap acara terasa lebih unik."
-        }
-      }
+      "subtitle": "Semua yang kamu butuhkan untuk membuat, mengelola, dan membagikan undangan dengan mudah."
     },
     "catalog": {
       "titleSuffix": "Katalog",
@@ -90,33 +60,21 @@
     },
     "faq": {
       "titlePrefix": "FAQ",
-      "subtitle": "Semua yang perlu kamu ketahui sebelum membuat undangan digitalmu.",
-      "items": {
-        "editAfterPublish": {
-          "q": "Apakah saya bisa mengedit undangan setelah dipublikasikan?",
-          "a": "Bisa. Kamu dapat memperbarui undangan kapan saja, bahkan setelah dipublikasikan. Semua perubahan akan langsung terlihat."
-        },
-        "startCreating": {
-          "q": "Bagaimana cara mulai membuat undangan?",
-          "a": "Mulai dengan memilih template, sesuaikan detail acaramu, lalu publikasikan dan bagikan link undangan dalam hitungan menit."
-        },
-        "shareWithGuests": {
-          "q": "Bagaimana cara membagikan undangan kepada tamu?",
-          "a": "Setelah dipublikasikan, kamu bisa membagikan link undangan lewat WhatsApp, Instagram, email, atau platform apa pun yang kamu gunakan."
-        },
-        "trackRsvp": {
-          "q": "Apakah saya bisa melacak siapa yang sudah melihat atau merespons undangan?",
-          "a": "Bisa. Kamu dapat memantau status RSVP dan respons tamu dari dashboard, jadi kamu selalu tahu siapa yang sudah mengonfirmasi atau membuka undangan."
-        },
-        "suitableEvents": {
-          "q": "Apakah Memoria cocok untuk berbagai jenis acara?",
-          "a": "Tentu. Memoria cocok untuk pernikahan, ulang tahun, acara kantor, dan banyak acara lainnya—tinggal pilih template yang sesuai."
-        }
-      }
+      "subtitle": "Semua yang perlu kamu ketahui sebelum membuat undangan digitalmu."
+    }
+  },
+  "promo": {
+    "hero": {
+      "badge": "SEGERA HADIR",
+      "subtitle": "Masa depan undangan digital sudah semakin dekat"
+    },
+    "features": {
+      "badge": "SEGERA HADIR",
+      "subtitle": "Fitur-fitur canggih yang dirancang untuk membuat undanganmu tak terlupakan."
     }
   },
   "footer": {
-    "copyright": "© 2026 Memoria. Hak cipta dilindungi. Dirancang untuk membuat momenmu lebih berkesan.",
+    "copyright": "© 2026 Momenia. Hak cipta dilindungi. Dirancang untuk membuat momenmu lebih berkesan.",
     "builtBy": "Dibuat oleh",
     "sourceCode": "Kode sumber tersedia di",
     "github": "GitHub"
@@ -133,7 +91,7 @@
     "loginTitle": "Selamat datang kembali",
     "loginSubtitle": "Masuk ke akun Anda",
     "registerTitle": "Buat akun",
-    "registerSubtitle": "Mulai dengan Memoria",
+    "registerSubtitle": "Mulai dengan Momenia",
     "email": "Email",
     "password": "Kata sandi",
     "confirmPassword": "Konfirmasi kata sandi",
@@ -164,5 +122,203 @@
     "termsText": "Dengan mengklik daftar, Anda menyetujui",
     "termsOfService": "Syarat dan Ketentuan",
     "privacyPolicy": "Kebijakan Privasi"
+  },
+  "dashboard": {
+    "favourite": {
+      "title": "Favorit Saya",
+      "empty": "Kamu belum menambahkan favorit apa pun."
+    },
+    "sidebar": {
+      "template": "Template",
+      "myInvitation": "Undangan Saya",
+      "favorite": "Favorit",
+      "transaction": "Transaksi"
+    },
+    "banner": {
+      "title": "Katalog Template",
+      "subtitle": "Temukan desain undangan yang sempurna untuk momen spesialmu. Setiap template dikurasi oleh desainer terbaik untuk memastikan eksklusivitasnya.",
+      "searchPlaceholder": "Cari template...",
+      "category": "Kategori",
+      "sort": "Urutan"
+    },
+    "tags": {
+      "allStyles": "Semua gaya",
+      "classy": "Elegan",
+      "minimalism": "Minimalis",
+      "colorful": "Berwarna",
+      "modern": "Modern",
+      "vintage": "Vintage",
+      "clean": "Bersih",
+      "bold": "Tebal",
+      "retro": "Retro",
+      "cute": "Lucu",
+      "softColor": "Warna lembut"
+    },
+    "modal": {
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "demo": "Demo",
+      "seeAddOns": "Lihat add on dan Pembayaran",
+      "addOns": "Add ons",
+      "featureAddOns": "Fitur Add ons",
+      "featureAddOnsSubtitle": "Fitur tambahan juga dapat dibeli nanti melalui dashboard Anda setelah menyelesaikan pesanan.",
+      "durationAddOns": "Durasi Add ons",
+      "durationAddOnsSubtitle": "Paket durasi hanya dapat dipilih saat pembelian. Setelah pesanan selesai, paket durasi tidak dapat diubah atau ditingkatkan.",
+      "instagramFilter": "Filter Instagram & tambahkan milikmu",
+      "multiLanguage": "Undangan multi bahasa tambahan",
+      "galleryMomenia": "Galeri Momenia",
+      "galleryMomeniaDesc": "Galeri Momenia adalah fitur add-on yang memungkinkan host dan tamu untuk mengunggah dan berbagi foto dalam satu galeri terpusat. Tamu dapat berkontribusi foto langsung dari perangkat mereka sendiri, membuat acara lebih interaktif dan mengabadikan momen dari berbagai sudut pandang.",
+      "customDomainLink": "Link Domain Kustom",
+      "basic2week": "Durasi dasar 2 minggu",
+      "month3": "Durasi undangan Basic + 3 Bulan",
+      "month6": "Durasi undangan Basic + 6 Bulan",
+      "month8": "Durasi undangan Basic + 8 Bulan",
+      "continueToPayment": "Lanjut ke Pembayaran"
+    },
+  "payment": {
+    "title": "Pembayaran",
+    "back": "Kembali",
+    "itemDetails": "Detail Item",
+      "orderSummary": "Ringkasan Pesanan",
+      "basePrice": "Harga Dasar",
+      "duration": "Durasi",
+      "addons": "Fitur Tambahan",
+      "noAddons": "Tidak ada fitur tambahan",
+      "subtotal": "Subtotal",
+    "discount": "Diskon",
+    "total": "Total",
+    "payWith": "Bayar dengan",
+    "payOrder": "Bayar Sekarang"
+  },
+  "workspace": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "edit": "Edit",
+      "guests": "Tamu",
+      "rsvp": "RSVP",
+      "notes": "Catatan",
+      "messages": "Ucapan",
+      "gifts": "Hadiah",
+      "addOns": "Add Ons"
+    },
+    "common": {
+      "vip": "VIP",
+      "regular": "Reguler",
+      "attending": "Hadir",
+      "declined": "Tidak Hadir",
+      "pending": "Belum Konfirmasi",
+      "rowsPerPage": "Rows per page",
+      "pageLabel": "Page {current} of {total}",
+      "selectedRows": "{count} of {total} row(s) selected.",
+      "searchGuests": "Cari nama tamu...",
+      "sort": "Urutkan",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "copy": "Copy",
+      "editLink": "Edit Link",
+      "hide": "Sembunyikan",
+      "delete": "Hapus"
+    },
+    "launcher": {
+      "title": "Undangan Saya",
+      "subtitle": "Halaman ini menjadi jalur bypass sementara untuk membuka workspace undangan.",
+      "demoBadge": "Bypass payment",
+      "helper": "Setelah user klik Bayar Sekarang, kita arahkan ke workspace ini dulu selama backend masih tahap slicing.",
+      "openDemo": "Buka Demo Workspace"
+    },
+    "overview": {
+      "title": "Dashboard Invitation",
+      "publishNow": "Publish Sekarang",
+      "editTemplate": "Edit Template",
+      "manageGuests": "Kelola Tamu",
+      "guestStatsTitle": "Statistik Tamu",
+      "invitationLink": "Link Undangan",
+      "messageTemplateTitle": "Template Pesan Untuk Tamu",
+      "generateText": "Generate Invitation Text",
+      "countdownUnits": {
+        "days": "Hari",
+        "hours": "Jam",
+        "minutes": "Menit",
+        "seconds": "Detik"
+      }
+    },
+    "guests": {
+      "title": "Kelola Tamu",
+      "listTitle": "List Tamu",
+      "addTitle": "Tambah Tamu",
+      "totalGuests": "Total Tamu: {count}",
+      "deleteRows": "Hapus Baris",
+      "table": {
+        "name": "Nama",
+        "whatsApp": "WhatsApp",
+        "email": "Email",
+        "category": "Kategori",
+        "actions": "Aksi",
+        "delivered": "Terkirim?"
+      },
+      "form": {
+        "name": "Nama Lengkap",
+        "whatsApp": "Nomor WhatsApp",
+        "email": "Email",
+        "category": "Kategori",
+        "chooseCategory": "Pilih kategori",
+        "categoryHint": "Silakan sesuaikan kategori"
+      }
+    },
+    "rsvp": {
+      "title": "RSVP",
+      "listTitle": "List Tamu",
+      "totalGuests": "Total Tamu",
+      "estimatedGuests": "Estimasi total tamu (dengan plus one)",
+      "table": {
+        "attendance": "Kehadiran",
+        "guestCount": "Jumlah Hadir"
+      }
+    },
+    "messages": {
+      "title": "Pesan dari Tamu",
+      "searchPlaceholder": "Cari nama tamu...",
+      "voiceNote": "Voice Note dari {name}"
+    },
+    "notes": {
+      "title": "After Party Notes",
+      "stepOne": "Langkah 1: Buat Catatan",
+      "stepTwo": "Langkah 2: Pilih Tamu dan Kirim",
+      "formTitle": "Buat Catatan",
+      "formSubtitle": "Buat catatan after party untuk dibagikan kepada tamu undangan.",
+      "galleryLink": "Link Galeri Foto",
+      "souvenirLabel": "Souvenir Online",
+      "messageLabel": "Ucapan",
+      "messageHint": "Silakan sesuaikan isi catatan sebelum dibagikan ke tamu.",
+      "recipientTitle": "Pilih Tamu dan Kirim",
+      "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan after party Anda."
+    },
+    "addOns": {
+      "title": "Add Ons",
+      "active": "ACTIVE",
+      "locked": "LOCKED"
+    },
+    "edit": {
+      "title": "Edit Template",
+      "subtitle": "Atur informasi utama undangan dan status publikasinya.",
+      "settingsTitle": "Pengaturan Utama",
+      "settingsDescription": "Versi slicing ini sudah dipisah ke komponen reusable dan siap disambungkan ke API asli.",
+      "slugLabel": "Slug Undangan",
+      "hostLabel": "Nama Host",
+      "themeLabel": "Tema",
+      "colorLabel": "Aksen Warna",
+      "previewTitle": "Status Preview",
+      "previewDescription": "Preview masih memakai mock data, tetapi struktur page dan komponennya sudah siap untuk integrasi selanjutnya."
+    },
+    "gifts": {
+      "title": "Hadiah",
+      "summaryTitle": "Metode Hadiah",
+      "summaryDescription": "Kelola metode hadiah digital yang akan tampil di halaman undangan.",
+      "bankTransfer": "Transfer Bank",
+      "digitalWallet": "Dompet Digital",
+      "shippingGift": "Pengiriman Hadiah",
+      "comingSoon": "Integrasi checkout hadiah akan disambungkan setelah API siap."
+    }
   }
+}
 }

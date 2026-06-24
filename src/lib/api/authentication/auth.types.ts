@@ -29,3 +29,9 @@ export type RefreshTokenResponse = {
 
 // logout has no body (204)
 export type LogoutResponse = void
+
+export type UserProfile = {
+  email: string
+  name: string
+  profilePicture: string
+}

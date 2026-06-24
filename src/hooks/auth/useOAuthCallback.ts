@@ -1,16 +1,35 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useLocale } from "next-intl"
+import { useQueryClient } from "@tanstack/react-query"
 import {
     signInWithGoogle,
     signUpWithGoogle,
 } from "@/lib/api/authentication/auth.service"
 
+type OAuthAction = "signin" | "signup"
+
+const resolveOAuthAction = (
+    queryAction: string | null,
+    storedAction: string | null
+): OAuthAction | null => {
+    const action = queryAction ?? storedAction
+
+    if (action === "signin" || action === "login") return "signin"
+    if (action === "signup" || action === "register") return "signup"
+
+    return null
+}
+
 export const useOAuthCallback = () => {
     const searchParams = useSearchParams()
     const router = useRouter()
+    const locale = useLocale()
+    const queryClient = useQueryClient()
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
     const hasRun = useRef(false)
 
     useEffect(() => {
@@ -18,43 +37,66 @@ export const useOAuthCallback = () => {
         hasRun.current = true
 
         const code = searchParams.get("code")
-        if (!code) return
+        const action = resolveOAuthAction(
+            searchParams.get("action"),
+            localStorage.getItem("auth_type")
+        )
 
-        setLoading(true)
+        if (!code) {
+            setError("Missing Google authorization code.")
+            return
+        }
 
-        const authType = localStorage.getItem("auth_type")
+        if (!action) {
+            setError("Missing or invalid Google auth action.")
+            return
+        }
 
         const run = async () => {
-            try {
-                let result
+            setLoading(true)
+            setError(null)
 
-                if (authType === "register") {
-                    result = await signUpWithGoogle({
-                        code,
-                        userAgent: navigator.userAgent,
-                    })
-                } else {
-                    result = await signInWithGoogle({
-                        code,
-                        userAgent: navigator.userAgent,
-                    })
+            try {
+                const payload = {
+                    code,
+                    userAgent: navigator.userAgent,
                 }
+
+                const result =
+                    action === "signup"
+                        ? await signUpWithGoogle(payload)
+                        : await signInWithGoogle(payload)
 
                 localStorage.setItem("accessToken", result.session.accessToken)
                 localStorage.setItem("refreshToken", result.session.refreshToken)
-
                 localStorage.removeItem("auth_type")
 
-                router.replace("/dashboard")
+                // The login response already carries the user profile — persist it and
+                // seed the query cache so the UI reflects the logged-in state immediately
+                // (and does not depend on a separate /me request succeeding).
+                const profile = {
+                    email: result.email,
+                    name: result.name,
+                    profilePicture: result.profilePicture,
+                }
+                localStorage.setItem("user", JSON.stringify(profile))
+                queryClient.setQueryData(["currentUser"], profile)
+
+                router.replace(`/${locale}/dashboard`)
             } catch (err) {
                 console.error(err)
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : "Unable to finish Google authentication."
+                )
             } finally {
                 setLoading(false)
             }
         }
 
         run()
-    }, [searchParams, router])
+    }, [locale, router, searchParams, queryClient])
 
-    return { loading }
+    return { loading, error }
 }

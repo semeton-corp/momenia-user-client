@@ -69,7 +69,7 @@ export function FaqAccordion({ items, defaultOpenId }: FaqAccordionProps) {
               type="button"
               onClick={() => toggleOpen(item.id)}
               className={cn(
-                "flex w-full items-center justify-between gap-3 p-4 text-left md:p-7",
+                "flex w-full cursor-pointer items-center justify-between gap-3 p-4 text-left md:p-7",
                 !isOpen && "hover:bg-slate-50",
               )}
               aria-expanded={isOpen}

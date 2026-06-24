@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Memoria",
-  description: "Memoria",
+  title: "Momenia",
+  description: "Momenia",
 }
 
 export default function RootLayout({
@@ -26,7 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
+        style={{ fontFamily: "var(--font-geist-sans)" }}
       >
         <QueryProvider>
           {children}
