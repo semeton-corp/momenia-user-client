@@ -37,10 +37,10 @@ export function AfterPartyRecipientsTable({
   guests,
 }: AfterPartyRecipientsTableProps) {
   return (
-    <WorkspaceCard className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:p-5 border-0 shadow-none lg:border lg:shadow-sm">
+    <WorkspaceCard className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:p-8 border-0 shadow-none lg:border lg:shadow-sm">
       <div>
-        <h2 className="text-2xl font-semibold text-zinc-900">{title}</h2>
-        <p className="mt-1 text-sm text-zinc-500">{subtitle}</p>
+        <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
+        <p className="mt-1 text-sm text-muted-foreground lg:text-base">{subtitle}</p>
       </div>
 
       <Input
@@ -54,7 +54,7 @@ export function AfterPartyRecipientsTable({
         <div className="overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
             <thead>
-              <tr className="bg-indigo-50 text-xs font-medium text-zinc-600">
+              <tr className="bg-indigo-50 text-sm font-medium text-foreground">
                 <th className="px-4 py-3">{nameLabel}</th>
                 <th className="px-4 py-3">
                   <span className="inline-flex items-center gap-1">
@@ -72,11 +72,13 @@ export function AfterPartyRecipientsTable({
             <tbody>
               {guests.map((guest) => (
                 <tr key={guest.id} className="hover:bg-zinc-50/60 transition-colors">
-                  <td className="border-b border-zinc-100 px-4 py-3 font-medium text-zinc-800">
+                  <td className="border-b border-zinc-100 px-4 py-3 text-sm font-medium text-foreground">
                     {guest.name}
                   </td>
-                  <td className="border-b border-zinc-100 px-4 py-3 text-xs text-zinc-600">
-                    {guest.category === "vip" ? "VIP" : "Reguler"}
+                  <td className="border-b border-zinc-100 px-4 py-3">
+                    <span className="inline-flex items-center rounded-md border border-zinc-300 bg-white px-2.5 py-0.5 text-xs font-medium text-popover-foreground">
+                      {guest.category === "vip" ? "VIP" : "Reguler"}
+                    </span>
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3">
                     <div className="flex items-center gap-1.5">

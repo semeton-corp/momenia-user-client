@@ -17,7 +17,7 @@ export default async function NotesPage({ params }: Props) {
   const data = getInvitationWorkspaceData(invitationId, locale)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 xl:space-y-10 xl:pl-8 xl:pt-6">
 
       {/* Header — hidden on mobile */}
       <div className="hidden xl:block">
@@ -28,13 +28,13 @@ export default async function NotesPage({ params }: Props) {
 
         {/* ── Stepper (desktop): spans both columns ── */}
         <div className="hidden lg:col-span-2 lg:flex lg:items-center">
-          <div className="flex w-115 shrink-0 items-center gap-2 rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-3 text-sm font-medium text-indigo-700">
-            <ClipboardList className="h-4 w-4 shrink-0" />
+          <div className="flex w-115 shrink-0 items-center gap-2 rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-3 text-xl font-medium text-indigo-700">
+            <ClipboardList className="h-7 w-7 shrink-0" />
             <span>{t("notes.stepOne")}</span>
           </div>
           <div className="w-12 shrink-0 border-t-2 border-dashed border-zinc-300" />
-          <div className="flex flex-1 items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-400">
-            <UsersRound className="h-4 w-4 shrink-0" />
+          <div className="flex flex-1 items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-xl font-medium text-zinc-400">
+            <UsersRound className="h-7 w-7 shrink-0" />
             <span>{t("notes.stepTwo")}</span>
           </div>
         </div>
@@ -47,14 +47,14 @@ export default async function NotesPage({ params }: Props) {
 
         {/* ── Form card: column 1 ── */}
         <div className="min-w-0 -mx-4 sm:-mx-6 lg:mx-0">
-          <WorkspaceCard className="h-fit px-4 py-4 sm:px-6 lg:p-6 border-0 shadow-none lg:border lg:shadow-sm">
-            <h2 className="text-2xl font-semibold text-zinc-900">{t("notes.formTitle")}</h2>
-            <p className="mt-1 text-sm text-zinc-500">{t("notes.formSubtitle")}</p>
+          <WorkspaceCard className="h-fit px-4 py-4 sm:px-6 lg:p-8 border-0 shadow-none lg:border lg:shadow-sm">
+            <h2 className="text-2xl font-semibold text-foreground">{t("notes.formTitle")}</h2>
+            <p className="mt-1 text-sm text-muted-foreground lg:text-base">{t("notes.formSubtitle")}</p>
 
-            <div className="mt-4 rounded-[10px] border border-zinc-200 p-5">
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-zinc-700">{t("notes.galleryLink")}</label>
+            <div className="mt-4 rounded-[10px] border border-zinc-200 p-5 lg:mt-8 lg:p-6">
+              <div className="space-y-4 lg:space-y-7">
+                <div className="space-y-1.5 lg:space-y-3">
+                  <label className="text-sm font-medium text-card-foreground">{t("notes.galleryLink")}</label>
                   <Input
                     placeholder="https/..."
                     defaultValue={data.afterPartyNote.galleryUrl}
@@ -62,8 +62,8 @@ export default async function NotesPage({ params }: Props) {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-zinc-700">{t("notes.souvenirLabel")}</label>
+                <div className="space-y-1.5 lg:space-y-3">
+                  <label className="text-sm font-medium text-card-foreground">{t("notes.souvenirLabel")}</label>
                   <Input
                     placeholder="johndoe@gmail.com"
                     defaultValue={data.afterPartyNote.souvenirLabel}
@@ -71,8 +71,8 @@ export default async function NotesPage({ params }: Props) {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-zinc-700">{t("notes.messageLabel")}</label>
+                <div className="space-y-1.5 lg:space-y-3">
+                  <label className="text-sm font-medium text-card-foreground">{t("notes.messageLabel")}</label>
                   <textarea
                     placeholder="Type your message here."
                     defaultValue={data.afterPartyNote.message}

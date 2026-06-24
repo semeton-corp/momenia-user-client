@@ -135,7 +135,7 @@ export function GuestAddForm({
   cancelLabel,
 }: GuestAddFormProps) {
   return (
-    <WorkspaceCard className="h-fit px-4 py-4 sm:px-6 xl:p-6 border-0 shadow-none xl:border xl:shadow-sm">
+    <WorkspaceCard className="h-fit px-4 py-4 sm:px-6 xl:p-8 border-0 shadow-none xl:border xl:shadow-sm">
       <h2 className="text-2xl font-semibold text-zinc-900">{title}</h2>
 
       {/* Inner container */}

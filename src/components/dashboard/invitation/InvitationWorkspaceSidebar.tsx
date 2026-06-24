@@ -3,14 +3,14 @@
 import type { ComponentType, CSSProperties } from "react"
 import {
   Blocks,
-  Gift,
   House,
   LayoutDashboard,
-  Mail,
+  MailOpen,
   MessageSquareText,
   NotebookText,
   PencilLine,
-  UsersRound,
+  ShoppingBag,
+  Users,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Link, usePathname } from "@/i18n/navigation"
@@ -38,11 +38,11 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
   const navItems: NavItem[] = [
     { key: "dashboard", href: basePath,               icon: LayoutDashboard, exact: true },
     { key: "edit",      href: `${basePath}/edit`,     icon: PencilLine },
-    { key: "guests",    href: `${basePath}/guests`,   icon: UsersRound },
-    { key: "rsvp",      href: `${basePath}/rsvp`,     icon: Mail,            dividerAfter: true },
+    { key: "guests",    href: `${basePath}/guests`,   icon: Users },
+    { key: "rsvp",      href: `${basePath}/rsvp`,     icon: MailOpen,        dividerAfter: true },
     { key: "notes",     href: `${basePath}/notes`,    icon: NotebookText },
     { key: "messages",  href: `${basePath}/messages`, icon: MessageSquareText },
-    { key: "gifts",     href: `${basePath}/gifts`,    icon: Gift,            dividerAfter: true },
+    { key: "gifts",     href: `${basePath}/gifts`,    icon: ShoppingBag,     dividerAfter: true },
     { key: "addOns",    href: `${basePath}/add-ons`,  icon: Blocks },
   ]
 
@@ -52,55 +52,55 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
     <>
       {/* ── Desktop: fixed left sidebar ── */}
       <aside
-        className="fixed left-0 top-0 z-40 hidden w-24 flex-col items-center py-6 lg:flex"
+        className="fixed left-0 top-0 z-40 hidden flex-col items-center py-6 lg:flex"
         style={{
+          width: "116px",
           height: sidebarHeight,
           background: "#FAFAFA",
           borderRadius: "0 24px 24px 0",
           borderRight: "1.5px solid #E5E5E5",
-          boxShadow: "4px 0 24px 0 rgba(99,102,241,0.13)",
         }}
       >
         {/* Home — plain icon, no box */}
         <Link
           href={basePath}
-          className="mb-6 flex items-center justify-center transition-all hover:opacity-70"
+          className="mt-6 mb-12 flex items-center justify-center transition-all hover:opacity-70"
         >
           <House className="h-8 w-8" style={{ color: "#4F46E5" }} />
         </Link>
 
         {/* Nav */}
-        <nav className="flex w-full flex-1 flex-col items-center gap-2 px-3">
+        <nav className="flex w-full flex-1 flex-col items-center gap-1 px-3">
           {navItems.map(({ key, href, icon: Icon, exact, dividerAfter }) => {
             const isActive = exact
               ? pathname === href
               : pathname === href || pathname.startsWith(`${href}/`)
 
             return (
-              <div key={key} className="flex w-full flex-col items-center gap-2">
+              <div key={key} className="flex w-full flex-col items-center gap-1">
                 <Link
                   href={href}
-                  className="flex w-full flex-col items-center gap-1.5 rounded-xl py-2 text-center transition-all hover:bg-white/50"
+                  className="flex w-full flex-col items-center gap-1 rounded-xl py-1.5 text-center transition-all hover:bg-white/50"
                 >
                   <div
-                    className="flex h-12 w-12 items-center justify-center rounded-[14px] transition-all"
+                    className="flex h-14 w-14 items-center justify-center rounded-[14px] transition-all"
                     style={isActive ? { background: "#4F46E5" } : undefined}
                   >
                     <Icon
-                      className={cn("h-6 w-6 transition-colors", isActive ? "text-white" : "")}
+                      className={cn("h-8 w-8 transition-colors", isActive ? "text-white" : "")}
                       style={isActive ? undefined : { color: "#0a0a0a" }}
                       strokeWidth={1.8}
                     />
                   </div>
                   <span
-                    className="text-[10px] font-semibold leading-tight"
+                    className="text-xs font-semibold leading-tight"
                     style={{ color: isActive ? "#4F46E5" : "#0a0a0a" }}
                   >
                     {t(key)}
                   </span>
                 </Link>
                 {dividerAfter && (
-                  <div className="h-px w-8" style={{ background: "#E5E5E5" }} />
+                  <div className="w-8" style={{ height: "2px", background: "#A1A1A1", marginTop: "8px", marginBottom: "8px" }} />
                 )}
               </div>
             )
@@ -133,11 +133,11 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
                 className="flex shrink-0 flex-col items-center justify-center gap-1 px-3 py-2 transition-all"
               >
                 <div
-                  className="flex h-11 w-11 items-center justify-center rounded-[14px] transition-all"
+                  className="flex h-12 w-12 items-center justify-center rounded-[14px] transition-all"
                   style={isActive ? { background: "#4F46E5" } : undefined}
                 >
                   <Icon
-                    className="h-5 w-5 transition-colors"
+                    className="h-6 w-6 transition-colors"
                     style={{ color: isActive ? "white" : "#52525b" }}
                     strokeWidth={1.8}
                   />

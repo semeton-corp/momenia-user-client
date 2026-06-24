@@ -1,7 +1,8 @@
 export type LandingPageTestimonial = {
   id: number
   name: string
-  testimonial: string
+  testimonialIdn: string
+  testimonialEn: string
   rating: number
   profileImage: string
 }
@@ -16,17 +17,19 @@ export type LandingPageCatalog = {
 
 export type LandingPageFeature = {
   id: number
-  title: string
-  description: string
+  titleIdn: string
+  titleEn: string
+  descriptionIdn: string
+  descriptionEn: string
   icon: string
 }
 
 export type LandingPageFaq = {
   id: number
-  question_en: string
-  answer_en: string
-  question_idn: string
-  answer_idn: string
+  questionEn: string
+  answerEn: string
+  questionIdn: string
+  answerIdn: string
 }
 
 export type LandingPageResponse = {
@@ -35,5 +38,3 @@ export type LandingPageResponse = {
   features: LandingPageFeature[]
   faqs: LandingPageFaq[]
 }
-
-// test

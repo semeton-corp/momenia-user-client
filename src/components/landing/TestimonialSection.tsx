@@ -4,6 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
+import { useLocale } from "next-intl"
 import { TestimonialCard } from "@/components/landing/TestimonialCard"
 import { LandingPageTestimonial } from "@/lib/api/landing-page/landing-page.types"
 
@@ -19,9 +20,10 @@ type TestimonialSectionProps = {
 }
 
 export function TestimonialSection({ testimonials: apiTestimonials }: TestimonialSectionProps) {
+  const locale = useLocale()
   const testimonials = (apiTestimonials ?? []).map((t) => ({
     id: String(t.id),
-    quote: t.testimonial,
+    quote: locale === "id" ? t.testimonialIdn : t.testimonialEn,
     name: t.name,
     product: "",
     avatarSrc: t.profileImage || FALLBACK_AVATAR,
@@ -126,7 +128,7 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
           <button
             onClick={handlePrev}
             disabled={isAnimating}
-            className="z-30 flex shrink-0 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-sm backdrop-blur transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="z-30 flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-sm backdrop-blur transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
             aria-label="Previous testimonial"
             type="button"
             style={{ width: btnSize, height: btnSize, marginRight: lowZoomButtonMargin }}
@@ -238,7 +240,7 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
           <button
             onClick={handleNext}
             disabled={isAnimating}
-            className="z-30 flex shrink-0 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-sm backdrop-blur transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="z-30 flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-sm backdrop-blur transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
             aria-label="Next testimonial"
             type="button"
             style={{ width: btnSize, height: btnSize, marginLeft: lowZoomButtonMargin }}

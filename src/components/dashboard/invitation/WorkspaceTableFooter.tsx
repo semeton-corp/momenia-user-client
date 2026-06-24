@@ -101,13 +101,13 @@ export function WorkspaceTableFooter({
 
       {/* Desktop: single-row layout */}
       <div className="hidden lg:flex lg:items-center lg:justify-between">
-        <span>{selectionLabel}</span>
+        <span className="text-sm font-normal text-muted-foreground">{selectionLabel}</span>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span>{rowsPerPageLabel}</span>
+            <span className="text-sm font-medium text-foreground">{rowsPerPageLabel}</span>
             <RowsPerPageSelect />
           </div>
-          <span className="font-medium text-zinc-700">{pageLabel}</span>
+          <span className="text-sm font-medium text-foreground">{pageLabel}</span>
           <div className="flex items-center gap-1 text-zinc-400">
             <button className="rounded-lg border border-zinc-200 p-1.5 hover:bg-zinc-50 transition-colors">
               <ChevronsLeft className="h-3.5 w-3.5" />

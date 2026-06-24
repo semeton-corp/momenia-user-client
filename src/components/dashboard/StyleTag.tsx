@@ -12,10 +12,10 @@ export function StyleTag({ label, active, onClick }: StyleTagProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "shrink-0 rounded-full border px-5 py-2 text-base font-medium transition-colors",
+        "h-[35px] shrink-0 cursor-pointer rounded-[30px] border px-6 py-1.5 text-base font-medium transition-colors",
         active
           ? "border-primary bg-primary text-white"
-          : "border-zinc-200 bg-white text-zinc-600 hover:border-primary hover:text-primary"
+          : "border-indigo-300 bg-indigo-50 text-black hover:border-primary hover:bg-primary hover:text-white"
       )}
     >
       {label}
