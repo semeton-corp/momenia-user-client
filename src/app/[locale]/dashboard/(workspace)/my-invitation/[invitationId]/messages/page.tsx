@@ -14,8 +14,8 @@ export default async function MessagesPage({ params }: Props) {
   const data = getInvitationWorkspaceData(invitationId, locale)
 
   return (
-    <div className="space-y-6">
-      <div className="hidden xl:block">
+    <div className="space-y-6 xl:pl-8 xl:pt-6">
+      <div className="hidden xl:block xl:pb-4">
         <InvitationWorkspaceHeader title={t("messages.title")} subtitle={data.title} />
       </div>
 

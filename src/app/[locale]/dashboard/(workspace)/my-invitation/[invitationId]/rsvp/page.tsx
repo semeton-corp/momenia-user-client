@@ -1,4 +1,4 @@
-import { UsersRound } from "lucide-react"
+import { Users, UsersRound } from "lucide-react"
 import { getTranslations } from "next-intl/server"
 import { DonutChart } from "@/components/dashboard/invitation/DonutChart"
 import { InvitationWorkspaceHeader } from "@/components/dashboard/invitation/InvitationWorkspaceHeader"
@@ -19,10 +19,10 @@ export default async function RsvpPage({ params }: Props) {
   const data = getInvitationWorkspaceData(invitationId, locale)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 xl:space-y-8 xl:pl-8 xl:pt-6">
 
       {/* Header — hidden on mobile */}
-      <div className="hidden xl:block">
+      <div className="hidden xl:block xl:pb-2">
         <InvitationWorkspaceHeader title={t("rsvp.title")} subtitle={data.title} />
       </div>
 
@@ -93,12 +93,12 @@ export default async function RsvpPage({ params }: Props) {
               <SummaryStatCard label={t("common.pending")}   value={data.stats.pending}   markerColor="#C7D2FE" />
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl bg-violet-50 px-5 py-4">
-              <div className="flex items-center gap-3 text-sm text-zinc-700">
-                <UsersRound className="h-4 w-4 shrink-0" />
+            <div className="flex h-[58px] items-center justify-between rounded-2xl bg-indigo-100 px-8 py-3">
+              <div className="flex items-center gap-4 text-lg font-normal text-foreground">
+                <Users className="h-[34px] w-[34px] shrink-0" />
                 <span>{t("rsvp.estimatedGuests")}</span>
               </div>
-              <p className="text-3xl font-semibold text-zinc-950">{data.stats.estimatedGuests}</p>
+              <p className="text-2xl font-semibold text-foreground">{data.stats.estimatedGuests}</p>
             </div>
           </div>
         </div>

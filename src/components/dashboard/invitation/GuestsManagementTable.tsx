@@ -171,7 +171,7 @@ export function GuestsManagementTable({
         <div className="overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
             <thead>
-              <tr className="bg-indigo-50 text-xs font-medium text-zinc-600">
+              <tr className="bg-indigo-50 text-sm font-medium text-foreground">
                 <th className="w-6 px-3 py-3" />
                 <th className="px-3 py-3">
                   <button onClick={toggleAll}>
@@ -204,18 +204,18 @@ export function GuestsManagementTable({
                     </button>
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3 align-middle">
-                    <span className="block max-w-50 cursor-pointer truncate font-medium text-zinc-800 underline underline-offset-2">
+                    <span className="block max-w-50 cursor-pointer truncate text-sm font-medium text-foreground underline underline-offset-2">
                       {guest.name}
                     </span>
                   </td>
-                  <td className="border-b border-zinc-100 px-4 py-3 align-middle text-xs text-zinc-500">
+                  <td className="border-b border-zinc-100 px-4 py-3 align-middle text-sm font-normal text-foreground">
                     {guest.whatsApp}
                   </td>
-                  <td className="border-b border-zinc-100 px-4 py-3 align-middle text-xs text-zinc-500">
+                  <td className="border-b border-zinc-100 px-4 py-3 align-middle text-sm font-normal text-foreground">
                     {guest.email}
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3 align-middle">
-                    <span className="inline-flex items-center rounded-md border border-zinc-300 bg-white px-2.5 py-0.5 text-xs text-zinc-600">
+                    <span className="inline-flex items-center rounded-md border border-zinc-300 bg-white px-2.5 py-0.5 text-xs font-medium text-popover-foreground">
                       {guest.category === "vip" ? "VIP" : "Reguler"}
                     </span>
                   </td>
