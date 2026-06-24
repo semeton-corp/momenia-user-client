@@ -226,6 +226,35 @@
       "helper": "Setelah user klik Bayar Sekarang, kita arahkan ke workspace ini dulu selama backend masih tahap slicing.",
       "openDemo": "Buka Demo Workspace"
     },
+    "myInvitations": {
+      "title": "Undangan Saya",
+      "subtitle": "Kelola semua undangan yang pernah dibuat, lanjutkan draft, pantau status publish, dan buka dashboard project dari satu tempat.",
+      "subtitleShort": "Project yang sudah dibuat, draft, dan publish.",
+      "search": "Cari undangan...",
+      "stat": {
+        "total": "Total undangan",
+        "totalShort": "Total",
+        "totalDesc": "Semua project yang pernah dibuat",
+        "published": "Published",
+        "publishedDesc": "Undangan aktif dan bisa dibagikan",
+        "draft": "Draft",
+        "draftDesc": "Belum dipublish, lanjutkan editing",
+        "expired": "Expired",
+        "expiredDesc": "Butuh perpanjangan paket"
+      },
+      "tab": { "all": "Semua", "published": "Published", "draft": "Draft", "expired": "Expired" },
+      "status": { "published": "Published", "draft": "Draft", "expired": "Expired" },
+      "openDashboard": "Buka Dashboard",
+      "copyLink": "Salin Link",
+      "continueEdit": "Lanjutkan Edit",
+      "preview": "Pratinjau",
+      "guests": "Tamu",
+      "rsvp": "RSVP",
+      "helperActive": "Lihat analitik, kelola daftar tamu, atau perbarui konten undangan.",
+      "helperDraft": "Lengkapi detail undangan sebelum publish.",
+      "draftHint": "Lengkapi setup untuk publish",
+      "empty": "Tidak ada undangan ditemukan."
+    },
     "overview": {
       "title": "Dashboard Invitation",
       "publishNow": "Publish Sekarang",

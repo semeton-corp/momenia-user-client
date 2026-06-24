@@ -80,3 +80,18 @@ export type InvitationWorkspaceData = {
   afterPartyNote: AfterPartyNote
   addOns: InvitationAddOn[]
 }
+
+export type MyInvitationStatus = "published" | "draft" | "expired"
+
+export type MyInvitationItem = {
+  id: string
+  title: string
+  category: string
+  eventDate: string
+  status: MyInvitationStatus
+  lastActivity: string
+  url: string | null
+  guests: number
+  rsvp: number
+  thumbnail: string
+}

@@ -226,6 +226,35 @@
       "helper": "After a user clicks Pay Order, we can redirect to this invitation workspace while the backend is still in slicing mode.",
       "openDemo": "Open Demo Workspace"
     },
+    "myInvitations": {
+      "title": "My Invitations",
+      "subtitle": "Kelola semua invitation yang pernah dibuat, lanjutkan draft, pantau status publish, dan buka dashboard project dari satu tempat.",
+      "subtitleShort": "Project yang sudah dibuat, draft, dan publish.",
+      "search": "Search invitations...",
+      "stat": {
+        "total": "Total invitations",
+        "totalShort": "Total",
+        "totalDesc": "Semua project yang pernah dibuat",
+        "published": "Published",
+        "publishedDesc": "Invitation aktif dan bisa dibagikan",
+        "draft": "Draft",
+        "draftDesc": "Belum dipublish, lanjutkan editing",
+        "expired": "Expired",
+        "expiredDesc": "Butuh perpanjangan paket"
+      },
+      "tab": { "all": "All", "published": "Published", "draft": "Draft", "expired": "Expired" },
+      "status": { "published": "Published", "draft": "Draft", "expired": "Expired" },
+      "openDashboard": "Open Dashboard",
+      "copyLink": "Copy Link",
+      "continueEdit": "Continue Edit",
+      "preview": "Preview",
+      "guests": "Guests",
+      "rsvp": "RSVP",
+      "helperActive": "View analytics, manage guest list, or update invitation content.",
+      "helperDraft": "Finish invitation details before publishing.",
+      "draftHint": "Complete setup to publish",
+      "empty": "No invitations found."
+    },
     "overview": {
       "title": "Dashboard Invitation",
       "publishNow": "Publish Now",

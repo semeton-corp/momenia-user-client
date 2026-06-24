@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: Props) {
 
   return (
     <div style={{ zoom: scale } as React.CSSProperties}>
-      <div className="flex min-h-screen bg-zinc-50">
+      <div className="flex min-h-screen bg-white">
         <DashboardSidebar />
         <main className="flex-1 overflow-y-auto pb-28 xl:ml-24 xl:pb-0 [scrollbar-gutter:stable_both-edges]">
           <DashboardMobileHeader />
