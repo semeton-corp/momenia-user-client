@@ -16,11 +16,24 @@ type WebpackConfigLike = {
 }
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/:path*`,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "is3.cloudhost.id",
+        pathname: "/**",
       },
     ],
   },

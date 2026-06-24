@@ -48,6 +48,7 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
   --color-indigo-6: var(--indigo-6);
+  --color-indigo-deep: var(--indigo-deep);
 
   /* sidebar */
   --color-sidebar: var(--sidebar);
@@ -109,6 +110,7 @@
   --chart-4: #4f46e5;
   --chart-5: #3937ac;
   --indigo-6: #4e4b99;
+  --indigo-deep: #1f1b74;
 
   /* sidebar */
   --sidebar: #fafafa;

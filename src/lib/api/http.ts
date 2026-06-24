@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL
+const BASE_URL = typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_API_URL
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY
 
 export async function http<T>(
@@ -6,17 +6,19 @@ export async function http<T>(
     options?: RequestInit
 ): Promise<T> {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
+        ...options,
         headers: {
             "Content-Type": "application/json",
-            "X-API-Key": API_KEY!,
+            "x-api-key": API_KEY!,
             ...(options?.headers || {}),
         },
-        ...options,
     })
 
     if (!res.ok) {
-        const error = await res.text()
-        throw new Error(error || "API Error")
+        const message = await res.text()
+        const error = new Error(message || "API Error") as Error & { status?: number }
+        error.status = res.status
+        throw error
     }
 
     return res.json()

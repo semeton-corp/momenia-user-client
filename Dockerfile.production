@@ -1,0 +1,33 @@
+# 1. Install dependencies
+FROM node:20-alpine AS deps
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install
+
+# 2. Build stage
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# choose env file
+ARG ENV_FILE
+COPY ${ENV_FILE} .env
+
+RUN npm install -g pnpm && pnpm build:prod
+
+# 3. Run stage
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN npm install -g pnpm
+
+COPY --from=builder /app ./
+
+EXPOSE 3000
+
+CMD ["pnpm", "start"]

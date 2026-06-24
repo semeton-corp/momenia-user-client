@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "Memoria",
+    "siteName": "Momenia",
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "toggleMenu": "Toggle Menu",
@@ -34,44 +34,14 @@
     },
     "about": {
       "title": "About Us",
-      "p1Part1": "MEMORIA is an all in one web based invitation platform designed to help people ",
+      "p1Part1": "MOMENIA is an all in one web based invitation platform designed to help people ",
       "p1Highlight": "create, manage, and share meaningful moments effortlessly.",
-      "p1Part2": " We believe that every special occasion deserves more than just an ordinary invitation, it should be interactive, personal, and easy to manage without requiring technical skills or relying on developers. That's why MEMORIA empowers you to take full control of your invitations, from designing and editing content to publishing and managing guests, all within one seamless platform.",
-      "p2": "With MEMORIA, you can create beautiful digital invitations in minutes, customize details anytime, and share them instantly. The platform also enables RSVP tracking and allows guests to send messages and digital gifts, creating a more engaging experience. At MEMORIA, we are not just building a tool, we are creating a smarter, simpler, and more memorable way to celebrate life's most important moments."
+      "p1Part2": " We believe that every special occasion deserves more than just an ordinary invitation, it should be interactive, personal, and easy to manage without requiring technical skills or relying on developers. That's why MOMENIA empowers you to take full control of your invitations, from designing and editing content to publishing and managing guests, all within one seamless platform.",
+      "p2": "With MOMENIA, you can create beautiful digital invitations in minutes, customize details anytime, and share them instantly. The platform also enables RSVP tracking and allows guests to send messages and digital gifts, creating a more engaging experience. At MOMENIA, we are not just building a tool, we are creating a smarter, simpler, and more memorable way to celebrate life's most important moments."
     },
     "features": {
       "titleSuffix": "Features",
-      "subtitle": "Everything you need to create, manage, and share your invitation effortlessly.",
-      "items": {
-        "selfEditable": {
-          "title": "Self Editable Website Page",
-          "description": "Easily customize your invitation anytime without needing technical skills. Update content, images, and event details directly from your own device."
-        },
-        "smartDashboard": {
-          "title": "Smart Dashboard",
-          "description": "Manage all your invitations in one place with an intuitive dashboard designed for efficiency and ease of use."
-        },
-        "spotifyMusic": {
-          "title": "Music from Spotify",
-          "description": "Add a personal touch by adding your favorite Spotify song to create a more immersive invitation experience."
-        },
-        "rsvpDashboard": {
-          "title": "Guest's RSVP Dashboard",
-          "description": "Track guest attendance in real time and get a clear overview of who's coming to your event."
-        },
-        "afterEventNotes": {
-          "title": "After Event Notes",
-          "description": "Send thank you messages or follow-up notes to your guests after the event, making your experience more meaningful."
-        },
-        "autoText": {
-          "title": "Automated Invitation Text",
-          "description": "Generate invitation wording instantly with text assistance, saving time and effort."
-        },
-        "addOnFeatures": {
-          "title": "Add on Features",
-          "description": "Extend your invitation with many more additional features tailored to your needs, making every event truly unique."
-        }
-      }
+      "subtitle": "Everything you need to create, manage, and share your invitation effortlessly."
     },
     "catalog": {
       "titleSuffix": "Catalog",
@@ -90,33 +60,21 @@
     },
     "faq": {
       "titlePrefix": "FAQ",
-      "subtitle": "Everything you need to know before creating your digital invitation.",
-      "items": {
-        "editAfterPublish": {
-          "q": "Can I edit my invitation after publishing it?",
-          "a": "Yes, you can update your invitation anytime, even after it has been published. All changes will be reflected instantly."
-        },
-        "startCreating": {
-          "q": "How do I start creating my invitation?",
-          "a": "Start by selecting a template, customize your event details, then publish and share your invitation link in minutes."
-        },
-        "shareWithGuests": {
-          "q": "How do I share my invitation with guests?",
-          "a": "After publishing, you can share your invitation link directly via WhatsApp, Instagram, email, or any platform you like."
-        },
-        "trackRsvp": {
-          "q": "Can I track who has seen or responded to my invitation?",
-          "a": "Yes. You can monitor RSVP status and guest responses from your dashboard, so you always know who has confirmed or opened the invitation."
-        },
-        "suitableEvents": {
-          "q": "Is Memoria suitable for different types of events?",
-          "a": "Absolutely. Memoria works great for weddings, birthdays, corporate events, and many other occasions—just pick a template that matches your vibe."
-        }
-      }
+      "subtitle": "Everything you need to know before creating your digital invitation."
+    }
+  },
+  "promo": {
+    "hero": {
+      "badge": "COMING SOON",
+      "subtitle": "The future of digital invitations is coming"
+    },
+    "features": {
+      "badge": "COMING SOON",
+      "subtitle": "Powerful features designed to make your invitation effortless."
     }
   },
   "footer": {
-    "copyright": "© 2026 Memoria. All rights reserved. Designed to make your moments memorable.",
+    "copyright": "© 2026 Momenia. All rights reserved. Designed to make your moments memorable.",
     "builtBy": "Built by",
     "sourceCode": "The source code is available on",
     "github": "GitHub"
@@ -133,7 +91,7 @@
     "loginTitle": "Welcome back",
     "loginSubtitle": "Sign in to your account",
     "registerTitle": "Create an account",
-    "registerSubtitle": "Get started with Memoria",
+    "registerSubtitle": "Get started with Momenia",
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm password",
@@ -164,5 +122,203 @@
     "termsText": "By clicking sign up, you agree to our",
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy"
+  },
+  "dashboard": {
+    "favourite": {
+      "title": "My Favourites",
+      "empty": "You haven't added any favourites yet."
+    },
+    "sidebar": {
+      "template": "Template",
+      "myInvitation": "My Invitation",
+      "favorite": "Favorite",
+      "transaction": "Transaction"
+    },
+    "banner": {
+      "title": "Template Catalog",
+      "subtitle": "Discover the perfect invitation design for your special moments. Each template is curated by top designers to ensure exclusivity.",
+      "searchPlaceholder": "Search templates...",
+      "category": "Category",
+      "sort": "Sort"
+    },
+    "tags": {
+      "allStyles": "All styles",
+      "classy": "Classy",
+      "minimalism": "Minimalism",
+      "colorful": "Colorful",
+      "modern": "Modern",
+      "vintage": "Vintage",
+      "clean": "Clean",
+      "bold": "Bold",
+      "retro": "Retro",
+      "cute": "Cute",
+      "softColor": "Soft color"
+    },
+    "modal": {
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "demo": "Demo",
+      "seeAddOns": "See add ons and Payment",
+      "addOns": "Add ons",
+      "featureAddOns": "Feature Add ons",
+      "featureAddOnsSubtitle": "Additional features can also be purchased later through your dashboard after completing your order.",
+      "durationAddOns": "Duration Add ons",
+      "durationAddOnsSubtitle": "Duration packages can only be selected at the time of purchase. Once the order is completed, the duration package cannot be changed or upgraded.",
+      "instagramFilter": "Instagram filter & add yours",
+      "multiLanguage": "Additional multi language invitation",
+      "galleryMomenia": "Gallery Momenia",
+      "galleryMomeniaDesc": "Gallery Momenia is an add-on feature that allows both hosts and guests to upload and share photos in one centralized gallery. Guests can easily contribute photos directly from their own devices, making the event more interactive and capturing moments from different perspectives.",
+      "customDomainLink": "Custom Domain Link",
+      "basic2week": "Basic 2 week duration",
+      "month3": "Basic + 3 Month invitation duration",
+      "month6": "Basic + 6 Month invitation duration",
+      "month8": "Basic + 8 Month invitation duration",
+      "continueToPayment": "Continue to Payment"
+    },
+  "payment": {
+    "title": "Payment",
+    "back": "Back",
+    "itemDetails": "Item Details",
+      "orderSummary": "Order Summary",
+      "basePrice": "Base Price",
+      "duration": "Duration",
+      "addons": "Add-ons",
+      "noAddons": "No add-ons selected",
+      "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "payWith": "Pay with",
+    "payOrder": "Pay Order"
+  },
+  "workspace": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "edit": "Edit",
+      "guests": "Guests",
+      "rsvp": "RSVP",
+      "notes": "Notes",
+      "messages": "Messages",
+      "gifts": "Gifts",
+      "addOns": "Add Ons"
+    },
+    "common": {
+      "vip": "VIP",
+      "regular": "Regular",
+      "attending": "Attending",
+      "declined": "Declined",
+      "pending": "Pending",
+      "rowsPerPage": "Rows per page",
+      "pageLabel": "Page {current} of {total}",
+      "selectedRows": "{count} of {total} row(s) selected.",
+      "searchGuests": "Search guest name...",
+      "sort": "Sort",
+      "save": "Save",
+      "cancel": "Cancel",
+      "copy": "Copy",
+      "editLink": "Edit Link",
+      "hide": "Hide",
+      "delete": "Delete"
+    },
+    "launcher": {
+      "title": "My Invitation",
+      "subtitle": "This page is the temporary bypass entry to the invitation workspace.",
+      "demoBadge": "Payment bypass",
+      "helper": "After a user clicks Pay Order, we can redirect to this invitation workspace while the backend is still in slicing mode.",
+      "openDemo": "Open Demo Workspace"
+    },
+    "overview": {
+      "title": "Dashboard Invitation",
+      "publishNow": "Publish Now",
+      "editTemplate": "Edit Template",
+      "manageGuests": "Manage Guests",
+      "guestStatsTitle": "Guest Statistics",
+      "invitationLink": "Invitation Link",
+      "messageTemplateTitle": "Guest Message Template",
+      "generateText": "Generate Invitation Text",
+      "countdownUnits": {
+        "days": "Days",
+        "hours": "Hours",
+        "minutes": "Minutes",
+        "seconds": "Seconds"
+      }
+    },
+    "guests": {
+      "title": "Manage Guests",
+      "listTitle": "Guest List",
+      "addTitle": "Add Guest",
+      "totalGuests": "Total Guests: {count}",
+      "deleteRows": "Delete Rows",
+      "table": {
+        "name": "Name",
+        "whatsApp": "WhatsApp",
+        "email": "Email",
+        "category": "Category",
+        "actions": "Actions",
+        "delivered": "Delivered?"
+      },
+      "form": {
+        "name": "Full Name",
+        "whatsApp": "WhatsApp Number",
+        "email": "Email",
+        "category": "Category",
+        "chooseCategory": "Choose Category",
+        "categoryHint": "Adjust the guest category as needed."
+      }
+    },
+    "rsvp": {
+      "title": "RSVP",
+      "listTitle": "Guest List",
+      "totalGuests": "Total Guests",
+      "estimatedGuests": "Estimated total guests (including plus ones)",
+      "table": {
+        "attendance": "Attendance",
+        "guestCount": "Guest Count"
+      }
+    },
+    "messages": {
+      "title": "Messages from Guests",
+      "searchPlaceholder": "Search guest name...",
+      "voiceNote": "Voice Note from {name}"
+    },
+    "notes": {
+      "title": "After Party Notes",
+      "stepOne": "Step 1: Create Notes",
+      "stepTwo": "Step 2: Pick Guests and Send",
+      "formTitle": "Create Notes",
+      "formSubtitle": "Create after party notes to share with your invited guests.",
+      "galleryLink": "Photo Gallery Link",
+      "souvenirLabel": "Online Souvenir",
+      "messageLabel": "Message",
+      "messageHint": "Adjust the after party note before sharing it with guests.",
+      "recipientTitle": "Pick Guests and Send",
+      "recipientSubtitle": "Select invitation guests and distribute your after party notes."
+    },
+    "addOns": {
+      "title": "Add Ons",
+      "active": "ACTIVE",
+      "locked": "LOCKED"
+    },
+    "edit": {
+      "title": "Edit Template",
+      "subtitle": "Adjust the main invitation settings and publish state.",
+      "settingsTitle": "Main Settings",
+      "settingsDescription": "This slicing screen already follows a clean component structure and is ready to be connected to the real API.",
+      "slugLabel": "Invitation Slug",
+      "hostLabel": "Host Name",
+      "themeLabel": "Theme",
+      "colorLabel": "Accent Color",
+      "previewTitle": "Preview Status",
+      "previewDescription": "The preview still uses mock data, but the screen is already split into reusable components for the real integration phase."
+    },
+    "gifts": {
+      "title": "Gifts",
+      "summaryTitle": "Gift Methods",
+      "summaryDescription": "Manage digital gift methods that will appear on the invitation page.",
+      "bankTransfer": "Bank Transfer",
+      "digitalWallet": "Digital Wallet",
+      "shippingGift": "Gift Delivery",
+      "comingSoon": "Gift checkout integration will be connected after the API is ready."
+    }
   }
+}
 }

@@ -60,8 +60,10 @@ export function TestimonialCard({
         className="absolute inset-0 flex flex-col justify-between p-7 md:p-8"
         style={{ pointerEvents: isExpanded ? "auto" : "none", width: expandedWidth, fontFamily: "var(--font-geist-sans)" }}
       >
-        <div className="flex flex-col gap-3">
-          <p className="text-[17px] font-normal leading-[1.5] text-zinc-900 md:text-[18px]">{quote}</p>
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
+          <p className="line-clamp-5 text-[17px] font-normal leading-[1.5] text-zinc-900 md:line-clamp-6 md:text-[18px]">
+            {quote}
+          </p>
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, idx) => (
               <Star
