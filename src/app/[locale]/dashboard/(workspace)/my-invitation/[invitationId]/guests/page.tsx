@@ -14,12 +14,12 @@ export default async function GuestsPage({ params }: Props) {
   const data = getInvitationWorkspaceData(invitationId, locale)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 xl:space-y-10 xl:pl-8 xl:pt-6">
       <div className="hidden xl:block">
         <InvitationWorkspaceHeader title={t("guests.title")} subtitle={data.title} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="grid gap-6 xl:gap-9 xl:grid-cols-[minmax(0,1fr)_420px]">
         {/* Form: first on mobile, right column on desktop */}
         <div className="min-w-0 -mx-4 sm:-mx-6 xl:mx-0 xl:order-last">
           <GuestAddForm

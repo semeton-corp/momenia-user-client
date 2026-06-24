@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
-import { ArrowUpDown, ChevronDown, Copy, GripVertical, ListPlus, PencilLine, Trash2 } from "lucide-react"
+import { ChevronDown, Copy, GripVertical, ListPlus, PencilLine, Settings2, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { CheckboxTile } from "@/components/ui/checkbox-tile"
 import type { InvitationWorkspaceGuest } from "@/lib/types/invitation-workspace"
@@ -138,27 +138,28 @@ export function GuestsManagementTable({
   }
 
   return (
-    <WorkspaceCard className="flex flex-col gap-4 px-4 py-4 sm:px-6 xl:p-5 border-0 shadow-none xl:border xl:shadow-sm">
+    <WorkspaceCard className="flex flex-col gap-4 px-4 py-4 sm:px-6 xl:gap-0 xl:py-8 xl:px-5 border-0 shadow-none xl:border xl:shadow-sm xl:min-h-[798px]">
 
       {/* Title */}
-      <h2 className="text-2xl font-semibold text-zinc-900">{title}</h2>
+      <h2 className="text-2xl font-semibold text-zinc-900 xl:mb-8">{title}</h2>
 
       {/* Toolbar */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 xl:mb-4 xl:justify-between">
         <Input
           aria-label={searchPlaceholder}
           placeholder={searchPlaceholder}
-          className="h-9 min-w-0 flex-1 border-zinc-200 text-sm xl:max-w-80"
+          className="h-9 min-w-0 flex-1 border-zinc-200 text-sm xl:w-[402px] xl:flex-none xl:rounded-lg xl:border xl:text-base xl:font-normal"
+          style={{ background: "#ffffff", color: "var(--foreground)" }}
         />
         <div className="flex shrink-0 items-center gap-2">
-          <span className="hidden rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 whitespace-nowrap xl:inline-flex">
+          <span className="hidden whitespace-nowrap rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 xl:inline-flex xl:items-center xl:rounded-lg xl:text-xs xl:font-medium" style={{ background: "#ffffff", color: "var(--foreground)" }}>
             {totalLabel}
           </span>
-          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-50 transition-colors whitespace-nowrap">
-            <ArrowUpDown className="h-3.5 w-3.5" />
+          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 transition-colors whitespace-nowrap hover:bg-zinc-50 xl:rounded-lg xl:text-xs xl:font-medium" style={{ background: "#ffffff", color: "var(--foreground)" }}>
+            <Settings2 className="h-3.5 w-3.5" />
             {sortLabel}
           </button>
-          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-50 transition-colors">
+          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:bg-zinc-50 xl:rounded-lg xl:text-xs xl:font-medium" style={{ background: "#ffffff", color: "var(--foreground)" }}>
             <Trash2 className="h-3.5 w-3.5" />
             <span className="hidden xl:inline">{deleteLabel}</span>
           </button>
@@ -170,7 +171,7 @@ export function GuestsManagementTable({
         <div className="overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
             <thead>
-              <tr className="bg-indigo-50 text-xs font-medium text-zinc-600">
+              <tr className="bg-indigo-50 text-sm font-medium text-foreground">
                 <th className="w-6 px-3 py-3" />
                 <th className="px-3 py-3">
                   <button onClick={toggleAll}>
@@ -203,18 +204,18 @@ export function GuestsManagementTable({
                     </button>
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3 align-middle">
-                    <span className="block max-w-50 cursor-pointer truncate font-medium text-zinc-800 underline underline-offset-2">
+                    <span className="block max-w-50 cursor-pointer truncate text-sm font-medium text-foreground underline underline-offset-2">
                       {guest.name}
                     </span>
                   </td>
-                  <td className="border-b border-zinc-100 px-4 py-3 align-middle text-xs text-zinc-500">
+                  <td className="border-b border-zinc-100 px-4 py-3 align-middle text-sm font-normal text-foreground">
                     {guest.whatsApp}
                   </td>
-                  <td className="border-b border-zinc-100 px-4 py-3 align-middle text-xs text-zinc-500">
+                  <td className="border-b border-zinc-100 px-4 py-3 align-middle text-sm font-normal text-foreground">
                     {guest.email}
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3 align-middle">
-                    <span className="inline-flex items-center rounded-md border border-zinc-300 bg-white px-2.5 py-0.5 text-xs text-zinc-600">
+                    <span className="inline-flex items-center rounded-md border border-zinc-300 bg-white px-2.5 py-0.5 text-xs font-medium text-popover-foreground">
                       {guest.category === "vip" ? "VIP" : "Reguler"}
                     </span>
                   </td>

@@ -34,7 +34,7 @@ export default async function InvitationWorkspaceLayout({ children, params }: Pr
       </header>
 
       <main className="min-h-screen pb-24 pt-[60px] lg:pb-0 lg:pl-24 lg:pt-0">
-        <div className="px-4 py-5 sm:px-6 lg:pl-8 lg:pr-16 lg:py-6 xl:pl-16 xl:pr-32 xl:py-8">
+        <div className="px-4 py-5 sm:px-6 lg:pl-8 lg:pr-16 lg:py-6 xl:pl-16 xl:pr-48 xl:py-8">
           {children}
         </div>
       </main>

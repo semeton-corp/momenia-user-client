@@ -13,10 +13,10 @@ export function SummaryStatCard({
 }: SummaryStatCardProps) {
   return (
     <WorkspaceCard className="p-5">
-      <div className="flex items-center gap-2 text-sm text-zinc-700">
+      <div className="flex items-center gap-2 text-xl font-normal text-foreground">
         {markerColor ? (
           <span
-            className="h-3.5 w-3.5 rounded-full"
+            className="h-5 w-5 rounded-full"
             style={{ backgroundColor: markerColor }}
           />
         ) : null}

@@ -9,6 +9,7 @@ type Props = {
   params: Promise<{ locale: string }>
 }
 
+// test
 export default async function MyInvitationPage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations("dashboard.workspace")

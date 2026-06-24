@@ -8,6 +8,47 @@ export type TemplateListItem = {
   isUserFavorite: boolean
 }
 
+export type TemplateSchemaField = {
+  key: string
+  type: "text" | "image" | "date" | "time"
+  label: string
+  section: string
+  required: boolean
+  placeholder?: string
+}
+
+export type TemplateSectionType = {
+  id: string
+  js: string
+  css: string
+  html: string
+  schema: {
+    slots: string[]
+    styles: unknown[]
+  }
+}
+
+export type TemplatePage = {
+  id: string
+  label: string
+  sections: { id: string; section_type_id: string }[]
+}
+
+export type TemplateThemeDefaults = {
+  font_body: string
+  font_title: string
+  color_accent: string
+  color_primary: string
+  color_background: string
+}
+
+export type InvitationTemplate = {
+  pages: TemplatePage[]
+  schema: { fields: TemplateSchemaField[] }
+  sectionTypes: Record<string, TemplateSectionType>
+  theme_defaults: TemplateThemeDefaults
+}
+
 export type TemplateDetailResponse = {
   id: string
   name: string
@@ -20,6 +61,7 @@ export type TemplateDetailResponse = {
   descriptionEn: string
   price: string
   priceAfterDiscount: string
+  template: InvitationTemplate
   isUserFavorite: boolean
   version: number
 }

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { PenTool } from "lucide-react"
 import { motion } from "framer-motion"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { FeatureCard } from "./FeatureCard"
 import { LandingPageFeature } from "@/lib/api/landing-page/landing-page.types"
 
@@ -29,6 +29,7 @@ type FeatureSectionProps = {
 
 export function FeatureSection({ features: apiFeatures, promoTitle }: FeatureSectionProps) {
   // ── Semua hooks dideklarasikan di atas, berurutan ──
+  const locale                                = useLocale()
   const [activeCardIndex, setActiveCardIndex] = React.useState<number | null>(0)
   const [zoomLevel, setZoomLevel]             = React.useState(1)
   const [isDesktop, setIsDesktop]             = React.useState(false)
@@ -39,12 +40,12 @@ export function FeatureSection({ features: apiFeatures, promoTitle }: FeatureSec
 
   const featuresData: FeatureItem[] = (apiFeatures ?? []).map((f) => ({
     id: String(f.id),
-    title: f.title,
-    description: f.description,
+    title: locale === "id" ? f.titleIdn : f.titleEn,
+    description: locale === "id" ? f.descriptionIdn : f.descriptionEn,
     icon: f.icon
       ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={f.icon} alt={f.title} className="h-5 w-5 object-contain md:h-6 md:w-6" />
+          <img src={f.icon} alt={locale === "id" ? f.titleIdn : f.titleEn} className="h-5 w-5 object-contain md:h-6 md:w-6" />
         )
       : <PenTool className={iconClass} />,
   }))

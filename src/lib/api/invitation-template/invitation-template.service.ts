@@ -27,8 +27,8 @@ function buildQuery(params: Record<string, string | number | string[] | undefine
 
 export async function getInvitationTemplates(params: GetTemplatesParams = {}): Promise<TemplatesListResponse> {
   const qs = buildQuery({
-    sortOrder: params.sortOrder,
-    sortField: params.sortField,
+    sortOrder: params.sortOrder ?? "asc",
+    sortField: params.sortField ?? "createdAt",
     keyword: params.keyword,
     pageSize: params.pageSize,
     categoryId: params.categoryId,

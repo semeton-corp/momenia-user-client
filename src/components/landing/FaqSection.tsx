@@ -61,8 +61,8 @@ export function FaqSection({ faqs: apiFaqs, locale = "en" }: FaqSectionProps) {
 
   const faqItems: FaqItem[] = (apiFaqs ?? []).map((f) => ({
     id: String(f.id),
-    question: locale === "id" ? f.question_idn : f.question_en,
-    answer:   locale === "id" ? f.answer_idn   : f.answer_en,
+    question: locale === "id" ? f.questionIdn : f.questionEn,
+    answer:   locale === "id" ? f.answerIdn   : f.answerEn,
   }))
 
   return (
