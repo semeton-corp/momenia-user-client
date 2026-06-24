@@ -31,5 +31,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [String.raw`/((?!_next|_vercel|.*\..*).*)`],
+  matcher: [String.raw`/((?!api|_next|_vercel|.*\..*).*)`],
 }
