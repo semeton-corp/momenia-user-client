@@ -1,5 +1,5 @@
 import { http } from "../http"
-import { GetUserInvitationsParams, UserInvitation, UserInvitationOverview } from "./user-invitation.types"
+import { GetUserInvitationsParams, UserInvitation, UserInvitationDashboard, UserInvitationOverview } from "./user-invitation.types"
 
 function authHeader(): Record<string, string> {
     const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
@@ -18,4 +18,8 @@ export const getUserInvitations = async (params?: GetUserInvitationsParams): Pro
     if (params?.keyword) q.set("keyword", params.keyword)
     const qs = q.toString()
     return http(`/api/v1/user-invitations${qs ? `?${qs}` : ""}`, { headers: authHeader() })
+}
+
+export const getUserInvitationDashboard = async (id: string): Promise<UserInvitationDashboard> => {
+    return http(`/api/v1/user-invitations/dashboard/${id}`, { headers: authHeader() })
 }
