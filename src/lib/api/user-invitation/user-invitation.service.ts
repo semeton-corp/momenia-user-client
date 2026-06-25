@@ -1,5 +1,5 @@
 import { http } from "../http"
-import { GetUserInvitationsParams, UserInvitation, UserInvitationDashboard, UserInvitationOverview } from "./user-invitation.types"
+import { GetUserInvitationsParams, UserInvitation, UserInvitationDashboard, UserInvitationDetail, UserInvitationOverview } from "./user-invitation.types"
 
 function authHeader(): Record<string, string> {
     const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
@@ -21,5 +21,9 @@ export const getUserInvitations = async (params?: GetUserInvitationsParams): Pro
 }
 
 export const getUserInvitationDashboard = async (id: string): Promise<UserInvitationDashboard> => {
+    return http(`/api/v1/user-invitations/dashboard/${id}`, { headers: authHeader() })
+}
+
+export const getUserInvitationDetail = async (id: string): Promise<UserInvitationDetail> => {
     return http(`/api/v1/user-invitations/dashboard/${id}`, { headers: authHeader() })
 }
