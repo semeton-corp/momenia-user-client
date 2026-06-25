@@ -23,6 +23,55 @@ export type GetUserInvitationsParams = {
     keyword?: string
 }
 
+export type UserInvitationDetail = {
+    id: string
+    name: string
+    eventDate: string
+    pathUrl: string
+    status: "published" | "draft" | "expired"
+    invitationDurationPackage: string
+    address: string
+    googleMapsUrl: string
+    expiredAt: string
+    fieldValues: Record<string, string>
+    guestStatistic: {
+        totalAttending: number
+        totalNotAttending: number
+        totalNotResponded: number
+    }
+    template: {
+        pages: Array<{
+            id: string
+            label: string
+            sections: Array<{ id: string; section_type_id: string }>
+        }>
+        schema: {
+            fields: Array<{
+                key: string
+                type: string
+                label: string
+                section: string
+                required: boolean
+                placeholder?: string
+            }>
+        }
+        sectionTypes: Record<string, {
+            id: string
+            js: string
+            css: string
+            html: string
+            schema: { slots: string[]; styles: unknown[] }
+        }>
+        theme_defaults: {
+            font_body: string
+            font_title: string
+            color_accent: string
+            color_primary: string
+            color_background: string
+        }
+    }
+}
+
 export type UserInvitationDashboard = {
     id: string
     name: string
