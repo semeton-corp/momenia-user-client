@@ -7,7 +7,7 @@ import {
   ChevronLeft, ChevronRight, Undo2, Redo2, Eye, Save, Smartphone, Plus, Minus,
   Search, Star, Users, Upload, Play, X, CheckCircle2,
 } from "lucide-react"
-import { useUserInvitationDetail } from "@/hooks/useUserInvitations"
+import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
@@ -201,14 +201,18 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
     iframeRef.current?.contentWindow?.postMessage({ type: "memoriaGoTo", pageId: activePage }, "*")
   }, [activePage])
 
+  const FRAME_W = 340
+  const scale = (FRAME_W * zoom) / 375
+  const contentH = Math.max(height, 720)
+
   return (
     <div
       className="relative shrink-0 overflow-hidden bg-black shadow-2xl"
       style={{
-        width: 300 * zoom,
-        height: 620 * zoom,
-        borderRadius: 44 * zoom,
-        border: `${10 * zoom}px solid #000`,
+        width: FRAME_W * zoom,
+        height: contentH * scale,
+        borderRadius: 48 * zoom,
+        border: `${12 * zoom}px solid #000`,
       }}
     >
       <iframe
@@ -217,9 +221,9 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
         title="Invitation Preview"
         style={{
           width: 375,
-          height: Math.max(height, 600),
+          height: contentH,
           border: 0,
-          transform: `scale(${(300 * zoom) / 375})`,
+          transform: `scale(${scale})`,
           transformOrigin: "top left",
         }}
       />
@@ -294,19 +298,21 @@ const SECTION_LABELS: Record<string, string> = {
 
 const FONT_OPTIONS = ["Poppins", "Inter", "Playfair Display", "Jakarta Sans", "Lora", "Montserrat"]
 
-function EditorLoaded({ detail }: { detail: UserInvitationDetail; invitationId: string }) {
+function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; invitationId: string }) {
   const router = useRouter()
   const { template } = detail
+  const { mutate: saveInvitation, isPending: isSaving } = useUpdateUserInvitation(invitationId)
 
   const mainPage = template.pages.find((p) => p.id === "main")
   const defaultSectionOrder = mainPage?.sections.map((s) => s.id) ?? []
 
   const [userData, setUserData] = useState<Record<string, string>>(detail.fieldValues ?? {})
+  const [name, setName] = useState(detail.name || "")
+  const [isEditingName, setIsEditingName] = useState(false)
   const [theme, setTheme] = useState(template.theme_defaults)
   const [sectionOrder, setSectionOrder] = useState(defaultSectionOrder)
   const [activePageIdx, setActivePageIdx] = useState(0)
   const [zoom, setZoom] = useState(1)
-  const [isSaving, setIsSaving] = useState(false)
   const dragIndexRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
@@ -330,10 +336,30 @@ function EditorLoaded({ detail }: { detail: UserInvitationDetail; invitationId: 
     })
   }, [])
 
-  const handleSave = async () => {
-    setIsSaving(true)
-    await new Promise((r) => setTimeout(r, 800))
-    setIsSaving(false)
+  const handleSave = () => {
+    // Rebuild template with the current theme + reordered main sections
+    const updatedTemplate: UserInvitationDetail["template"] = {
+      ...template,
+      theme_defaults: theme,
+      pages: template.pages.map((page) =>
+        page.id === "main"
+          ? {
+              ...page,
+              sections: sectionOrder
+                .map((id) => page.sections.find((s) => s.id === id))
+                .filter((s): s is (typeof page.sections)[number] => Boolean(s)),
+            }
+          : page
+      ),
+    }
+
+    saveInvitation({
+      name: name,
+      pathUrl: detail.pathUrl || "budi-joko",
+      fieldValues: userData,
+      status: detail.status,
+      template: updatedTemplate,
+    })
   }
 
   // Group fields by their `section` value, preserving first-seen order.
@@ -370,10 +396,26 @@ function EditorLoaded({ detail }: { detail: UserInvitationDetail; invitationId: 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <button onClick={() => router.back()} className="truncate text-xl font-bold text-zinc-900">
-              {detail.name || "Untitled Invitation"}
-            </button>
-            <Pencil className="h-4 w-4 shrink-0 text-zinc-400" />
+            {isEditingName ? (
+              <input
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={() => setIsEditingName(false)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setIsEditingName(false) }}
+                placeholder="Untitled Invitation"
+                className="min-w-0 rounded-lg border border-indigo-300 px-2 py-1 text-xl font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              />
+            ) : (
+              <>
+                <span className="truncate text-xl font-bold text-zinc-900">
+                  {name || "Untitled Invitation"}
+                </span>
+                <button onClick={() => setIsEditingName(true)} aria-label="Edit name">
+                  <Pencil className="h-4 w-4 shrink-0 text-zinc-400 hover:text-indigo-500" />
+                </button>
+              </>
+            )}
           </div>
           <p className="mt-0.5 flex items-center gap-1.5 text-xs text-zinc-400">
             <span className="h-2 w-2 rounded-full bg-green-500" />
