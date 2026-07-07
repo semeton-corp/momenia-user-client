@@ -333,7 +333,9 @@
       "helperActive": "Lihat analitik, kelola daftar tamu, atau perbarui konten undangan.",
       "helperDraft": "Lengkapi detail undangan sebelum publish.",
       "draftHint": "Lengkapi setup untuk publish",
-      "empty": "Tidak ada undangan ditemukan."
+      "lastUpdated": "Terakhir diperbarui {date}",
+      "empty": "Tidak ada undangan ditemukan.",
+      "loadError": "Gagal memuat undangan. Periksa koneksi kamu."
     },
     "overview": {
       "title": "Dashboard Invitation",
