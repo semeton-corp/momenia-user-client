@@ -125,8 +125,48 @@
   },
   "dashboard": {
     "favourite": {
-      "title": "Favorit Saya",
-      "empty": "Kamu belum menambahkan favorit apa pun."
+      "title": "Template Favorit",
+      "subtitle": "Kumpulan template yang sudah kamu simpan. Bandingkan gaya, lanjutkan eksplorasi, atau langsung gunakan template favoritmu.",
+      "subtitleShort": "Template yang kamu simpan untuk dipilih dan digunakan nanti.",
+      "search": "Cari template favorit...",
+      "sort": {
+        "recent": "Terbaru",
+        "priceLow": "Harga: Termurah",
+        "priceHigh": "Harga: Termahal"
+      },
+      "chips": {
+        "allSaved": "Semua tersimpan",
+        "wedding": "Wedding",
+        "modern": "Modern",
+        "classic": "Classic",
+        "recentlyAdded": "Terbaru ditambahkan"
+      },
+      "empty": "Belum ada template favorit.",
+      "loadError": "Gagal memuat favorit. Periksa koneksi kamu."
+    },
+    "transaction": {
+      "title": "Riwayat Transaksi",
+      "subtitle": "Lihat semua template dan add-on yang sudah kamu beli.",
+      "table": {
+        "id": "ID",
+        "item": "Item",
+        "totalPrice": "Total Harga",
+        "status": "Status",
+        "time": "Waktu"
+      },
+      "status": {
+        "completed": "Selesai",
+        "pending": "Menunggu",
+        "failed": "Gagal"
+      },
+      "template": "Template",
+      "duration": "Durasi",
+      "addon": "Add-ons",
+      "itemsIncluded": "{count} item termasuk",
+      "viewDetails": "Lihat detail",
+      "hideDetails": "Sembunyikan detail",
+      "empty": "Belum ada transaksi.",
+      "loadError": "Gagal memuat transaksi. Periksa koneksi kamu."
     },
     "sidebar": {
       "template": "Template",
@@ -139,25 +179,65 @@
       "subtitle": "Temukan desain undangan yang sempurna untuk momen spesialmu. Setiap template dikurasi oleh desainer terbaik untuk memastikan eksklusivitasnya.",
       "searchPlaceholder": "Cari template...",
       "category": "Kategori",
-      "sort": "Urutan"
+      "sort": "Urutan",
+      "allCategories": "Semua kategori",
+      "sortOptions": {
+        "newest": "Terbaru",
+        "oldest": "Terlama",
+        "priceLow": "Harga: Termurah",
+        "priceHigh": "Harga: Termahal",
+        "rating": "Rating tertinggi"
+      }
     },
-    "tags": {
-      "allStyles": "Semua gaya",
-      "classy": "Elegan",
-      "minimalism": "Minimalis",
-      "colorful": "Berwarna",
-      "modern": "Modern",
-      "vintage": "Vintage",
-      "clean": "Bersih",
-      "bold": "Tebal",
-      "retro": "Retro",
-      "cute": "Lucu",
-      "softColor": "Warna lembut"
-    },
-    "modal": {
-      "mobile": "Mobile",
-      "desktop": "Desktop",
-      "demo": "Demo",
+      "tags": {
+        "allStyles": "Semua gaya",
+        "classy": "Elegan",
+        "minimalism": "Minimalis",
+        "colorful": "Berwarna",
+        "modern": "Modern",
+        "vintage": "Vintage",
+        "clean": "Bersih",
+        "bold": "Tebal",
+        "retro": "Retro",
+        "cute": "Lucu",
+        "softColor": "Warna lembut",
+        "empty": "Template tidak ditemukan."
+      },
+      "authGate": {
+        "title": "Login terlebih dahulu",
+        "description": "Silakan masuk atau buat akun terlebih dahulu untuk membuka halaman Undangan Saya, Favorit, dan Transaksi.",
+        "login": "Masuk",
+        "signUp": "Daftar",
+        "backToCatalog": "Kembali ke katalog",
+        "close": "Tutup"
+      },
+      "profile": {
+        "title": "Profil",
+        "subtitle": "Kelola informasi dan pengaturan akunmu",
+        "editProfile": "Edit Profil",
+        "fullName": "Nama Lengkap",
+        "emailAddress": "Alamat Email",
+        "phoneNumber": "Nomor Telepon",
+        "logOut": "Keluar",
+        "logOutSubtitle": "Keluar dari akun Momenia kamu",
+        "loadError": "Gagal memuat profil kamu. Periksa koneksi kamu.",
+        "editDialog": {
+          "title": "Edit Profil",
+          "description": "Ubah informasi profilmu di sini. Klik simpan jika sudah selesai.",
+          "cancel": "Batal",
+          "save": "Simpan Perubahan"
+        },
+        "logoutDialog": {
+          "title": "Keluar",
+          "description": "Apakah kamu yakin ingin keluar dari akun Momenia?",
+          "cancel": "Batal",
+          "confirm": "Keluar"
+        }
+      },
+      "modal": {
+        "mobile": "Mobile",
+        "desktop": "Desktop",
+        "demo": "Demo",
       "seeAddOns": "Lihat add on dan Pembayaran",
       "addOns": "Add ons",
       "featureAddOns": "Fitur Add ons",
@@ -225,6 +305,37 @@
       "demoBadge": "Bypass payment",
       "helper": "Setelah user klik Bayar Sekarang, kita arahkan ke workspace ini dulu selama backend masih tahap slicing.",
       "openDemo": "Buka Demo Workspace"
+    },
+    "myInvitations": {
+      "title": "Undangan Saya",
+      "subtitle": "Kelola semua undangan yang pernah dibuat, lanjutkan draft, pantau status publish, dan buka dashboard project dari satu tempat.",
+      "subtitleShort": "Project yang sudah dibuat, draft, dan publish.",
+      "search": "Cari undangan...",
+      "stat": {
+        "total": "Total undangan",
+        "totalShort": "Total",
+        "totalDesc": "Semua project yang pernah dibuat",
+        "published": "Published",
+        "publishedDesc": "Undangan aktif dan bisa dibagikan",
+        "draft": "Draft",
+        "draftDesc": "Belum dipublish, lanjutkan editing",
+        "expired": "Expired",
+        "expiredDesc": "Butuh perpanjangan paket"
+      },
+      "tab": { "all": "Semua", "published": "Published", "draft": "Draft", "expired": "Expired" },
+      "status": { "published": "Published", "draft": "Draft", "expired": "Expired" },
+      "openDashboard": "Buka Dashboard",
+      "copyLink": "Salin Link",
+      "continueEdit": "Lanjutkan Edit",
+      "preview": "Pratinjau",
+      "guests": "Tamu",
+      "rsvp": "RSVP",
+      "helperActive": "Lihat analitik, kelola daftar tamu, atau perbarui konten undangan.",
+      "helperDraft": "Lengkapi detail undangan sebelum publish.",
+      "draftHint": "Lengkapi setup untuk publish",
+      "lastUpdated": "Terakhir diperbarui {date}",
+      "empty": "Tidak ada undangan ditemukan.",
+      "loadError": "Gagal memuat undangan. Periksa koneksi kamu."
     },
     "overview": {
       "title": "Dashboard Invitation",
