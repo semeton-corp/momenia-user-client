@@ -333,7 +333,9 @@
       "helperActive": "View analytics, manage guest list, or update invitation content.",
       "helperDraft": "Finish invitation details before publishing.",
       "draftHint": "Complete setup to publish",
-      "empty": "No invitations found."
+      "lastUpdated": "Last updated {date}",
+      "empty": "No invitations found.",
+      "loadError": "Failed to load invitations. Please check your connection."
     },
     "overview": {
       "title": "Dashboard Invitation",

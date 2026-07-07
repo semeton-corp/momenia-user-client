@@ -1,13 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { MY_INVITATIONS } from "@/lib/mocks/my-invitations"
 import { MyInvitationStatCard } from "@/components/dashboard/my-invitation/MyInvitationStatCard"
 import { MyInvitationCard } from "@/components/dashboard/my-invitation/MyInvitationCard"
-import type { MyInvitationStatus } from "@/lib/types/invitation-workspace"
+import { useUserInvitationOverview, useUserInvitations } from "@/hooks/useUserInvitations"
+import type { UserInvitation } from "@/lib/api/user-invitation/user-invitation.types"
+import type { MyInvitationItem, MyInvitationStatus } from "@/lib/types/invitation-workspace"
 
 type Tab = "all" | MyInvitationStatus
 
@@ -34,24 +35,66 @@ const CHIP_INACTIVE: Record<Tab, string> = {
 
 const TABS: Tab[] = ["all", "published", "draft", "expired"]
 
+const FALLBACK_THUMBNAIL = "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&q=80"
+
+function mapToMyInvitationItem(inv: UserInvitation, locale: string, lastUpdatedLabel: (date: string) => string): MyInvitationItem {
+  const dateLocale = locale === "id" ? "id-ID" : "en-US"
+  const eventDate = inv.eventDate
+    ? new Date(inv.eventDate).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" })
+    : ""
+
+  return {
+    id: inv.id,
+    title: inv.name || "Untitled",
+    category: inv.invitationTemplateCategory,
+    eventDate,
+    status: inv.status,
+    lastActivity: inv.lastUpdatedAt ? lastUpdatedLabel(inv.lastUpdatedAt) : "",
+    url: inv.pathUrl ? `momenia.com/${inv.pathUrl}` : null,
+    guests: inv.totalGuest ?? 0,
+    rsvp: inv.totalRsvp ?? 0,
+    thumbnail: inv.invitationTemplateThumbnail || FALLBACK_THUMBNAIL,
+  }
+}
+
 export default function MyInvitationPage() {
   const t = useTranslations("dashboard.workspace.myInvitations")
+  const locale = useLocale()
   const [tab, setTab] = React.useState<Tab>("all")
   const [search, setSearch] = React.useState("")
+  const [debouncedSearch, setDebouncedSearch] = React.useState("")
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 400)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  const { data: overview } = useUserInvitationOverview()
+  const { data: invitations = [], isLoading, isError } = useUserInvitations(
+    tab === "all"
+      ? { keyword: debouncedSearch || undefined }
+      : { statuses: [tab], keyword: debouncedSearch || undefined },
+  )
 
   const counts = {
-    total: MY_INVITATIONS.length,
-    published: MY_INVITATIONS.filter((i) => i.status === "published").length,
-    draft: MY_INVITATIONS.filter((i) => i.status === "draft").length,
-    expired: MY_INVITATIONS.filter((i) => i.status === "expired").length,
+    total: overview?.totalInvitation ?? 0,
+    published: overview?.totalPublishedInvitation ?? 0,
+    draft: overview?.totalDraftInvitation ?? 0,
+    expired: overview?.totalExpiredInvitation ?? 0,
   }
 
-  const q = search.trim().toLowerCase()
-  const filtered = MY_INVITATIONS.filter((i) => {
-    const okTab = tab === "all" || i.status === tab
-    const okSearch = !q || i.title.toLowerCase().includes(q)
-    return okTab && okSearch
-  })
+  const lastUpdatedLabel = (date: string) =>
+    t("lastUpdated", {
+      date: new Date(date).toLocaleDateString(locale === "id" ? "id-ID" : "en-US", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    })
+
+  const items = invitations.map((inv) => mapToMyInvitationItem(inv, locale, lastUpdatedLabel))
 
   return (
     <div className="px-5 pt-2 md:px-8 xl:mx-auto xl:max-w-[1824px] xl:px-16 xl:pb-10 xl:pt-[72px]">
@@ -132,13 +175,20 @@ export default function MyInvitationPage() {
 
       {/* ── List ── */}
       <div className="mt-[14px] space-y-4 xl:mt-8">
-        {filtered.map((inv) => (
-          <MyInvitationCard key={inv.id} inv={inv} />
-        ))}
-        {filtered.length === 0 && (
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-[92px] w-full animate-pulse rounded-lg bg-zinc-100 xl:h-[188px]" />
+          ))
+        ) : isError ? (
+          <div className="rounded-2xl border border-zinc-200 py-16 text-center text-sm text-zinc-400">
+            {t("loadError")}
+          </div>
+        ) : items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
             {t("empty")}
           </div>
+        ) : (
+          items.map((inv) => <MyInvitationCard key={inv.id} inv={inv} />)
         )}
       </div>
     </div>
