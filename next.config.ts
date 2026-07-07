@@ -35,6 +35,11 @@ const nextConfig: NextConfig = {
         hostname: "is3.cloudhost.id",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
     ],
   },
   webpack(config: WebpackConfigLike) {

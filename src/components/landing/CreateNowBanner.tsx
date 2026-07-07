@@ -69,7 +69,7 @@ export function CreateNowBanner() {
             className="relative mx-auto flex w-full items-center justify-center overflow-hidden rounded-[24px] h-32 md:h-40 md:rounded-[32px] lg:h-64 lg:rounded-[40px]"
             style={{
               background:
-                "linear-gradient(to top, #312E81 0%, #4F46E5 27%, #6366F1 44%, #A5B4FC 74%, #DDD6FE 100%)",
+                "linear-gradient(to top, #4F46E5 0%, #6366F1 44%, #A5B4FC 100%)",
             }}
           >
             {/* Bagian Kiri */}

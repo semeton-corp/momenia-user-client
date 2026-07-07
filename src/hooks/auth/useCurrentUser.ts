@@ -1,28 +1,46 @@
 "use client"
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { getMe } from "@/lib/api/authentication/auth.service"
 import type { UserProfile } from "@/lib/api/authentication/auth.types"
 
-function readStoredUser(): UserProfile | null {
+type StoredSession = {
+    token: string | null
+    storedUser: UserProfile | null
+}
+
+function readStoredSession(): StoredSession {
     try {
-        const raw = globalThis.localStorage?.getItem("user")
-        return raw ? (JSON.parse(raw) as UserProfile) : null
+        const token = localStorage.getItem("accessToken")
+        const raw = localStorage.getItem("user")
+        return {
+            token,
+            storedUser: raw ? (JSON.parse(raw) as UserProfile) : null,
+        }
     } catch {
-        return null
+        return { token: null, storedUser: null }
     }
 }
 
 export function useCurrentUser() {
-    const token = globalThis.localStorage?.getItem("accessToken") ?? null
-    const storedUser = readStoredUser()
+    // localStorage hanya dibaca SETELAH mount supaya render pertama client
+    // identik dengan HTML server (hindari hydration mismatch).
+    const [session, setSession] = useState<StoredSession | null>(null)
     const queryClient = useQueryClient()
+
+    useEffect(() => {
+        setSession(readStoredSession())
+    }, [])
+
+    const mounted = session !== null
+    const token = session?.token ?? null
+    const storedUser = session?.storedUser ?? null
 
     const query = useQuery({
         queryKey: ["currentUser"],
         queryFn: getMe,
-        enabled: !!token,
+        enabled: mounted && !!token,
         staleTime: 5 * 60 * 1000,
         retry: false,
         initialData: token ? (storedUser ?? undefined) : undefined,
@@ -45,6 +63,7 @@ export function useCurrentUser() {
             globalThis.localStorage?.removeItem("refreshToken")
             globalThis.localStorage?.removeItem("user")
             queryClient.removeQueries({ queryKey: ["currentUser"] })
+            setSession({ token: null, storedUser: null })
         }
     }, [query.isError, query.error, queryClient])
 
@@ -52,7 +71,9 @@ export function useCurrentUser() {
 
     return {
         user,
-        isLoading: !!token && query.isPending && !storedUser,
+        // Sebelum mount statusnya "loading" — server & client sama-sama render
+        // placeholder, baru setelah mount ditentukan login/logout.
+        isLoading: !mounted || (!!token && query.isPending && !storedUser),
         isLoggedIn: !!user,
     }
 }
