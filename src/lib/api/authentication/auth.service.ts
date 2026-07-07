@@ -1,4 +1,5 @@
 import { http } from "../http"
+import { getAuthHeader as authHeader } from "../auth-header"
 import {
     GoogleAuthRequest,
     AuthResponse,
@@ -7,15 +8,13 @@ import {
     RefreshTokenResponse,
     LogoutResponse,
     UserProfile,
+    Account,
+    UpdateAccountRequest,
 } from "./auth.types"
 
 const BASE_USERS = "/api/v1/users"
 const BASE_SESSIONS = "/api/v1/sessions"
-
-function authHeader(): Record<string, string> {
-    const token = globalThis.localStorage?.getItem("accessToken") ?? null
-    return token ? { Authorization: `Bearer ${token}` } : {}
-}
+const BASE_ACCOUNTS = "/api/v1/accounts"
 
 export const signUpWithGoogle = async (
     data: GoogleAuthRequest
@@ -73,5 +72,20 @@ export const getMe = async (): Promise<UserProfile> => {
     return http(`${BASE_USERS}/me`, {
         method: "GET",
         headers: authHeader(),
+    })
+}
+
+export const getAccountMe = async (): Promise<Account> => {
+    return http(`${BASE_ACCOUNTS}/me`, {
+        method: "GET",
+        headers: authHeader(),
+    })
+}
+
+export const updateAccount = async (data: UpdateAccountRequest): Promise<Account> => {
+    return http(`${BASE_ACCOUNTS}/me`, {
+        method: "PUT",
+        headers: authHeader(),
+        body: JSON.stringify(data),
     })
 }

@@ -6,13 +6,23 @@ import { DashboardBanner } from "@/components/dashboard/DashboardBanner"
 import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
 import { TemplateDetailModal, type TemplateDetail } from "@/components/dashboard/TemplateDetailModal"
-import { useInvitationTemplates, useInvitationTemplateDetail, useToggleFavourite } from "@/hooks/useInvitationTemplates"
-import type { TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import { useInvitationTemplateCategories, useInvitationTemplateDetail, useInvitationTemplateTags, useInvitationTemplates, useToggleFavourite } from "@/hooks/useInvitationTemplates"
+import type { GetTemplatesParams, TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import { useAuthGate } from "@/components/dashboard/DashboardAuthGate"
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 
-const STYLE_TAG_KEYS = [
-  "allStyles", "classy", "minimalism", "colorful", "modern",
-  "vintage", "clean", "bold", "retro", "cute", "softColor",
-] as const
+const ALL_STYLES_ID = "all"
+const ALL_CATEGORIES = ""
+
+// value = "sortField:sortOrder" (dipisah saat dikirim ke API)
+const SORT_OPTIONS: { value: string; key: string }[] = [
+  { value: "createdAt:desc", key: "newest" },
+  { value: "createdAt:asc", key: "oldest" },
+  { value: "price:asc", key: "priceLow" },
+  { value: "price:desc", key: "priceHigh" },
+  { value: "rating:desc", key: "rating" },
+]
+const DEFAULT_SORT = "createdAt:desc"
 
 function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): TemplateDetail {
   return {
@@ -31,8 +41,11 @@ function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): Temp
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard.tags")
+  const tBanner = useTranslations("dashboard.banner")
   const locale = useLocale()
-  const [activeTagKey, setActiveTagKey] = React.useState<typeof STYLE_TAG_KEYS[number]>("allStyles")
+  const [activeTagId, setActiveTagId] = React.useState<string>(ALL_STYLES_ID)
+  const [selectedCategory, setSelectedCategory] = React.useState<string>(ALL_CATEGORIES)
+  const [sort, setSort] = React.useState<string>(DEFAULT_SORT)
   const [search, setSearch] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
@@ -43,13 +56,34 @@ export default function DashboardPage() {
     return () => clearTimeout(timer)
   }, [search])
 
+  const selectedTagId = activeTagId === ALL_STYLES_ID ? undefined : Number(activeTagId)
+  const [sortField, sortOrder] = sort.split(":") as [
+    NonNullable<GetTemplatesParams["sortField"]>,
+    NonNullable<GetTemplatesParams["sortOrder"]>,
+  ]
+
+  const { data: templateTags = [] } = useInvitationTemplateTags()
+  const { data: templateCategories = [] } = useInvitationTemplateCategories()
+
+  const categoryOptions = [
+    { value: ALL_CATEGORIES, label: tBanner("allCategories") },
+    ...templateCategories.map((c) => ({ value: String(c.id), label: c.name })),
+  ]
+  const sortOptions = SORT_OPTIONS.map((o) => ({ value: o.value, label: tBanner(`sortOptions.${o.key}`) }))
+
   const { data: templatesData, isLoading, isError } = useInvitationTemplates({
     pageSize: 20,
     keyword: debouncedSearch || undefined,
+    tagsIds: selectedTagId ? [selectedTagId] : undefined,
+    categoryId: selectedCategory ? Number(selectedCategory) : undefined,
+    sortField,
+    sortOrder,
   })
 
   const { data: detailData, isLoading: isDetailLoading } = useInvitationTemplateDetail(selectedId)
   const { mutate: toggleFavourite } = useToggleFavourite()
+  const { isLoggedIn } = useCurrentUser()
+  const { requestAccess } = useAuthGate()
 
   const DUMMY_TEMPLATES = [
     { id: "dummy-1", name: "Javanese Elegant", category: "Wedding", priceAfterDiscount: "70000", price: "140000", mobileThumbnail: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&q=80", isUserFavorite: false },
@@ -66,15 +100,25 @@ export default function DashboardPage() {
   ]
 
   const apiTemplates = templatesData?.data ?? []
-  const templates = [...apiTemplates, ...DUMMY_TEMPLATES.slice(0, Math.max(0, 11 - apiTemplates.length + 1))]
+  const shouldUseDummyTemplates =
+    apiTemplates.length === 0 && !debouncedSearch && selectedTagId === undefined && !selectedCategory
+  const templates = shouldUseDummyTemplates
+    ? [...apiTemplates, ...DUMMY_TEMPLATES.slice(0, Math.max(0, 11 - apiTemplates.length + 1))]
+    : apiTemplates
+  const hasTemplates = templates.length > 0
   const selectedTemplate = detailData ? mapToTemplateDetail(detailData, locale) : null
 
   const handleFavouriteToggle = (id: string | number) => {
+    if (!isLoggedIn) {
+      requestAccess()
+      return
+    }
     const strId = String(id)
     if (strId.startsWith("dummy-")) {
       setDummyFavourites((prev) => {
         const next = new Set(prev)
-        next.has(strId) ? next.delete(strId) : next.add(strId)
+        if (next.has(strId)) next.delete(strId)
+        else next.add(strId)
         return next
       })
       return
@@ -85,27 +129,46 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="px-5 md:px-8 xl:px-16">
-      <DashboardBanner search={search} onSearchChange={setSearch} />
+    <div className="px-5 md:px-8 xl:mx-auto xl:max-w-[1824px] xl:px-16 xl:pb-10">
+      <DashboardBanner
+        search={search}
+        onSearchChange={setSearch}
+        categoryOptions={categoryOptions}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        sortOptions={sortOptions}
+        selectedSort={sort}
+        onSortChange={setSort}
+      />
 
-      {/* Style Tags */}
-      <div className="mt-6 mb-0 overflow-x-auto pb-1 scrollbar-hide md:mt-10 md:mb-[44px]">
-        <div className="mx-auto flex w-max items-center gap-[14px]">
-          {STYLE_TAG_KEYS.map((key) => (
+        {/* Style Tags */}
+        <div className="mt-6 mb-0 -mx-5 overflow-x-auto pb-1 scrollbar-hide md:-mx-8 md:mt-10 md:mb-[44px] xl:mx-0">
+          <div className="flex w-max items-center gap-[14px] px-5 md:px-8 xl:mx-auto xl:px-0">
             <StyleTag
-              key={key}
-              label={t(key)}
-              active={activeTagKey === key}
-              onClick={() => setActiveTagKey(key)}
+              key={ALL_STYLES_ID}
+              label={t("allStyles")}
+              active={activeTagId === ALL_STYLES_ID}
+              onClick={() => setActiveTagId(ALL_STYLES_ID)}
             />
-          ))}
+            {templateTags.map((tag) => (
+              <StyleTag
+                key={tag.id}
+                label={tag.name}
+                active={activeTagId === String(tag.id)}
+                onClick={() => setActiveTagId(String(tag.id))}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
       {/* Template Grid */}
       {isError ? (
         <div className="mt-8 flex flex-col items-center justify-center py-20 text-center">
           <p className="text-sm text-zinc-400">Gagal memuat template. Periksa koneksi atau konfigurasi API.</p>
+        </div>
+      ) : !isLoading && !hasTemplates ? (
+        <div className="mt-8 flex flex-col items-center justify-center py-20 text-center">
+          <p className="text-sm text-zinc-400">{t("empty")}</p>
         </div>
       ) : (
         <div

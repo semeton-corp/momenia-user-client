@@ -57,7 +57,7 @@ export function FaqAccordion({ items, defaultOpenId }: FaqAccordionProps) {
           <motion.article
             key={item.id}
             className={cn(
-              "rounded-3xl border border-indigo-100 transition-colors",
+              "overflow-hidden rounded-3xl border border-indigo-100 transition-colors",
               isOpen ? "bg-indigo-50" : "bg-white",
             )}
             variants={{

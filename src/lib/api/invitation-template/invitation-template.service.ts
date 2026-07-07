@@ -1,18 +1,16 @@
 import { http } from "../http"
+import { getAuthHeader as authHeader } from "../auth-header"
 import type {
   GetFavouritesParams,
   GetTemplatesParams,
+  InvitationTemplateCategory,
+  InvitationTemplateTag,
   TemplateDetailResponse,
   TemplatesListResponse,
 } from "./invitation-template.types"
 
 const BASE = "/api/v1/main-app/invitation-templates"
 const BASE_FAV = "/api/v1/invitation-templates"
-
-function authHeader(): Record<string, string> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
 
 function buildQuery(params: Record<string, string | number | string[] | undefined>): string {
   const q = new URLSearchParams()
@@ -40,6 +38,16 @@ export async function getInvitationTemplates(params: GetTemplatesParams = {}): P
 
 export async function getInvitationTemplateById(id: string): Promise<TemplateDetailResponse> {
   return http(`${BASE}/${id}`, { headers: authHeader() })
+}
+
+export async function getInvitationTemplateTags(keyword?: string): Promise<InvitationTemplateTag[]> {
+  const qs = buildQuery({ keyword })
+  return http(`${BASE_FAV}/tags${qs}`, { headers: authHeader() })
+}
+
+export async function getInvitationTemplateCategories(keyword?: string): Promise<InvitationTemplateCategory[]> {
+  const qs = buildQuery({ keyword })
+  return http(`${BASE_FAV}/categories${qs}`, { headers: authHeader() })
 }
 
 export async function addFavouriteTemplate(id: string): Promise<void> {
