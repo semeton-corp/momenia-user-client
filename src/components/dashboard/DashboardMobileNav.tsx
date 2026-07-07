@@ -4,6 +4,9 @@ import { useTranslations } from "next-intl"
 import { TableProperties, Folder, Heart, CircleDollarSign } from "lucide-react"
 import { Link, usePathname } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
+import { useAuthGate } from "@/components/dashboard/DashboardAuthGate"
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
+import { PROTECTED_DASHBOARD_PATHS } from "@/lib/dashboard-protected-paths"
 
 const navItems = [
   { id: "template",      labelKey: "template",      icon: TableProperties,  href: "/dashboard" },
@@ -15,6 +18,8 @@ const navItems = [
 export function DashboardMobileNav() {
   const pathname = usePathname()
   const t = useTranslations("dashboard.sidebar")
+  const { isLoggedIn } = useCurrentUser()
+  const { requestAccess } = useAuthGate()
   // next-intl usePathname already strips locale prefix
   const path = pathname
 
@@ -33,6 +38,12 @@ export function DashboardMobileNav() {
           <Link
             key={id}
             href={href}
+            onClick={(e) => {
+              if (PROTECTED_DASHBOARD_PATHS.has(href) && !isLoggedIn) {
+                e.preventDefault()
+                requestAccess()
+              }
+            }}
             className="flex flex-1 flex-col items-center justify-center gap-1.5"
           >
             <div

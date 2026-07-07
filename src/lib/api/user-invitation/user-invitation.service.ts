@@ -1,10 +1,6 @@
 import { http } from "../http"
+import { getAuthHeader as authHeader } from "../auth-header"
 import { GetUserInvitationsParams, UpdateUserInvitationRequest, UserInvitation, UserInvitationDashboard, UserInvitationDetail, UserInvitationOverview } from "./user-invitation.types"
-
-function authHeader(): Record<string, string> {
-    const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
-    return token ? { Authorization: `Bearer ${token}` } : {}
-}
 
 export const getUserInvitationOverview = async (): Promise<UserInvitationOverview> => {
     return http("/api/v1/user-invitations/overview", { headers: authHeader() })

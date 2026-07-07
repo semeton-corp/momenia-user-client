@@ -3,14 +3,14 @@
 import * as React from "react"
 import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
-import { Menu, Globe, LogOut, LayoutGrid } from "lucide-react"
+import { Menu, Globe, LogOut, LayoutGrid, PanelRightClose } from "lucide-react"
 import LogoMemoria from "@/assets/logo/logo-memoria.png"
 import { AnimatePresence, motion } from "framer-motion"
 
 import { Link, usePathname } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { routing } from "@/i18n/routing"
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { useLogout } from "@/hooks/auth/useLogout"
@@ -166,7 +166,9 @@ export function Navbar() {
   return (
     <motion.header
       className={cn(
-        "fixed inset-x-0 top-0 z-[100] w-full border-b border-border/70 bg-white backdrop-blur-md will-change-transform supports-[backdrop-filter]:bg-white",
+        "fixed inset-x-0 top-0 w-full border-b border-border/70 bg-white backdrop-blur-md will-change-transform supports-[backdrop-filter]:bg-white",
+        // Turunkan di bawah sheet (z-50) saat menu terbuka supaya sidebar menutupi navbar
+        isOpen ? "z-40" : "z-[100]",
       )}
       style={{ fontFamily: "var(--font-geist-sans)" }}
       initial={{ y: -72, opacity: 0 }}
@@ -218,10 +220,21 @@ export function Navbar() {
               <span className="sr-only">{tCommon("toggleMenu")}</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] p-0">
+          <SheetContent side="right" showCloseButton={false} className="w-[280px] p-0">
             <div className="flex h-full flex-col">
               <SheetTitle className="sr-only">{tNavbar("sheetTitle")}</SheetTitle>
-              <div className="px-6 pt-6 text-sm font-medium text-muted-foreground">{tNavbar("sheetLabel")}</div>
+              {/* Header setinggi navbar (h-16) supaya ikon sejajar dengan logo di kiri */}
+              <div className="flex h-16 items-center justify-start px-6">
+                <SheetClose asChild>
+                  <button
+                    type="button"
+                    aria-label={tCommon("close")}
+                    className="-ml-1 cursor-pointer rounded-md p-1 text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
+                  >
+                    <PanelRightClose className="h-5 w-5" />
+                  </button>
+                </SheetClose>
+              </div>
               <div className="mt-4 flex flex-col">
                 {sectionItems.map((item, index) => (
                   <div key={item.id} className="px-6">

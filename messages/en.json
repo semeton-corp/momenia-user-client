@@ -125,8 +125,48 @@
   },
   "dashboard": {
     "favourite": {
-      "title": "My Favourites",
-      "empty": "You haven't added any favourites yet."
+      "title": "Favorite Templates",
+      "subtitle": "Kumpulan template yang sudah kamu simpan. Bandingkan gaya, lanjutkan eksplorasi, atau langsung gunakan template favoritmu.",
+      "subtitleShort": "Template yang kamu simpan untuk dipilih dan digunakan nanti.",
+      "search": "Search favorite templates...",
+      "sort": {
+        "recent": "Most recent",
+        "priceLow": "Price: Low to High",
+        "priceHigh": "Price: High to Low"
+      },
+      "chips": {
+        "allSaved": "All saved",
+        "wedding": "Wedding",
+        "modern": "Modern",
+        "classic": "Classic",
+        "recentlyAdded": "Recently added"
+      },
+      "empty": "No favourite templates found.",
+      "loadError": "Failed to load favourites. Please check your connection."
+    },
+    "transaction": {
+      "title": "Transaction History",
+      "subtitle": "View all your purchased templates and add-ons.",
+      "table": {
+        "id": "ID",
+        "item": "Item",
+        "totalPrice": "Total Price",
+        "status": "Status",
+        "time": "Time"
+      },
+      "status": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed"
+      },
+      "template": "Template",
+      "duration": "Duration",
+      "addon": "Add-ons",
+      "itemsIncluded": "{count} items included",
+      "viewDetails": "View details",
+      "hideDetails": "Hide details",
+      "empty": "No transactions found.",
+      "loadError": "Failed to load transactions. Please check your connection."
     },
     "sidebar": {
       "template": "Template",
@@ -139,25 +179,65 @@
       "subtitle": "Discover the perfect invitation design for your special moments. Each template is curated by top designers to ensure exclusivity.",
       "searchPlaceholder": "Search templates...",
       "category": "Category",
-      "sort": "Sort"
+      "sort": "Sort",
+      "allCategories": "All categories",
+      "sortOptions": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "priceLow": "Price: Low to High",
+        "priceHigh": "Price: High to Low",
+        "rating": "Top rated"
+      }
     },
-    "tags": {
-      "allStyles": "All styles",
-      "classy": "Classy",
-      "minimalism": "Minimalism",
-      "colorful": "Colorful",
-      "modern": "Modern",
-      "vintage": "Vintage",
-      "clean": "Clean",
-      "bold": "Bold",
-      "retro": "Retro",
-      "cute": "Cute",
-      "softColor": "Soft color"
-    },
-    "modal": {
-      "mobile": "Mobile",
-      "desktop": "Desktop",
-      "demo": "Demo",
+      "tags": {
+        "allStyles": "All styles",
+        "classy": "Classy",
+        "minimalism": "Minimalism",
+        "colorful": "Colorful",
+        "modern": "Modern",
+        "vintage": "Vintage",
+        "clean": "Clean",
+        "bold": "Bold",
+        "retro": "Retro",
+        "cute": "Cute",
+        "softColor": "Soft color",
+        "empty": "No templates found."
+      },
+      "authGate": {
+        "title": "Login required",
+        "description": "Please log in or create an account first to open My Invitation, Favorite, and Transaction pages.",
+        "login": "Login",
+        "signUp": "Sign Up",
+        "backToCatalog": "Back to catalog",
+        "close": "Close"
+      },
+      "profile": {
+        "title": "Profile",
+        "subtitle": "Manage your account information and settings",
+        "editProfile": "Edit Profile",
+        "fullName": "Full Name",
+        "emailAddress": "Email Address",
+        "phoneNumber": "Phone Number",
+        "logOut": "Log Out",
+        "logOutSubtitle": "Sign out of your Momenia account",
+        "loadError": "Failed to load your profile. Please check your connection.",
+        "editDialog": {
+          "title": "Edit Profile",
+          "description": "Make changes to your profile here. Click save when you're done.",
+          "cancel": "Cancel",
+          "save": "Save Changes"
+        },
+        "logoutDialog": {
+          "title": "Log Out",
+          "description": "Are you sure you want to log out of Momenia?",
+          "cancel": "Cancel",
+          "confirm": "Log Out"
+        }
+      },
+      "modal": {
+        "mobile": "Mobile",
+        "desktop": "Desktop",
+        "demo": "Demo",
       "seeAddOns": "See add ons and Payment",
       "addOns": "Add ons",
       "featureAddOns": "Feature Add ons",
@@ -225,6 +305,37 @@
       "demoBadge": "Payment bypass",
       "helper": "After a user clicks Pay Order, we can redirect to this invitation workspace while the backend is still in slicing mode.",
       "openDemo": "Open Demo Workspace"
+    },
+    "myInvitations": {
+      "title": "My Invitations",
+      "subtitle": "Kelola semua invitation yang pernah dibuat, lanjutkan draft, pantau status publish, dan buka dashboard project dari satu tempat.",
+      "subtitleShort": "Project yang sudah dibuat, draft, dan publish.",
+      "search": "Search invitations...",
+      "stat": {
+        "total": "Total invitations",
+        "totalShort": "Total",
+        "totalDesc": "Semua project yang pernah dibuat",
+        "published": "Published",
+        "publishedDesc": "Invitation aktif dan bisa dibagikan",
+        "draft": "Draft",
+        "draftDesc": "Belum dipublish, lanjutkan editing",
+        "expired": "Expired",
+        "expiredDesc": "Butuh perpanjangan paket"
+      },
+      "tab": { "all": "All", "published": "Published", "draft": "Draft", "expired": "Expired" },
+      "status": { "published": "Published", "draft": "Draft", "expired": "Expired" },
+      "openDashboard": "Open Dashboard",
+      "copyLink": "Copy Link",
+      "continueEdit": "Continue Edit",
+      "preview": "Preview",
+      "guests": "Guests",
+      "rsvp": "RSVP",
+      "helperActive": "View analytics, manage guest list, or update invitation content.",
+      "helperDraft": "Finish invitation details before publishing.",
+      "draftHint": "Complete setup to publish",
+      "lastUpdated": "Last updated {date}",
+      "empty": "No invitations found.",
+      "loadError": "Failed to load invitations. Please check your connection."
     },
     "overview": {
       "title": "Dashboard Invitation",

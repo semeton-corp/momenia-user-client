@@ -8,6 +8,16 @@ export type TemplateListItem = {
   isUserFavorite: boolean
 }
 
+export type InvitationTemplateTag = {
+  id: number
+  name: string
+}
+
+export type InvitationTemplateCategory = {
+  id: number
+  name: string
+}
+
 export type TemplateSchemaField = {
   key: string
   type: "text" | "image" | "date" | "time"

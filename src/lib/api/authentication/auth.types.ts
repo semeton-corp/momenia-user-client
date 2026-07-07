@@ -35,3 +35,18 @@ export type UserProfile = {
   name: string
   profilePicture: string
 }
+
+export type Account = {
+    id: string
+    name: string
+    email: string
+    phoneNumber: string
+    profilePicture: string
+    createdAt: string
+}
+
+export type UpdateAccountRequest = {
+    name: string
+    phoneNumber: string
+    profilePicture: string
+}

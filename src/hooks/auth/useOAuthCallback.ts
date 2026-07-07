@@ -52,6 +52,16 @@ export const useOAuthCallback = () => {
             return
         }
 
+        // A Google authorization code is single-use. Guard against exchanging the
+        // same code more than once (remount / refresh / back-forward) — a second
+        // exchange is what Google rejects with "invalid code".
+        const guardKey = `oauth_code_used:${code}`
+        if (sessionStorage.getItem(guardKey)) {
+            setError("This sign-in link was already used. Please sign in again.")
+            return
+        }
+        sessionStorage.setItem(guardKey, "1")
+
         const run = async () => {
             setLoading(true)
             setError(null)

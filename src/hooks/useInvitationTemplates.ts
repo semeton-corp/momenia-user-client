@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   addFavouriteTemplate,
   getFavouriteTemplates,
+  getInvitationTemplateCategories,
+  getInvitationTemplateTags,
   getInvitationTemplateById,
   getInvitationTemplates,
   removeFavouriteTemplate,
@@ -14,6 +16,8 @@ export const TEMPLATE_KEYS = {
   list: (params: GetTemplatesParams) => ["invitation-templates", "list", params] as const,
   detail: (id: string) => ["invitation-templates", "detail", id] as const,
   favourites: (params: GetFavouritesParams) => ["invitation-templates", "favourites", params] as const,
+  tags: (keyword?: string) => ["invitation-templates", "tags", keyword ?? ""] as const,
+  categories: (keyword?: string) => ["invitation-templates", "categories", keyword ?? ""] as const,
 }
 
 export function useInvitationTemplates(params: GetTemplatesParams = {}) {
@@ -29,6 +33,22 @@ export function useInvitationTemplateDetail(id: string | null) {
     queryKey: TEMPLATE_KEYS.detail(id ?? ""),
     queryFn: () => getInvitationTemplateById(id!),
     enabled: id !== null,
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useInvitationTemplateTags(keyword?: string) {
+  return useQuery({
+    queryKey: TEMPLATE_KEYS.tags(keyword),
+    queryFn: () => getInvitationTemplateTags(keyword),
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useInvitationTemplateCategories(keyword?: string) {
+  return useQuery({
+    queryKey: TEMPLATE_KEYS.categories(keyword),
+    queryFn: () => getInvitationTemplateCategories(keyword),
     staleTime: 1000 * 60 * 5,
   })
 }
