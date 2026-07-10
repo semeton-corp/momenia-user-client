@@ -3,6 +3,14 @@ import { sanitizeToken } from "./auth-header"
 const BASE_URL = typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_API_URL
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY
 
+// POST/PUT/PATCH butuh X-Idempotency-Key supaya backend bisa dedupe kalau client
+// kirim request yang sama dua kali bersamaan (mis. double-click).
+const IDEMPOTENT_KEY_METHODS = new Set(["POST", "PUT", "PATCH"])
+
+function needsIdempotencyKey(method?: string): boolean {
+    return !!method && IDEMPOTENT_KEY_METHODS.has(method.toUpperCase())
+}
+
 // Satu refresh berjalan bersama untuk semua request yang 401 berbarengan.
 let refreshPromise: Promise<boolean> | null = null
 
@@ -19,6 +27,7 @@ async function tryRefreshSession(): Promise<boolean> {
                 headers: {
                     "Content-Type": "application/json",
                     "x-api-key": API_KEY!,
+                    "X-Idempotency-Key": crypto.randomUUID(),
                 },
                 body: JSON.stringify({ refreshToken, userAgent: navigator.userAgent }),
             })
@@ -50,6 +59,7 @@ export async function http<T>(
     const buildHeaders = (): Record<string, string> => ({
         "Content-Type": "application/json",
         "x-api-key": API_KEY!,
+        ...(needsIdempotencyKey(options?.method) ? { "X-Idempotency-Key": crypto.randomUUID() } : {}),
         ...((options?.headers as Record<string, string>) || {}),
     })
 
