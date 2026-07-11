@@ -225,7 +225,8 @@
           "title": "Edit Profile",
           "description": "Make changes to your profile here. Click save when you're done.",
           "cancel": "Cancel",
-          "save": "Save Changes"
+          "save": "Save Changes",
+          "uploadError": "Failed to upload photo. Please try again."
         },
         "logoutDialog": {
           "title": "Log Out",
