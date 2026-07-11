@@ -4,6 +4,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import Image from "next/image"
 import { Heart, Star, Smartphone, Monitor, Eye, X, ArrowLeft } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
 import { useTranslations, useLocale } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -242,7 +243,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   >
                     {template.title}
                   </h2>
-                  <button
+                  <motion.button
                     type="button"
                     aria-label="Toggle favourite"
                     className="cursor-pointer shrink-0 flex items-center justify-center rounded-full transition-all"
@@ -251,16 +252,26 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                       height: "54px",
                       backgroundColor: isFavourite ? "var(--accent)" : "transparent",
                     }}
+                    whileTap={{ scale: 0.85 }}
                     onClick={() => onFavouriteToggle(template.id)}
                   >
-                    <Heart
-                      style={{ width: "24px", height: "24px" }}
-                      className={cn(
-                        "transition-colors",
-                        isFavourite ? "fill-red-500 text-red-500" : "text-zinc-300 hover:text-red-400"
-                      )}
-                    />
-                  </button>
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.div
+                        key={isFavourite ? "fav" : "unfav"}
+                        initial={{ scale: 0.5, opacity: 0.6 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                      >
+                        <Heart
+                          style={{ width: "24px", height: "24px" }}
+                          className={cn(
+                            "transition-colors",
+                            isFavourite ? "fill-red-500 text-red-500" : "text-zinc-300 hover:text-red-400"
+                          )}
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                  </motion.button>
                 </div>
 
                 {/* Style chips */}
@@ -401,18 +412,28 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
             <div className="flex h-full flex-col xl:hidden">
               {/* Header: favourite · title · close */}
               <div className="flex shrink-0 items-center justify-between px-5 pb-3 pt-5">
-                <button
+                <motion.button
                   type="button"
                   aria-label="Toggle favourite"
                   className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors"
                   style={{ backgroundColor: "var(--accent)" }}
+                  whileTap={{ scale: 0.85 }}
                   onClick={() => onFavouriteToggle(template.id)}
                 >
-                  <Heart
-                    style={{ width: "20px", height: "20px" }}
-                    className={cn(isFavourite ? "fill-red-500 text-red-500" : "text-zinc-400")}
-                  />
-                </button>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={isFavourite ? "fav" : "unfav"}
+                      initial={{ scale: 0.5, opacity: 0.6 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                    >
+                      <Heart
+                        style={{ width: "20px", height: "20px" }}
+                        className={cn(isFavourite ? "fill-red-500 text-red-500" : "text-zinc-400")}
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                </motion.button>
                 <h2 className="flex-1 truncate px-3 text-center text-xl font-bold text-foreground">
                   {template.title}
                 </h2>

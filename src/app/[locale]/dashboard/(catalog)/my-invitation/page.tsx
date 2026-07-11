@@ -6,6 +6,7 @@ import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MyInvitationStatCard } from "@/components/dashboard/my-invitation/MyInvitationStatCard"
 import { MyInvitationCard } from "@/components/dashboard/my-invitation/MyInvitationCard"
+import { MyInvitationCardSkeleton } from "@/components/dashboard/my-invitation/MyInvitationCardSkeleton"
 import { useUserInvitationOverview, useUserInvitations } from "@/hooks/useUserInvitations"
 import type { UserInvitation } from "@/lib/api/user-invitation/user-invitation.types"
 import type { MyInvitationItem, MyInvitationStatus } from "@/lib/types/invitation-workspace"
@@ -176,9 +177,7 @@ export default function MyInvitationPage() {
       {/* ── List ── */}
       <div className="mt-[14px] space-y-4 xl:mt-8">
         {isLoading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-[92px] w-full animate-pulse rounded-lg bg-zinc-100 xl:h-[188px]" />
-          ))
+          Array.from({ length: 3 }).map((_, i) => <MyInvitationCardSkeleton key={i} />)
         ) : isError ? (
           <div className="rounded-2xl border border-zinc-200 py-16 text-center text-sm text-zinc-400">
             {t("loadError")}
