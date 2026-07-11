@@ -3,11 +3,10 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import Image from "next/image"
-import { Heart, Star, Smartphone, Monitor, Eye, X, ArrowLeft, ChevronDown, ChevronRight, Info } from "lucide-react"
+import { Heart, Star, Smartphone, Monitor, Eye, X, ArrowLeft } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
 
 import { Button } from "@/components/ui/button"
-import { CheckboxTile } from "@/components/ui/checkbox-tile"
 import { RadioDot } from "@/components/ui/radio-dot"
 import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
@@ -34,13 +33,6 @@ type Props = {
   onClose: () => void
 }
 
-const FEATURE_ADDONS = [
-  { key: "instagramFilter", price: 10000 },
-  { key: "multiLanguage", price: 10000 },
-  { key: "galleryMomenia", price: 10000, expandable: true },
-  { key: "customDomainLink", price: 10000 },
-] as const
-
 export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, onClose }: Props) {
   const { data: durations = [], isLoading: isDurationsLoading } = useInvitationDurations()
   const t = useTranslations("dashboard.modal")
@@ -49,9 +41,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
   const [isDesktop, setIsDesktop] = React.useState(false)
   const [view, setView] = React.useState<"mobile" | "desktop">("mobile")
   const [step, setStep] = React.useState<"detail" | "addons">("detail")
-  const [selectedFeatures, setSelectedFeatures] = React.useState<Set<string>>(new Set())
   const [selectedDuration, setSelectedDuration] = React.useState("")
-  const [expandedAddon, setExpandedAddon] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const mq = window.matchMedia("(min-width: 1280px)")
@@ -64,9 +54,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
   React.useEffect(() => {
     setView("mobile")
     setStep("detail")
-    setSelectedFeatures(new Set())
     setSelectedDuration("")
-    setExpandedAddon(null)
   }, [template?.id])
 
   React.useEffect(() => {
@@ -74,15 +62,6 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
       setSelectedDuration(durations[0].id)
     }
   }, [durations, selectedDuration])
-
-  const toggleFeature = (key: string) => {
-    setSelectedFeatures((prev) => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return next
-    })
-  }
 
   const handleContinueToPayment = () => {
     if (!template) return
@@ -97,8 +76,6 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
       duration: selectedDuration,
       durationPrice: String(durationPrice),
     })
-    const featureKeys = Array.from(selectedFeatures).join(",")
-    if (featureKeys) params.set("features", featureKeys)
     if (template.originalPrice) params.set("originalPrice", String(template.originalPrice))
     window.open(`/${locale}/payment?${params.toString()}`, "_blank")
   }
@@ -634,62 +611,6 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
 
               {/* Scrollable content */}
               <div className="flex-1 space-y-5 overflow-y-auto py-4 xl:py-6">
-                {/* Feature add ons */}
-                <div>
-                  <p className="text-lg text-zinc-900 xl:text-2xl">{t("featureAddOns")}</p>
-                  <p className="mb-3 mt-1 text-sm text-zinc-400 xl:mb-4">{t("featureAddOnsSubtitle")}</p>
-                  <div className="space-y-2">
-                    {FEATURE_ADDONS.map((addon) => {
-                      const expandable = "expandable" in addon
-                      const isExpanded = expandable && expandedAddon === addon.key
-                      return (
-                        <div key={addon.key} className="rounded-xl border border-indigo-300 bg-indigo-50">
-                          <div className="flex min-h-20 items-center rounded-xl px-4 py-3 xl:py-0">
-                            <div className="flex flex-1 items-center gap-1.5">
-                              <span className="text-sm font-medium text-foreground xl:text-lg">{t(addon.key)}</span>
-                              <Info className="h-4 w-4 shrink-0 text-indigo-400 xl:h-5 xl:w-5" />
-                              {expandable && (
-                                <button
-                                  type="button"
-                                  className="rounded p-0.5 transition-colors hover:bg-indigo-200"
-                                  onClick={() => setExpandedAddon((prev) => (prev === addon.key ? null : addon.key))}
-                                >
-                                  {isExpanded
-                                    ? <ChevronDown className="h-5 w-5 shrink-0 text-zinc-400" />
-                                    : <ChevronRight className="h-5 w-5 shrink-0 text-zinc-400" />}
-                                </button>
-                              )}
-                            </div>
-                            <span className="mr-3 whitespace-nowrap text-sm font-medium text-foreground xl:text-lg">
-                              Rp {addon.price.toLocaleString("id-ID")}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => toggleFeature(addon.key)}
-                              className="flex items-center"
-                            >
-                              <CheckboxTile checked={selectedFeatures.has(addon.key)} />
-                            </button>
-                          </div>
-
-                          {isExpanded && (
-                            <div className="flex gap-4 px-4 pb-4">
-                              <div className="flex h-24 w-36 shrink-0 items-center justify-center rounded-lg bg-zinc-200">
-                                <svg className="h-8 w-8 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                                  <circle cx="8.5" cy="8.5" r="1.5" />
-                                  <path d="M21 15l-5-5L5 21" />
-                                </svg>
-                              </div>
-                              <p className="text-sm font-normal leading-relaxed text-zinc-500">{t("galleryMomeniaDesc")}</p>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
                 {/* Duration add ons */}
                 <div>
                   <p className="text-lg text-zinc-900 xl:text-2xl">{t("durationAddOns")}</p>
@@ -699,7 +620,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                       <div className="flex items-center justify-center py-6 text-sm text-zinc-400">Loading...</div>
                     ) : durations.map((duration) => {
                       const price = Number(duration.price)
-                      const label = `${duration.value} ${duration.duration}`
+                      const label = `${duration.duration} ${t(`durationUnit.${duration.unit}`)}`
                       return (
                         <div
                           key={duration.id}

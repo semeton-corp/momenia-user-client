@@ -1,7 +1,9 @@
+export type InvitationDurationUnit = "week" | "month"
+
 export type InvitationDuration = {
   id: string
-  value: number
-  duration: string
+  duration: number
+  unit: InvitationDurationUnit
   price: string
   isActive: boolean
 }
