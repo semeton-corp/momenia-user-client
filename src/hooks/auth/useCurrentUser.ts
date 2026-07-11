@@ -3,6 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { getMe } from "@/lib/api/authentication/auth.service"
+import { resolveObjectUrl } from "@/lib/api/object/object.service"
 import type { UserProfile } from "@/lib/api/authentication/auth.types"
 
 type StoredSession = {
@@ -14,10 +15,14 @@ function readStoredSession(): StoredSession {
     try {
         const token = localStorage.getItem("accessToken")
         const raw = localStorage.getItem("user")
-        return {
-            token,
-            storedUser: raw ? (JSON.parse(raw) as UserProfile) : null,
+        const storedUser = raw ? (JSON.parse(raw) as UserProfile) : null
+        // profilePicture bisa berupa key objek mentah (mis. "avatar/ava_xxx")
+        // kalau tersimpan sebelum normalisasi service diterapkan — ubah ke URL
+        // publik supaya next/image di sidebar/header tidak crash.
+        if (storedUser?.profilePicture) {
+            storedUser.profilePicture = resolveObjectUrl(storedUser.profilePicture)
         }
+        return { token, storedUser }
     } catch {
         return { token: null, storedUser: null }
     }

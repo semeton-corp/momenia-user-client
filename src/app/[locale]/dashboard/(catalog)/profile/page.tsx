@@ -27,13 +27,13 @@ export default function ProfilePage() {
       </header>
 
       {isLoading ? (
-        <div className="mt-6 h-32 max-w-3xl animate-pulse rounded-2xl bg-zinc-100 xl:mt-8" />
+        <div className="mt-6 h-32 animate-pulse rounded-2xl bg-zinc-100 xl:mt-8" />
       ) : isError || !account ? (
-        <div className="mt-6 flex max-w-3xl flex-col items-center justify-center rounded-2xl border border-zinc-200 py-16 text-center xl:mt-8">
+        <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border border-zinc-200 py-16 text-center xl:mt-8">
           <p className="text-sm text-zinc-400">{t("loadError")}</p>
         </div>
       ) : (
-        <div className="mt-6 max-w-3xl space-y-4 xl:mt-8">
+        <div className="mt-6 space-y-4 xl:mt-8 xl:space-y-8">
           <ProfileHeaderCard
             name={account.name}
             email={account.email}
@@ -58,12 +58,7 @@ export default function ProfilePage() {
           open={editOpen}
           onOpenChange={setEditOpen}
           isSaving={isSaving}
-          onSave={(data) =>
-            saveAccount(
-              { name: data.name, phoneNumber: data.phoneNumber, profilePicture: account.profilePicture },
-              { onSuccess: () => setEditOpen(false) },
-            )
-          }
+          onSave={(data) => saveAccount(data, { onSuccess: () => setEditOpen(false) })}
         />
       )}
 
