@@ -30,6 +30,7 @@ export function BannerFilterDropdown({
 }: BannerFilterDropdownProps) {
   const [open, setOpen] = React.useState(false)
   const ref = React.useRef<HTMLDivElement>(null)
+  const displayLabel = options.find((opt) => opt.value === value)?.label ?? label
 
   React.useEffect(() => {
     if (!open) return
@@ -48,13 +49,13 @@ export function BannerFilterDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         className={cn(
-          "flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-xl bg-white text-xs font-medium hover:bg-zinc-50 md:gap-2 md:text-base xl:gap-2 xl:rounded-2xl xl:border",
+          "flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl bg-white px-3 text-xs font-medium hover:bg-zinc-50 md:gap-2 md:px-4 md:text-base xl:gap-2 xl:rounded-2xl xl:border xl:px-5",
           triggerClassName,
         )}
         style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
       >
-        {icon}
-        <span className="min-w-0 truncate">{label}</span>
+        <span className="flex shrink-0 items-center">{icon}</span>
+        <span className="min-w-0 flex-1 truncate text-left">{displayLabel}</span>
       </button>
 
       <AnimatePresence>

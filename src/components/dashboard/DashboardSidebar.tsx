@@ -23,7 +23,7 @@ export function DashboardSidebar() {
   const t = useTranslations("dashboard.sidebar")
   const tNavbar = useTranslations("navbar")
   const scale = useZoomScale()
-  const { user, isLoggedIn } = useCurrentUser()
+  const { user, isLoggedIn, isLoading } = useCurrentUser()
   const { requestAccess } = useAuthGate()
 
   // next-intl usePathname already strips locale prefix
@@ -109,7 +109,12 @@ export function DashboardSidebar() {
 
       {/* User section */}
       <div className="mt-auto flex flex-col items-center w-full">
-        {isLoggedIn && user ? (
+        {isLoading ? (
+          // Sebelum status auth diketahui (localStorage baru dibaca setelah mount),
+          // tampilkan placeholder netral supaya tombol login/signup tidak berkedip
+          // muncul sekejap untuk user yang sebenarnya sudah login.
+          <div className="h-10 w-10 animate-pulse rounded-full bg-zinc-200" />
+        ) : isLoggedIn && user ? (
           <Link
             href="/dashboard/profile"
             className="h-10 w-10 overflow-hidden rounded-full ring-2 ring-white transition-all hover:ring-indigo-300"

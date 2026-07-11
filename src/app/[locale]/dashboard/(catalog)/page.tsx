@@ -43,7 +43,8 @@ export default function DashboardPage() {
   const t = useTranslations("dashboard.tags")
   const tBanner = useTranslations("dashboard.banner")
   const locale = useLocale()
-  const [activeTagId, setActiveTagId] = React.useState<string>(ALL_STYLES_ID)
+  // Kosong = "All styles". Bisa pilih lebih dari satu tag sekaligus (mis. mantap + jos).
+  const [selectedTagIds, setSelectedTagIds] = React.useState<number[]>([])
   const [selectedCategory, setSelectedCategory] = React.useState<string>(ALL_CATEGORIES)
   const [sort, setSort] = React.useState<string>(DEFAULT_SORT)
   const [search, setSearch] = React.useState("")
@@ -56,13 +57,20 @@ export default function DashboardPage() {
     return () => clearTimeout(timer)
   }, [search])
 
-  const selectedTagId = activeTagId === ALL_STYLES_ID ? undefined : Number(activeTagId)
   const [sortField, sortOrder] = sort.split(":") as [
     NonNullable<GetTemplatesParams["sortField"]>,
     NonNullable<GetTemplatesParams["sortOrder"]>,
   ]
 
-  const { data: templateTags = [] } = useInvitationTemplateTags()
+  // Toggle satu tag: kalau sudah aktif dilepas, kalau belum ditambahkan. Array kosong
+  // otomatis berarti kembali ke "All styles".
+  const toggleTag = (tagId: number) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId],
+    )
+  }
+
+  const { data: templateTags = [], isLoading: isTagsLoading } = useInvitationTemplateTags()
   const { data: templateCategories = [] } = useInvitationTemplateCategories()
 
   const categoryOptions = [
@@ -74,7 +82,7 @@ export default function DashboardPage() {
   const { data: templatesData, isLoading, isError } = useInvitationTemplates({
     pageSize: 20,
     keyword: debouncedSearch || undefined,
-    tagsIds: selectedTagId ? [selectedTagId] : undefined,
+    tagsIds: selectedTagIds.length > 0 ? selectedTagIds : undefined,
     categoryId: selectedCategory ? Number(selectedCategory) : undefined,
     sortField,
     sortOrder,
@@ -101,7 +109,7 @@ export default function DashboardPage() {
 
   const apiTemplates = templatesData?.data ?? []
   const shouldUseDummyTemplates =
-    apiTemplates.length === 0 && !debouncedSearch && selectedTagId === undefined && !selectedCategory
+    apiTemplates.length === 0 && !debouncedSearch && selectedTagIds.length === 0 && !selectedCategory
   const templates = shouldUseDummyTemplates
     ? [...apiTemplates, ...DUMMY_TEMPLATES.slice(0, Math.max(0, 11 - apiTemplates.length + 1))]
     : apiTemplates
@@ -144,20 +152,31 @@ export default function DashboardPage() {
         {/* Style Tags */}
         <div className="mt-6 mb-0 -mx-5 overflow-x-auto pb-1 scrollbar-hide md:-mx-8 md:mt-10 md:mb-[44px] xl:mx-0">
           <div className="flex w-max items-center gap-[14px] px-5 md:px-8 xl:mx-auto xl:px-0">
-            <StyleTag
-              key={ALL_STYLES_ID}
-              label={t("allStyles")}
-              active={activeTagId === ALL_STYLES_ID}
-              onClick={() => setActiveTagId(ALL_STYLES_ID)}
-            />
-            {templateTags.map((tag) => (
-              <StyleTag
-                key={tag.id}
-                label={tag.name}
-                active={activeTagId === String(tag.id)}
-                onClick={() => setActiveTagId(String(tag.id))}
-              />
-            ))}
+            {isTagsLoading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[35px] w-24 shrink-0 animate-pulse rounded-[30px] bg-zinc-100"
+                />
+              ))
+            ) : (
+              <>
+                <StyleTag
+                  key={ALL_STYLES_ID}
+                  label={t("allStyles")}
+                  active={selectedTagIds.length === 0}
+                  onClick={() => setSelectedTagIds([])}
+                />
+                {templateTags.map((tag) => (
+                  <StyleTag
+                    key={tag.id}
+                    label={tag.name}
+                    active={selectedTagIds.includes(tag.id)}
+                    onClick={() => toggleTag(tag.id)}
+                  />
+                ))}
+              </>
+            )}
           </div>
         </div>
 

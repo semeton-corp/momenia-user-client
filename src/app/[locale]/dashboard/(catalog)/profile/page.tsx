@@ -10,6 +10,7 @@ import { ProfileInfoRow } from "@/components/dashboard/profile/ProfileInfoRow"
 import { ProfileLogoutCard } from "@/components/dashboard/profile/ProfileLogoutCard"
 import { EditProfileDialog } from "@/components/dashboard/profile/EditProfileDialog"
 import { LogoutConfirmDialog } from "@/components/dashboard/profile/LogoutConfirmDialog"
+import { ProfileSkeleton } from "@/components/dashboard/profile/ProfileSkeleton"
 
 export default function ProfilePage() {
   const t = useTranslations("dashboard.profile")
@@ -27,7 +28,7 @@ export default function ProfilePage() {
       </header>
 
       {isLoading ? (
-        <div className="mt-6 h-32 animate-pulse rounded-2xl bg-zinc-100 xl:mt-8" />
+        <ProfileSkeleton />
       ) : isError || !account ? (
         <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border border-zinc-200 py-16 text-center xl:mt-8">
           <p className="text-sm text-zinc-400">{t("loadError")}</p>
