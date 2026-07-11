@@ -86,5 +86,8 @@ export async function http<T>(
         throw error
     }
 
-    return res.json()
+    // Beberapa endpoint (mis. favourite/unfavourite) balas 200/204 dengan body kosong —
+    // res.json() akan throw SyntaxError kalau dipaksa parse string kosong.
+    const text = await res.text()
+    return (text ? JSON.parse(text) : undefined) as T
 }

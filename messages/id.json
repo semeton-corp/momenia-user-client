@@ -142,7 +142,14 @@
         "recentlyAdded": "Terbaru ditambahkan"
       },
       "empty": "Belum ada template favorit.",
-      "loadError": "Gagal memuat favorit. Periksa koneksi kamu."
+      "loadError": "Gagal memuat favorit. Periksa koneksi kamu.",
+      "unfavouriteDialog": {
+        "title": "Hapus dari Favorit",
+        "description": "Apakah kamu yakin ingin menghapus template ini dari favoritmu?",
+        "descriptionNamed": "Apakah kamu yakin ingin menghapus \"{name}\" dari favoritmu?",
+        "cancel": "Batal",
+        "confirm": "Hapus"
+      }
     },
     "transaction": {
       "title": "Riwayat Transaksi",

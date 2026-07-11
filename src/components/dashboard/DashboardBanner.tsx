@@ -1,8 +1,9 @@
 "use client"
 
 import Image from "next/image"
-import { Search, ArrowDownAZ, ChevronDown } from "lucide-react"
+import { Search, ArrowDownAZ, ChevronDown, X } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { cn } from "@/lib/utils"
 import Ambient from "@/assets/llandingpage/banner-create-now.svg"
 import { BannerFilterDropdown, type BannerFilterOption } from "./BannerFilterDropdown"
 
@@ -63,37 +64,55 @@ export function DashboardBanner({
 
         {/* Search + Filters */}
         <div className="flex w-full max-w-6xl mx-auto items-center gap-2 md:gap-3 xl:gap-4">
-          {/* Search input */}
-          <div className="relative flex-1 xl:flex-none xl:w-[845px]">
-            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 md:left-4 md:right-auto md:h-5 md:w-5 xl:left-8" />
+          {/* Search input — flex-1 supaya memanjang mengisi sisa ruang, jadi jarak ke
+              kedua dropdown seragam dan tidak ada ruang kosong di kanan. */}
+          <div className="relative flex-1">
+            {/* Ikon cari: di mobile ada di kanan — sembunyikan saat ada input supaya
+                tidak bentrok dengan tombol silang. Di desktop ikon ada di kiri. */}
+            <Search
+              className={cn(
+                "absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 md:left-4 md:right-auto md:h-5 md:w-5 xl:left-8",
+                search && "hidden md:block",
+              )}
+            />
             <input
               type="text"
               placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="h-10 w-full rounded-xl border bg-[var(--background)] pl-3 pr-9 text-xs text-[#737373] placeholder:text-[#737373] outline-none focus:ring-2 focus:ring-indigo-300 md:h-13 md:pl-12 md:pr-4 md:text-base xl:h-[66px] xl:rounded-2xl xl:bg-indigo-50 xl:pl-[68px] xl:pr-8 xl:text-base xl:font-normal xl:text-foreground xl:placeholder:text-zinc-400"
+              className="h-10 w-full rounded-xl border bg-[var(--background)] pl-3 pr-10 text-xs text-[#737373] placeholder:text-[#737373] outline-none focus:ring-2 focus:ring-indigo-300 md:h-13 md:pl-12 md:pr-12 md:text-base xl:h-[66px] xl:rounded-2xl xl:bg-indigo-50 xl:pl-[68px] xl:pr-16 xl:text-base xl:font-normal xl:text-foreground xl:placeholder:text-zinc-400"
               style={{ borderColor: "var(--background)" }}
             />
+            {search && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => onSearchChange("")}
+                className="absolute right-3 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-full p-1 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 md:right-4 xl:right-6"
+              >
+                <X className="h-4 w-4 md:h-5 md:w-5" />
+              </button>
+            )}
           </div>
 
           {/* Category */}
           <BannerFilterDropdown
-            icon={<ChevronDown className="hidden h-4 w-4 md:block md:h-5 md:w-5" />}
+            icon={<ChevronDown className="hidden h-4 w-4 shrink-0 md:block md:h-5 md:w-5" />}
             label={t("category")}
             value={selectedCategory}
             options={categoryOptions}
             onChange={onCategoryChange}
-            triggerClassName="h-10 w-[78px] md:h-13 md:w-36 xl:h-[66px] xl:w-[140px]"
+            triggerClassName="h-10 w-[80px] md:h-13 md:w-[150px] xl:h-[66px] xl:w-[176px]"
           />
 
           {/* Sort */}
           <BannerFilterDropdown
-            icon={<ArrowDownAZ className="h-4 w-4 md:h-5 md:w-5" />}
+            icon={<ArrowDownAZ className="h-4 w-4 shrink-0 md:h-5 md:w-5" />}
             label={t("sort")}
             value={selectedSort}
             options={sortOptions}
             onChange={onSortChange}
-            triggerClassName="h-10 w-[69px] md:h-13 md:w-36 xl:h-[66px] xl:w-[140px]"
+            triggerClassName="h-10 w-[84px] md:h-13 md:w-[150px] xl:h-[66px] xl:w-[176px]"
           />
         </div>
       </div>

@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils"
 import { SortDropdown } from "@/components/dashboard/SortDropdown"
 import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
+import { TemplateCardSkeleton } from "@/components/dashboard/TemplateCardSkeleton"
 import { TemplateDetailModal, type TemplateDetail } from "@/components/dashboard/TemplateDetailModal"
+import { UnfavouriteConfirmDialog } from "@/components/dashboard/favourite/UnfavouriteConfirmDialog"
 import { useFavouriteTemplates, useInvitationTemplateDetail, useToggleFavourite } from "@/hooks/useInvitationTemplates"
 import type { TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
 
@@ -49,6 +51,8 @@ export default function FavouritePage() {
   const [search, setSearch] = React.useState("")
   const [sort, setSort] = React.useState<SortKey>("recent")
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
+  // Item yang menunggu konfirmasi hapus dari favorit (null = dialog tertutup).
+  const [pendingUnfav, setPendingUnfav] = React.useState<{ id: string; name: string } | null>(null)
 
   // List tidak membawa createdAt, jadi "Most recent" cuma bisa diwujudkan lewat
   // sortOrder di API (bukan sort client-side seperti harga).
@@ -87,7 +91,19 @@ export default function FavouritePage() {
   const handleFavouriteToggle = (id: string | number) => {
     const tpl = realCards.find((x) => x.id === String(id))
     if (!tpl) return
+    // Di halaman favorit, semua kartu sudah favorit — jadi klik hati = niat hapus.
+    // Minta konfirmasi lewat modal dulu, jangan langsung eksekusi.
+    if (tpl.isUserFavorite) {
+      setPendingUnfav({ id: tpl.id, name: tpl.name })
+      return
+    }
     toggleFavourite({ id: String(id), isFavourite: tpl.isUserFavorite })
+  }
+
+  const confirmUnfavourite = () => {
+    if (!pendingUnfav) return
+    toggleFavourite({ id: pendingUnfav.id, isFavourite: true })
+    setPendingUnfav(null)
   }
 
   const sortControl = (sizeClass: string) => (
@@ -156,7 +172,7 @@ export default function FavouritePage() {
         {isLoading ? (
           <div className={gridClass}>
             {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="w-full animate-pulse rounded-2xl bg-zinc-100" style={{ aspectRatio: "9 / 16" }} />
+              <TemplateCardSkeleton key={i} />
             ))}
           </div>
         ) : isError ? (
@@ -202,6 +218,13 @@ export default function FavouritePage() {
         isFavourite={selectedTemplate !== null && (detailData?.isUserFavorite ?? false)}
         onFavouriteToggle={handleFavouriteToggle}
         onClose={() => setSelectedId(null)}
+      />
+
+      <UnfavouriteConfirmDialog
+        open={pendingUnfav !== null}
+        onOpenChange={(open) => !open && setPendingUnfav(null)}
+        onConfirm={confirmUnfavourite}
+        templateName={pendingUnfav?.name}
       />
     </div>
   )
