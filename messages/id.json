@@ -225,7 +225,8 @@
           "title": "Edit Profil",
           "description": "Ubah informasi profilmu di sini. Klik simpan jika sudah selesai.",
           "cancel": "Batal",
-          "save": "Simpan Perubahan"
+          "save": "Simpan Perubahan",
+          "uploadError": "Gagal mengunggah foto. Coba lagi."
         },
         "logoutDialog": {
           "title": "Keluar",

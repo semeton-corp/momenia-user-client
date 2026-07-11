@@ -17,18 +17,21 @@ export function LogoutConfirmDialog({ open, onOpenChange, onConfirm, isLoggingOu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
+      <DialogContent
+        showCloseButton={false}
+        className="flex w-full max-w-[calc(100vw-32px)] flex-col items-center rounded-[10px] p-6 text-center xl:h-[334px] xl:w-[601px] xl:p-9"
+      >
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 text-red-600 xl:h-[98px] xl:w-[98px]">
           <LogOut className="h-7 w-7" />
         </div>
-        <DialogTitle className="mt-5 text-center">{t("title")}</DialogTitle>
-        <DialogDescription className="text-center">{t("description")}</DialogDescription>
+        <DialogTitle className="mt-5 text-center text-2xl font-semibold text-[#000000]">{t("title")}</DialogTitle>
+        <DialogDescription className="text-center text-sm font-normal text-[#000000]">{t("description")}</DialogDescription>
 
-        <div className="mt-8 flex gap-3">
+        <div className="mt-8 flex w-full flex-col gap-3 xl:w-auto xl:flex-row xl:gap-6">
           <Button
             type="button"
             variant="outline"
-            className="h-12 flex-1 rounded-xl text-sm font-semibold"
+            className="h-10 w-full rounded-[10px] text-sm font-semibold xl:w-[252.5px]"
             onClick={() => onOpenChange(false)}
           >
             {t("cancel")}
@@ -36,7 +39,7 @@ export function LogoutConfirmDialog({ open, onOpenChange, onConfirm, isLoggingOu
           <Button
             type="button"
             disabled={isLoggingOut}
-            className="h-12 flex-1 rounded-xl bg-red-600 text-sm font-semibold text-white hover:bg-red-700"
+            className="h-10 w-full rounded-[10px] bg-red-600 text-sm font-semibold text-white hover:bg-red-700 xl:w-[252.5px]"
             onClick={onConfirm}
           >
             {isLoggingOut ? "..." : t("confirm")}
