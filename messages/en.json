@@ -142,7 +142,14 @@
         "recentlyAdded": "Recently added"
       },
       "empty": "No favourite templates found.",
-      "loadError": "Failed to load favourites. Please check your connection."
+      "loadError": "Failed to load favourites. Please check your connection.",
+      "unfavouriteDialog": {
+        "title": "Remove from Favorites",
+        "description": "Are you sure you want to remove this template from your favorites?",
+        "descriptionNamed": "Are you sure you want to remove \"{name}\" from your favorites?",
+        "cancel": "Cancel",
+        "confirm": "Remove"
+      }
     },
     "transaction": {
       "title": "Transaction History",

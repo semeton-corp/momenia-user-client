@@ -66,6 +66,9 @@ export const logout = async (): Promise<LogoutResponse> => {
     return http(`${BASE_SESSIONS}/logout`, {
         method: "POST",
         headers: authHeader(),
+        // keepalive supaya request tetap terkirim walau kita langsung pindah halaman
+        // (hard redirect) tanpa menunggu response — bikin logout terasa instan.
+        keepalive: true,
     })
 }
 

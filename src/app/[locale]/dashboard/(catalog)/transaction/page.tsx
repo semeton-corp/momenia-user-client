@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useTranslations } from "next-intl"
 import { TransactionTable } from "@/components/dashboard/transaction/TransactionTable"
+import { TransactionTableSkeleton } from "@/components/dashboard/transaction/TransactionTableSkeleton"
 import { useOrders } from "@/hooks/useOrders"
 import type { Order } from "@/lib/api/order/order.types"
 import type { TransactionRecord, TransactionStatus } from "@/lib/types/transaction"
@@ -88,11 +89,7 @@ export default function TransactionPage() {
       {/* ── Table ── */}
       <div className="mt-6 xl:mt-8">
         {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-16 w-full animate-pulse rounded-xl bg-zinc-100" />
-            ))}
-          </div>
+          <TransactionTableSkeleton rows={pageSize} />
         ) : isError ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 py-20 text-center">
             <p className="text-sm text-zinc-400">{t("loadError")}</p>

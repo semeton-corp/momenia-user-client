@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { Heart } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
@@ -54,13 +55,14 @@ export function TemplateCard({
             {title}
           </span>
 
-          <button
+          <motion.button
             type="button"
             aria-label="Toggle favourite"
             onClick={(e) => {
               e.stopPropagation()
               onFavouriteToggle?.(id)
             }}
+            whileTap={{ scale: 0.85 }}
             className="shrink-0 cursor-pointer"
           >
             <div
@@ -72,17 +74,26 @@ export function TemplateCard({
                 background: isFavourite ? "var(--accent)" : "transparent",
               }}
             >
-              <Heart
-                className={cn(
-                  "transition-colors",
-                  isFavourite
-                    ? "fill-red-500 text-red-500"
-                    : "text-zinc-300 hover:text-red-400"
-                )}
-                style={{ width: "20px", height: "20px" }}
-              />
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={isFavourite ? "fav" : "unfav"}
+                  initial={{ scale: 0.5, opacity: 0.6 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                >
+                  <Heart
+                    className={cn(
+                      "transition-colors",
+                      isFavourite
+                        ? "fill-red-500 text-red-500"
+                        : "text-zinc-300 hover:text-red-400"
+                    )}
+                    style={{ width: "20px", height: "20px" }}
+                  />
+                </motion.div>
+              </AnimatePresence>
             </div>
-          </button>
+          </motion.button>
         </div>
 
         <span className="text-xs text-zinc-400 xl:text-sm xl:font-normal xl:leading-5 xl:text-muted-foreground">{category}</span>
