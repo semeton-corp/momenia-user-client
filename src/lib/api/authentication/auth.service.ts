@@ -1,5 +1,6 @@
 import { http } from "../http"
 import { getAuthHeader as authHeader } from "../auth-header"
+import { resolveObjectUrl, toObjectKey } from "../object/object.service"
 import {
     GoogleAuthRequest,
     AuthResponse,
@@ -75,17 +76,26 @@ export const getMe = async (): Promise<UserProfile> => {
     })
 }
 
+// Backend menyimpan profilePicture hasil upload sebagai key objek mentah
+// (mis. "avatar/ava_xxx") — normalisasi ke URL publik supaya semua pemakai
+// (sidebar, header, halaman profil) bisa langsung menampilkannya.
+function withResolvedPicture(account: Account): Account {
+    return { ...account, profilePicture: resolveObjectUrl(account.profilePicture) }
+}
+
 export const getAccountMe = async (): Promise<Account> => {
-    return http(`${BASE_ACCOUNTS}/me`, {
+    const account = await http<Account>(`${BASE_ACCOUNTS}/me`, {
         method: "GET",
         headers: authHeader(),
     })
+    return withResolvedPicture(account)
 }
 
 export const updateAccount = async (data: UpdateAccountRequest): Promise<Account> => {
-    return http(`${BASE_ACCOUNTS}/me`, {
+    const account = await http<Account>(`${BASE_ACCOUNTS}/me`, {
         method: "PUT",
         headers: authHeader(),
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, profilePicture: toObjectKey(data.profilePicture) }),
     })
+    return withResolvedPicture(account)
 }
