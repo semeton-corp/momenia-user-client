@@ -10,7 +10,7 @@ import { TemplateCardSkeleton } from "@/components/dashboard/TemplateCardSkeleto
 import { TemplateDetailModal, type TemplateDetail } from "@/components/dashboard/TemplateDetailModal"
 import { UnfavouriteConfirmDialog } from "@/components/dashboard/favourite/UnfavouriteConfirmDialog"
 import { useFavouriteTemplates, useInvitationTemplateDetail, useToggleFavourite } from "@/hooks/useInvitationTemplates"
-import type { TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import { templateCategoryName, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
 
 type ChipKey = "allSaved" | "wedding" | "modern" | "classic" | "recentlyAdded"
 const CHIPS: ChipKey[] = ["allSaved", "wedding", "modern", "classic", "recentlyAdded"]
@@ -66,7 +66,7 @@ export default function FavouritePage() {
   const realCards: FavCard[] = (favouritesData?.data ?? []).map((tpl) => ({
     id: tpl.id,
     name: tpl.name,
-    category: tpl.category,
+    category: templateCategoryName(tpl.category),
     priceAfterDiscount: tpl.priceAfterDiscount,
     price: tpl.price,
     mobileThumbnail: tpl.mobileThumbnail,
