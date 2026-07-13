@@ -7,7 +7,7 @@ import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
 import { TemplateDetailModal, type TemplateDetail } from "@/components/dashboard/TemplateDetailModal"
 import { useInvitationTemplateCategories, useInvitationTemplateDetail, useInvitationTemplateTags, useInvitationTemplates, useToggleFavourite } from "@/hooks/useInvitationTemplates"
-import type { GetTemplatesParams, TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import { templateCategoryName, type GetTemplatesParams, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
 import { useAuthGate } from "@/components/dashboard/DashboardAuthGate"
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                   key={template.id}
                   id={template.id}
                   title={template.name}
-                  category={template.category}
+                  category={templateCategoryName(template.category)}
                   price={parseFloat(template.priceAfterDiscount)}
                   originalPrice={template.price !== template.priceAfterDiscount ? parseFloat(template.price) : undefined}
                   imageUrl={template.mobileThumbnail}

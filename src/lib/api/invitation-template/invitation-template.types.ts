@@ -1,11 +1,17 @@
 export type TemplateListItem = {
   id: string
   name: string
-  category: string
+  // Backend pernah mengirim string, kini objek {id, name} — dukung keduanya
+  // dan selalu render lewat templateCategoryName().
+  category: string | InvitationTemplateCategory
   mobileThumbnail: string
   price: string
   priceAfterDiscount: string
   isUserFavorite: boolean
+}
+
+export function templateCategoryName(category: TemplateListItem["category"]): string {
+  return typeof category === "string" ? category : category.name
 }
 
 export type InvitationTemplateTag = {
