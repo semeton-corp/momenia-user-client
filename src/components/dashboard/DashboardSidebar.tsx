@@ -2,14 +2,27 @@
 
 import * as React from "react"
 import Image from "next/image"
-import { useTranslations } from "next-intl"
-import { TableProperties, Folder, Heart, CircleDollarSign } from "lucide-react"
+import { useLocale, useTranslations } from "next-intl"
+import { TableProperties, Folder, Heart, CircleDollarSign, Globe } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
 import LogoIcon from "@/assets/logo/logo-momenia.svg"
 import { Link, usePathname } from "@/i18n/navigation"
+import { routing } from "@/i18n/routing"
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { useAuthGate } from "@/components/dashboard/DashboardAuthGate"
 import { PROTECTED_DASHBOARD_PATHS } from "@/lib/dashboard-protected-paths"
+
+const localeLabels: Record<(typeof routing.locales)[number], string> = {
+  id: "ID",
+  en: "EN",
+}
+
+const localeNames: Record<(typeof routing.locales)[number], string> = {
+  id: "Indonesia",
+  en: "English",
+}
 
 const navItems = [
   { id: "template",      labelKey: "template",      icon: TableProperties,  href: "/dashboard" },
@@ -20,11 +33,25 @@ const navItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname()
+  const locale = useLocale()
   const t = useTranslations("dashboard.sidebar")
   const tNavbar = useTranslations("navbar")
   const scale = useZoomScale()
   const { user, isLoggedIn, isLoading } = useCurrentUser()
   const { requestAccess } = useAuthGate()
+  const [localeMenuOpen, setLocaleMenuOpen] = React.useState(false)
+  const localeMenuRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (!localeMenuOpen) return
+    const handler = (e: MouseEvent) => {
+      if (localeMenuRef.current && !localeMenuRef.current.contains(e.target as Node)) {
+        setLocaleMenuOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [localeMenuOpen])
 
   // next-intl usePathname already strips locale prefix
   const path = pathname
@@ -109,6 +136,48 @@ export function DashboardSidebar() {
 
       {/* User section */}
       <div className="mt-auto flex flex-col items-center w-full">
+        {/* Locale switcher — label ringkas (EN/ID) seperti di navbar landing */}
+        <div ref={localeMenuRef} className="relative mb-4">
+          <button
+            type="button"
+            onClick={() => setLocaleMenuOpen((v) => !v)}
+            aria-expanded={localeMenuOpen}
+            aria-haspopup="true"
+            // Ukuran disamakan dengan tombol Masuk/Daftar di bawahnya (84×44, radius 8px)
+            className="flex h-11 w-[84px] cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-zinc-50"
+          >
+            <Globe className="h-4 w-4 shrink-0" />
+            {localeLabels[locale as (typeof routing.locales)[number]] ?? locale.toUpperCase()}
+          </button>
+
+          <AnimatePresence>
+            {localeMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, x: -8, scale: 0.97 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: -8, scale: 0.97 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="absolute bottom-0 left-full z-50 ml-3 min-w-[140px] overflow-hidden rounded-xl border border-zinc-200 bg-white py-1.5 shadow-lg"
+              >
+                {routing.locales.map((loc) => (
+                  <Link
+                    key={loc}
+                    href={pathname}
+                    locale={loc}
+                    className={cn(
+                      "block w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-accent",
+                      locale === loc ? "bg-accent/50 font-medium text-primary" : "text-foreground/70",
+                    )}
+                    onClick={() => setLocaleMenuOpen(false)}
+                  >
+                    {localeNames[loc]}
+                  </Link>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         {isLoading ? (
           // Sebelum status auth diketahui (localStorage baru dibaca setelah mount),
           // tampilkan placeholder netral supaya tombol login/signup tidak berkedip

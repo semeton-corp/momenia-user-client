@@ -19,11 +19,11 @@ export default function LandingPageLoading() {
         </div>
       </div>
 
-      {/* CreateNowBanner is fully static — placeholder height only */}
-      <Skeleton className="h-32 w-full max-w-400 rounded-2xl md:h-40" />
-
       <TestimonialSkeleton />
       <FaqSkeleton />
+
+      {/* CreateNowBanner is fully static — placeholder height only */}
+      <Skeleton className="h-32 w-full max-w-400 rounded-2xl md:h-40" />
     </main>
   )
 }

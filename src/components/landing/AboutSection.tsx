@@ -146,25 +146,42 @@ export function AboutSection() {
                 className="relative z-10 h-auto w-full object-contain"
               />
 
-              {/* Floating Icon: Magic Wand (Top Right, Front) */}
-              <div className="absolute right-1 top-[15%] z-20 flex aspect-square w-10 items-center justify-center rounded-lg bg-white shadow-xl md:right-1 md:w-14 md:rounded-xl lg:right-2 lg:w-[72px] lg:rounded-[20px]">
+              {/* Floating Icon: Magic Wand (Top Right, Front) — tiap ikon punya durasi
+                  & delay berbeda supaya gerakannya tidak serempak (lebih natural). */}
+              <motion.div
+                animate={{ y: [0, -20, 0] }}
+                transition={{ duration: 3.2, ease: "easeInOut", repeat: Infinity }}
+                className="absolute right-1 top-[15%] z-20 flex aspect-square w-10 items-center justify-center rounded-lg bg-white shadow-xl md:right-1 md:w-14 md:rounded-xl lg:right-2 lg:w-[72px] lg:rounded-[20px]"
+              >
                 <WandSparkles className="size-5 text-primary md:size-6 lg:size-[32px]" strokeWidth={2} />
-              </div>
+              </motion.div>
 
               {/* Floating Icon: Pen Tool (Middle Right, Behind) */}
-              <div className="absolute -right-1 top-[32%] z-0 flex aspect-square w-10 items-center justify-center rounded-lg bg-white shadow-md md:-right-1 md:w-14 md:rounded-xl lg:-right-2 lg:w-[72px] lg:rounded-[20px]">
+              <motion.div
+                animate={{ y: [0, -16, 0] }}
+                transition={{ duration: 3.8, ease: "easeInOut", repeat: Infinity, delay: 0.8 }}
+                className="absolute -right-1 top-[32%] z-0 flex aspect-square w-10 items-center justify-center rounded-lg bg-white shadow-md md:-right-1 md:w-14 md:rounded-xl lg:-right-2 lg:w-[72px] lg:rounded-[20px]"
+              >
                 <PenTool className="size-5 text-primary md:size-6 lg:size-[32px]" strokeWidth={2} />
-              </div>
+              </motion.div>
 
               {/* Floating Icon: Feather (Middle Left, Front) */}
-              <div className="absolute left-1 bottom-[28%] z-20 flex aspect-square w-10 items-center justify-center rounded-lg bg-white shadow-xl md:left-1 md:w-14 md:rounded-xl lg:left-2 lg:w-[72px] lg:rounded-[20px]">
+              <motion.div
+                animate={{ y: [0, -20, 0] }}
+                transition={{ duration: 3.5, ease: "easeInOut", repeat: Infinity, delay: 1.6 }}
+                className="absolute left-1 bottom-[28%] z-20 flex aspect-square w-10 items-center justify-center rounded-lg bg-white shadow-xl md:left-1 md:w-14 md:rounded-xl lg:left-2 lg:w-[72px] lg:rounded-[20px]"
+              >
                 <Feather className="size-5 text-primary md:size-6 lg:size-[32px]" strokeWidth={2} />
-              </div>
+              </motion.div>
 
               {/* Floating Icon: Layout Grid (Bottom Left, Behind) */}
-              <div className="absolute -left-1 bottom-[10%] z-0 flex aspect-square w-10 items-center justify-center rounded-lg bg-white shadow-md md:-left-1 md:w-14 md:rounded-xl lg:-left-2 lg:w-[72px] lg:rounded-[20px]">
+              <motion.div
+                animate={{ y: [0, -16, 0] }}
+                transition={{ duration: 4.0, ease: "easeInOut", repeat: Infinity, delay: 0.4 }}
+                className="absolute -left-1 bottom-[10%] z-0 flex aspect-square w-10 items-center justify-center rounded-lg bg-white shadow-md md:-left-1 md:w-14 md:rounded-xl lg:-left-2 lg:w-[72px] lg:rounded-[20px]"
+              >
                 <LayoutGrid className="size-5 text-primary md:size-6 lg:size-[32px]" strokeWidth={2} />
-              </div>
+              </motion.div>
             </div>
           </div>
 

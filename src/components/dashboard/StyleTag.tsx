@@ -14,8 +14,8 @@ export function StyleTag({ label, active, onClick }: StyleTagProps) {
       className={cn(
         "inline-flex h-[35px] shrink-0 cursor-pointer items-center justify-center rounded-[30px] border px-6 text-sm font-medium leading-none transition-colors sm:text-base",
         active
-          ? "border-primary bg-primary text-white"
-          : "border-indigo-300 bg-indigo-50 text-black hover:border-primary hover:bg-primary hover:text-white"
+          ? "border-primary bg-primary text-white hover:brightness-95"
+          : "border-indigo-300 bg-indigo-50 text-black hover:bg-indigo-100"
       )}
     >
       {label}

@@ -3,7 +3,7 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { AnimatePresence, motion } from "framer-motion"
-import { X } from "lucide-react"
+import { Lock, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
@@ -86,13 +86,14 @@ export function DashboardAuthGateProvider({ children }: { readonly children: Rea
 
             <DialogPrimitive.Content asChild forceMount>
               <motion.div
-                className="fixed left-1/2 top-1/2 z-[121] w-[calc(100vw-32px)] max-w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-[28px] border border-zinc-200 bg-white p-6 shadow-2xl outline-none md:p-8"
+                className="fixed left-1/2 top-1/2 z-[121] w-[calc(100vw-32px)] max-w-[601px] -translate-x-1/2 -translate-y-1/2 rounded-[10px] border border-zinc-200 bg-white p-8 shadow-2xl outline-none xl:w-[601px] xl:p-10"
                 initial={{ opacity: 0, y: 20, scale: 0.94 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 12, scale: 0.97 }}
                 transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
               >
                 <motion.div
+                  className="flex flex-col items-center text-center"
                   initial="hidden"
                   animate="show"
                   exit="hidden"
@@ -106,45 +107,40 @@ export function DashboardAuthGateProvider({ children }: { readonly children: Rea
                       hidden: { opacity: 0, y: 10 },
                       show: { opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } },
                     }}
+                    className="mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-primary xl:h-[98px] xl:w-[98px]"
                   >
-                    <DialogPrimitive.Title className="text-2xl font-semibold text-zinc-950 md:text-[32px] md:leading-[1.1]">
-                      {t("title")}
-                    </DialogPrimitive.Title>
-                    <DialogPrimitive.Description className="mt-3 text-sm leading-6 text-zinc-500 md:text-base">
-                      {t("description")}
-                    </DialogPrimitive.Description>
-                  </motion.div>
-
-                  <motion.div
-                    className="mt-8 flex flex-col gap-3 sm:flex-row"
-                    variants={{
-                      hidden: { opacity: 0, y: 12 },
-                      show: { opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } },
-                    }}
-                  >
-                    <Button asChild className="h-12 flex-1 rounded-xl text-sm font-semibold md:text-base">
-                      <Link href="/login">{t("login")}</Link>
-                    </Button>
-                    <Button asChild variant="outline" className="h-12 flex-1 rounded-xl text-sm font-semibold md:text-base">
-                      <Link href="/register">{t("signUp")}</Link>
-                    </Button>
+                    <Lock className="h-10 w-10 xl:h-12 xl:w-12" />
                   </motion.div>
 
                   <motion.div
                     variants={{
                       hidden: { opacity: 0, y: 10 },
-                      show: { opacity: 1, y: 0, transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] } },
+                      show: { opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } },
                     }}
                   >
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="mt-3 h-11 w-full rounded-xl text-sm font-medium text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
-                      onClick={closeAndRedirect}
-                    >
-                      {t("backToCatalog")}
+                    <DialogPrimitive.Title className="mt-6 text-center text-2xl font-semibold text-[#000000]">
+                      {t("title")}
+                    </DialogPrimitive.Title>
+                    <DialogPrimitive.Description className="mt-2 text-center text-sm font-normal text-[#000000]">
+                      {t("description")}
+                    </DialogPrimitive.Description>
+                  </motion.div>
+
+                  <motion.div
+                    className="mt-10 flex w-full flex-col gap-3 xl:w-auto xl:flex-row xl:gap-6"
+                    variants={{
+                      hidden: { opacity: 0, y: 12 },
+                      show: { opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } },
+                    }}
+                  >
+                    <Button asChild className="h-10 w-full rounded-[10px] text-sm font-semibold xl:w-[252.5px]">
+                      <Link href="/login">{t("login")}</Link>
+                    </Button>
+                    <Button asChild variant="outline" className="h-10 w-full rounded-[10px] text-sm font-semibold xl:w-[252.5px]">
+                      <Link href="/register">{t("signUp")}</Link>
                     </Button>
                   </motion.div>
+
                 </motion.div>
 
                 <DialogPrimitive.Close asChild>
