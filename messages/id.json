@@ -196,56 +196,56 @@
         "rating": "Rating tertinggi"
       }
     },
-      "tags": {
-        "allStyles": "Semua gaya",
-        "classy": "Elegan",
-        "minimalism": "Minimalis",
-        "colorful": "Berwarna",
-        "modern": "Modern",
-        "vintage": "Vintage",
-        "clean": "Bersih",
-        "bold": "Tebal",
-        "retro": "Retro",
-        "cute": "Lucu",
-        "softColor": "Warna lembut",
-        "empty": "Template tidak ditemukan."
+    "tags": {
+      "allStyles": "Semua gaya",
+      "classy": "Elegan",
+      "minimalism": "Minimalis",
+      "colorful": "Berwarna",
+      "modern": "Modern",
+      "vintage": "Vintage",
+      "clean": "Bersih",
+      "bold": "Tebal",
+      "retro": "Retro",
+      "cute": "Lucu",
+      "softColor": "Warna lembut",
+      "empty": "Template tidak ditemukan."
+    },
+    "authGate": {
+      "title": "Login terlebih dahulu",
+      "description": "Silakan masuk atau buat akun terlebih dahulu untuk membuka halaman Undangan Saya, Favorit, dan Transaksi.",
+      "login": "Masuk",
+      "signUp": "Daftar",
+      "backToCatalog": "Kembali ke katalog",
+      "close": "Tutup"
+    },
+    "profile": {
+      "title": "Profil",
+      "subtitle": "Kelola informasi dan pengaturan akunmu",
+      "editProfile": "Edit Profil",
+      "fullName": "Nama Lengkap",
+      "emailAddress": "Alamat Email",
+      "phoneNumber": "Nomor Telepon",
+      "logOut": "Keluar",
+      "logOutSubtitle": "Keluar dari akun Momenia kamu",
+      "loadError": "Gagal memuat profil kamu. Periksa koneksi kamu.",
+      "editDialog": {
+        "title": "Edit Profil",
+        "description": "Ubah informasi profilmu di sini. Klik simpan jika sudah selesai.",
+        "cancel": "Batal",
+        "save": "Simpan Perubahan",
+        "uploadError": "Gagal mengunggah foto. Coba lagi."
       },
-      "authGate": {
-        "title": "Login terlebih dahulu",
-        "description": "Silakan masuk atau buat akun terlebih dahulu untuk membuka halaman Undangan Saya, Favorit, dan Transaksi.",
-        "login": "Masuk",
-        "signUp": "Daftar",
-        "backToCatalog": "Kembali ke katalog",
-        "close": "Tutup"
-      },
-      "profile": {
-        "title": "Profil",
-        "subtitle": "Kelola informasi dan pengaturan akunmu",
-        "editProfile": "Edit Profil",
-        "fullName": "Nama Lengkap",
-        "emailAddress": "Alamat Email",
-        "phoneNumber": "Nomor Telepon",
-        "logOut": "Keluar",
-        "logOutSubtitle": "Keluar dari akun Momenia kamu",
-        "loadError": "Gagal memuat profil kamu. Periksa koneksi kamu.",
-        "editDialog": {
-          "title": "Edit Profil",
-          "description": "Ubah informasi profilmu di sini. Klik simpan jika sudah selesai.",
-          "cancel": "Batal",
-          "save": "Simpan Perubahan",
-          "uploadError": "Gagal mengunggah foto. Coba lagi."
-        },
-        "logoutDialog": {
-          "title": "Keluar",
-          "description": "Apakah kamu yakin ingin keluar dari akun Momenia?",
-          "cancel": "Batal",
-          "confirm": "Keluar"
-        }
-      },
-      "modal": {
-        "mobile": "Mobile",
-        "desktop": "Desktop",
-        "demo": "Demo",
+      "logoutDialog": {
+        "title": "Keluar",
+        "description": "Apakah kamu yakin ingin keluar dari akun Momenia?",
+        "cancel": "Batal",
+        "confirm": "Keluar"
+      }
+    },
+    "modal": {
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "demo": "Demo",
       "seeAddOns": "Lihat add on dan Pembayaran",
       "addOns": "Add ons",
       "featureAddOns": "Fitur Add ons",
@@ -267,181 +267,194 @@
       },
       "continueToPayment": "Lanjut ke Pembayaran"
     },
-  "payment": {
-    "title": "Pembayaran",
-    "back": "Kembali",
-    "itemDetails": "Detail Item",
+    "payment": {
+      "title": "Pembayaran",
+      "back": "Kembali",
+      "itemDetails": "Detail Item",
       "orderSummary": "Ringkasan Pesanan",
       "basePrice": "Harga Dasar",
       "duration": "Durasi",
       "addons": "Fitur Tambahan",
       "noAddons": "Tidak ada fitur tambahan",
       "subtotal": "Subtotal",
-    "discount": "Diskon",
-    "total": "Total",
-    "payWith": "Bayar dengan",
-    "payOrder": "Bayar Sekarang"
-  },
-  "workspace": {
-    "sidebar": {
-      "dashboard": "Dashboard",
-      "edit": "Edit",
-      "guests": "Tamu",
-      "rsvp": "RSVP",
-      "notes": "Catatan",
-      "messages": "Ucapan",
-      "gifts": "Hadiah",
-      "addOns": "Add Ons"
+      "discount": "Diskon",
+      "total": "Total",
+      "payWith": "Bayar dengan",
+      "payOrder": "Bayar Sekarang",
+      "checkout": "Checkout",
+      "selectPaymentMethod": "Pilih metode pembayaran",
+      "paymentInfo": "Setelah kamu klik \"Bayar Sekarang\", kamu akan diarahkan ke halaman pembayaran aman untuk menyelesaikan pembayaran melalui QR Code.",
+      "securedBy": "Semua transaksi dilindungi dan diproses dengan aman oleh Momenia."
     },
-    "common": {
-      "vip": "VIP",
-      "regular": "Reguler",
-      "attending": "Hadir",
-      "declined": "Tidak Hadir",
-      "pending": "Belum Konfirmasi",
-      "rowsPerPage": "Rows per page",
-      "pageLabel": "Page {current} of {total}",
-      "selectedRows": "{count} of {total} row(s) selected.",
-      "searchGuests": "Cari nama tamu...",
-      "sort": "Urutkan",
-      "save": "Simpan",
-      "cancel": "Batal",
-      "copy": "Copy",
-      "editLink": "Edit Link",
-      "hide": "Sembunyikan",
-      "delete": "Hapus"
-    },
-    "launcher": {
-      "title": "Undangan Saya",
-      "subtitle": "Halaman ini menjadi jalur bypass sementara untuk membuka workspace undangan.",
-      "demoBadge": "Bypass payment",
-      "helper": "Setelah user klik Bayar Sekarang, kita arahkan ke workspace ini dulu selama backend masih tahap slicing.",
-      "openDemo": "Buka Demo Workspace"
-    },
-    "myInvitations": {
-      "title": "Undangan Saya",
-      "subtitle": "Kelola semua undangan yang pernah dibuat, lanjutkan draft, pantau status publish, dan buka dashboard project dari satu tempat.",
-      "subtitleShort": "Project yang sudah dibuat, draft, dan publish.",
-      "search": "Cari undangan...",
-      "stat": {
-        "total": "Total undangan",
-        "totalShort": "Total",
-        "totalDesc": "Semua project yang pernah dibuat",
-        "published": "Published",
-        "publishedDesc": "Undangan aktif dan bisa dibagikan",
-        "draft": "Draft",
-        "draftDesc": "Belum dipublish, lanjutkan editing",
-        "expired": "Expired",
-        "expiredDesc": "Butuh perpanjangan paket"
+    "workspace": {
+      "sidebar": {
+        "dashboard": "Dashboard",
+        "edit": "Edit",
+        "guests": "Tamu",
+        "rsvp": "RSVP",
+        "notes": "Catatan",
+        "messages": "Ucapan",
+        "gifts": "Hadiah",
+        "addOns": "Add Ons"
       },
-      "tab": { "all": "Semua", "published": "Published", "draft": "Draft", "expired": "Expired" },
-      "status": { "published": "Published", "draft": "Draft", "expired": "Expired" },
-      "openDashboard": "Buka Dashboard",
-      "copyLink": "Salin Link",
-      "continueEdit": "Lanjutkan Edit",
-      "preview": "Pratinjau",
-      "guests": "Tamu",
-      "rsvp": "RSVP",
-      "helperActive": "Lihat analitik, kelola daftar tamu, atau perbarui konten undangan.",
-      "helperDraft": "Lengkapi detail undangan sebelum publish.",
-      "draftHint": "Lengkapi setup untuk publish",
-      "lastUpdated": "Terakhir diperbarui {date}",
-      "empty": "Tidak ada undangan ditemukan.",
-      "loadError": "Gagal memuat undangan. Periksa koneksi kamu."
-    },
-    "overview": {
-      "title": "Dashboard Invitation",
-      "publishNow": "Publish Sekarang",
-      "editTemplate": "Edit Template",
-      "manageGuests": "Kelola Tamu",
-      "guestStatsTitle": "Statistik Tamu",
-      "invitationLink": "Link Undangan",
-      "messageTemplateTitle": "Template Pesan Untuk Tamu",
-      "generateText": "Generate Invitation Text",
-      "countdownUnits": {
-        "days": "Hari",
-        "hours": "Jam",
-        "minutes": "Menit",
-        "seconds": "Detik"
-      }
-    },
-    "guests": {
-      "title": "Kelola Tamu",
-      "listTitle": "List Tamu",
-      "addTitle": "Tambah Tamu",
-      "totalGuests": "Total Tamu: {count}",
-      "deleteRows": "Hapus Baris",
-      "table": {
-        "name": "Nama",
-        "whatsApp": "WhatsApp",
-        "email": "Email",
-        "category": "Kategori",
-        "actions": "Aksi",
-        "delivered": "Terkirim?"
+      "common": {
+        "vip": "VIP",
+        "regular": "Reguler",
+        "attending": "Hadir",
+        "declined": "Tidak Hadir",
+        "pending": "Belum Konfirmasi",
+        "rowsPerPage": "Rows per page",
+        "pageLabel": "Page {current} of {total}",
+        "selectedRows": "{count} of {total} row(s) selected.",
+        "searchGuests": "Cari nama tamu...",
+        "sort": "Urutkan",
+        "save": "Simpan",
+        "cancel": "Batal",
+        "copy": "Copy",
+        "editLink": "Edit Link",
+        "hide": "Sembunyikan",
+        "delete": "Hapus"
       },
-      "form": {
-        "name": "Nama Lengkap",
-        "whatsApp": "Nomor WhatsApp",
-        "email": "Email",
-        "category": "Kategori",
-        "chooseCategory": "Pilih kategori",
-        "categoryHint": "Silakan sesuaikan kategori"
+      "launcher": {
+        "title": "Undangan Saya",
+        "subtitle": "Halaman ini menjadi jalur bypass sementara untuk membuka workspace undangan.",
+        "demoBadge": "Bypass payment",
+        "helper": "Setelah user klik Bayar Sekarang, kita arahkan ke workspace ini dulu selama backend masih tahap slicing.",
+        "openDemo": "Buka Demo Workspace"
+      },
+      "myInvitations": {
+        "title": "Undangan Saya",
+        "subtitle": "Kelola semua undangan yang pernah dibuat, lanjutkan draft, pantau status publish, dan buka dashboard project dari satu tempat.",
+        "subtitleShort": "Project yang sudah dibuat, draft, dan publish.",
+        "search": "Cari undangan...",
+        "stat": {
+          "total": "Total undangan",
+          "totalShort": "Total",
+          "totalDesc": "Semua project yang pernah dibuat",
+          "published": "Published",
+          "publishedDesc": "Undangan aktif dan bisa dibagikan",
+          "draft": "Draft",
+          "draftDesc": "Belum dipublish, lanjutkan editing",
+          "expired": "Expired",
+          "expiredDesc": "Butuh perpanjangan paket"
+        },
+        "tab": {
+          "all": "Semua",
+          "published": "Published",
+          "draft": "Draft",
+          "expired": "Expired"
+        },
+        "status": {
+          "published": "Published",
+          "draft": "Draft",
+          "expired": "Expired"
+        },
+        "openDashboard": "Buka Dashboard",
+        "copyLink": "Salin Link",
+        "continueEdit": "Lanjutkan Edit",
+        "preview": "Pratinjau",
+        "guests": "Tamu",
+        "rsvp": "RSVP",
+        "helperActive": "Lihat analitik, kelola daftar tamu, atau perbarui konten undangan.",
+        "helperDraft": "Lengkapi detail undangan sebelum publish.",
+        "draftHint": "Lengkapi setup untuk publish",
+        "lastUpdated": "Terakhir diperbarui {date}",
+        "empty": "Tidak ada undangan ditemukan.",
+        "loadError": "Gagal memuat undangan. Periksa koneksi kamu."
+      },
+      "overview": {
+        "title": "Dashboard Invitation",
+        "publishNow": "Publish Sekarang",
+        "editTemplate": "Edit Template",
+        "manageGuests": "Kelola Tamu",
+        "guestStatsTitle": "Statistik Tamu",
+        "invitationLink": "Link Undangan",
+        "messageTemplateTitle": "Template Pesan Untuk Tamu",
+        "generateText": "Generate Invitation Text",
+        "countdownUnits": {
+          "days": "Hari",
+          "hours": "Jam",
+          "minutes": "Menit",
+          "seconds": "Detik"
+        }
+      },
+      "guests": {
+        "title": "Kelola Tamu",
+        "listTitle": "List Tamu",
+        "addTitle": "Tambah Tamu",
+        "totalGuests": "Total Tamu: {count}",
+        "deleteRows": "Hapus Baris",
+        "table": {
+          "name": "Nama",
+          "whatsApp": "WhatsApp",
+          "email": "Email",
+          "category": "Kategori",
+          "actions": "Aksi",
+          "delivered": "Terkirim?"
+        },
+        "form": {
+          "name": "Nama Lengkap",
+          "whatsApp": "Nomor WhatsApp",
+          "email": "Email",
+          "category": "Kategori",
+          "chooseCategory": "Pilih kategori",
+          "categoryHint": "Silakan sesuaikan kategori"
+        }
+      },
+      "rsvp": {
+        "title": "RSVP",
+        "listTitle": "List Tamu",
+        "totalGuests": "Total Tamu",
+        "estimatedGuests": "Estimasi total tamu (dengan plus one)",
+        "table": {
+          "attendance": "Kehadiran",
+          "guestCount": "Jumlah Hadir"
+        }
+      },
+      "messages": {
+        "title": "Pesan dari Tamu",
+        "searchPlaceholder": "Cari nama tamu...",
+        "voiceNote": "Voice Note dari {name}"
+      },
+      "notes": {
+        "title": "After Party Notes",
+        "stepOne": "Langkah 1: Buat Catatan",
+        "stepTwo": "Langkah 2: Pilih Tamu dan Kirim",
+        "formTitle": "Buat Catatan",
+        "formSubtitle": "Buat catatan after party untuk dibagikan kepada tamu undangan.",
+        "galleryLink": "Link Galeri Foto",
+        "souvenirLabel": "Souvenir Online",
+        "messageLabel": "Ucapan",
+        "messageHint": "Silakan sesuaikan isi catatan sebelum dibagikan ke tamu.",
+        "recipientTitle": "Pilih Tamu dan Kirim",
+        "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan after party Anda."
+      },
+      "addOns": {
+        "title": "Add Ons",
+        "active": "ACTIVE",
+        "locked": "LOCKED"
+      },
+      "edit": {
+        "title": "Edit Template",
+        "subtitle": "Atur informasi utama undangan dan status publikasinya.",
+        "settingsTitle": "Pengaturan Utama",
+        "settingsDescription": "Versi slicing ini sudah dipisah ke komponen reusable dan siap disambungkan ke API asli.",
+        "slugLabel": "Slug Undangan",
+        "hostLabel": "Nama Host",
+        "themeLabel": "Tema",
+        "colorLabel": "Aksen Warna",
+        "previewTitle": "Status Preview",
+        "previewDescription": "Preview masih memakai mock data, tetapi struktur page dan komponennya sudah siap untuk integrasi selanjutnya."
+      },
+      "gifts": {
+        "title": "Hadiah",
+        "summaryTitle": "Metode Hadiah",
+        "summaryDescription": "Kelola metode hadiah digital yang akan tampil di halaman undangan.",
+        "bankTransfer": "Transfer Bank",
+        "digitalWallet": "Dompet Digital",
+        "shippingGift": "Pengiriman Hadiah",
+        "comingSoon": "Integrasi checkout hadiah akan disambungkan setelah API siap."
       }
-    },
-    "rsvp": {
-      "title": "RSVP",
-      "listTitle": "List Tamu",
-      "totalGuests": "Total Tamu",
-      "estimatedGuests": "Estimasi total tamu (dengan plus one)",
-      "table": {
-        "attendance": "Kehadiran",
-        "guestCount": "Jumlah Hadir"
-      }
-    },
-    "messages": {
-      "title": "Pesan dari Tamu",
-      "searchPlaceholder": "Cari nama tamu...",
-      "voiceNote": "Voice Note dari {name}"
-    },
-    "notes": {
-      "title": "After Party Notes",
-      "stepOne": "Langkah 1: Buat Catatan",
-      "stepTwo": "Langkah 2: Pilih Tamu dan Kirim",
-      "formTitle": "Buat Catatan",
-      "formSubtitle": "Buat catatan after party untuk dibagikan kepada tamu undangan.",
-      "galleryLink": "Link Galeri Foto",
-      "souvenirLabel": "Souvenir Online",
-      "messageLabel": "Ucapan",
-      "messageHint": "Silakan sesuaikan isi catatan sebelum dibagikan ke tamu.",
-      "recipientTitle": "Pilih Tamu dan Kirim",
-      "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan after party Anda."
-    },
-    "addOns": {
-      "title": "Add Ons",
-      "active": "ACTIVE",
-      "locked": "LOCKED"
-    },
-    "edit": {
-      "title": "Edit Template",
-      "subtitle": "Atur informasi utama undangan dan status publikasinya.",
-      "settingsTitle": "Pengaturan Utama",
-      "settingsDescription": "Versi slicing ini sudah dipisah ke komponen reusable dan siap disambungkan ke API asli.",
-      "slugLabel": "Slug Undangan",
-      "hostLabel": "Nama Host",
-      "themeLabel": "Tema",
-      "colorLabel": "Aksen Warna",
-      "previewTitle": "Status Preview",
-      "previewDescription": "Preview masih memakai mock data, tetapi struktur page dan komponennya sudah siap untuk integrasi selanjutnya."
-    },
-    "gifts": {
-      "title": "Hadiah",
-      "summaryTitle": "Metode Hadiah",
-      "summaryDescription": "Kelola metode hadiah digital yang akan tampil di halaman undangan.",
-      "bankTransfer": "Transfer Bank",
-      "digitalWallet": "Dompet Digital",
-      "shippingGift": "Pengiriman Hadiah",
-      "comingSoon": "Integrasi checkout hadiah akan disambungkan setelah API siap."
     }
   }
-}
 }

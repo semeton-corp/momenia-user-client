@@ -118,8 +118,8 @@ export function PaymentContent() {
               <p className="shrink-0 text-lg font-medium text-zinc-900">{fmt(price)}</p>
             </div>
 
-            {/* Duration add-on row — height 88px, only when price > 0 */}
-            {durationPrice > 0 && (
+            {/* Duration add-on row — show always, even if price is 0 */}
+            {durationLabel && (
               <div
                 className="mb-3 flex w-full items-center justify-between rounded-xl border border-indigo-200 bg-indigo-50 px-5"
                 style={{ height: "88px" }}
@@ -141,60 +141,90 @@ export function PaymentContent() {
               </div>
             ))}
 
-            {/* More add-ons placeholder — height 88px */}
-            <div
-              className="flex w-full cursor-default items-center rounded-xl border border-dashed border-zinc-300 px-5"
-              style={{ height: "88px" }}
+            {/* More add-ons button */}
+            <button
+              type="button"
+              className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-indigo-400 bg-white px-5 py-6 transition-all hover:border-indigo-500 hover:bg-indigo-50 active:scale-95"
             >
-              <span className="text-lg font-medium text-zinc-400">+ {t("addons")}</span>
-            </div>
+              <div className="mb-1.5 flex items-center justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600">
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+              </div>
+              <span className="text-base font-semibold text-indigo-600">{t("addons")}</span>
+              <span className="mt-0.5 text-xs text-zinc-500">Add Additional Features or Services</span>
+            </button>
           </div>
 
           {/* ══ RIGHT: Order Summary + Checkout ══ */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-8 rounded-3xl border border-zinc-200 bg-white p-8 lg:sticky lg:top-20 lg:h-fit">
 
             {/* Order Summary */}
             <div>
-              {/* Order Summary — Medium 24px */}
-              <h2 className="mb-5 text-2xl font-medium text-zinc-900">{t("orderSummary")}</h2>
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100">
+                  <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-zinc-900">{t("orderSummary")}</h2>
+              </div>
 
-              <div className="space-y-2.5 text-base">
-                <div className="flex items-center justify-end gap-3">
-                  <span className="text-zinc-500">{t("subtotal")}</span>
-                  <span className="text-zinc-400">:</span>
-                  <span className="w-32 text-right font-medium text-zinc-900">{fmt(subtotal)}</span>
+              <div className="space-y-4 border-b border-zinc-200 pb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-base text-zinc-600">{t("subtotal")}</span>
+                  <span className="text-base font-medium text-zinc-900">{fmt(subtotal)}</span>
                 </div>
-                <div className="flex items-center justify-end gap-3">
-                  <span className="text-zinc-500">{t("discount")}</span>
-                  <span className="text-zinc-400">:</span>
-                  <span className="w-32 text-right font-medium text-zinc-900">Rp 0</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-base text-zinc-600">{t("discount")}</span>
+                  <span className="text-base font-medium text-zinc-900">Rp 0</span>
                 </div>
-                <div className="flex items-center justify-end gap-3">
-                  <span className="font-semibold text-zinc-900">{t("total")}</span>
-                  <span className="text-zinc-400">:</span>
-                  <span className="w-32 text-right text-lg font-bold text-zinc-900">{fmt(total)}</span>
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-lg font-semibold text-zinc-900">{t("total")}</span>
+                  <span className="text-2xl font-bold text-indigo-600">{fmt(total)}</span>
                 </div>
               </div>
             </div>
 
             {/* Checkout */}
             <div>
-              {/* Checkout — Medium 24px */}
-              <h2 className="mb-5 text-2xl font-medium text-zinc-900">Checkout</h2>
-
-              {/* QRIS card — height 80px */}
-              <div
-                className="mb-4 flex w-full items-center gap-4 rounded-xl border border-indigo-200 bg-indigo-50 px-5"
-                style={{ height: "80px" }}
-              >
-                <Image src={QrisIcon} alt="QRIS" width={80} height={30} className="object-contain" />
-                <span className="text-lg font-medium text-zinc-700">QRIS</span>
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100">
+                  <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h10m4 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-zinc-900">{t("checkout")}</h3>
+                  <p className="text-sm text-zinc-500">{t("selectPaymentMethod")}</p>
+                </div>
               </div>
 
-              {/* Pay Order — height 80px */}
+              {/* QRIS card — selected state */}
+              <div
+                className="mb-6 flex w-full items-center gap-4 rounded-2xl border-2 border-indigo-500 bg-indigo-50 px-6 py-4 cursor-pointer transition-all"
+              >
+                <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-indigo-500 bg-indigo-500">
+                  <div className="h-2.5 w-2.5 rounded-full bg-white" />
+                </div>
+                <Image src={QrisIcon} alt="QRIS" width={80} height={30} className="object-contain" />
+                <span className="text-lg font-semibold text-zinc-900">QRIS</span>
+              </div>
+
+              {/* Info box */}
+              <div className="mb-6 flex gap-3 rounded-2xl bg-zinc-100 p-4">
+                <svg className="h-5 w-5 shrink-0 text-indigo-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm text-zinc-600">{t("paymentInfo")}</p>
+              </div>
+
+              {/* Pay Order button */}
               <Button
-                className="w-full rounded-xl text-lg font-semibold shadow-md shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-70"
-                style={{ height: "80px" }}
+                className="w-full rounded-2xl text-lg font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40 active:scale-95 disabled:opacity-70"
+                style={{ height: "56px" }}
                 disabled={isPending}
                 onClick={() => createTransaction({
                   invitationTemplateId: templateId,
@@ -204,6 +234,14 @@ export function PaymentContent() {
               >
                 {isPending ? "Processing..." : t("payOrder")}
               </Button>
+
+              {/* Security badge */}
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <svg className="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 111.414 1.414L7.414 9l3.293 3.293a1 1 0 01-1.414 1.414l-4-4z" clipRule="evenodd" />
+                </svg>
+                <p className="text-xs text-zinc-500">{t("securedBy")}</p>
+              </div>
             </div>
 
           </div>
