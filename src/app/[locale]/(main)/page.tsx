@@ -86,9 +86,9 @@ export default async function HomePage({ params, searchParams }: Props) {
           <CatalogSection catalogs={landingPage?.catalogs} />
         </div>
       </div>
-      <CreateNowBanner />
       <TestimonialSection testimonials={landingPage?.testimonials} />
       <FaqSection faqs={landingPage?.faqs} locale={locale} />
+      <CreateNowBanner />
     </main>
   )
 }

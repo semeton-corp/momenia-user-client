@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useTranslations, useLocale } from "next-intl"
 import { DashboardBanner } from "@/components/dashboard/DashboardBanner"
+import { DragScrollRow } from "@/components/dashboard/DragScrollRow"
 import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
 import { TemplateDetailModal, type TemplateDetail } from "@/components/dashboard/TemplateDetailModal"
@@ -150,7 +151,7 @@ export default function DashboardPage() {
       />
 
         {/* Style Tags */}
-        <div className="mt-6 mb-0 -mx-5 overflow-x-auto pb-1 scrollbar-hide md:-mx-8 md:mt-10 md:mb-[44px] xl:mx-0">
+        <DragScrollRow className="mt-6 mb-0 -mx-5 md:-mx-8 md:mt-10 md:mb-[44px] xl:mx-0" innerClassName="pb-1">
           <div className="flex w-max items-center gap-[14px] px-5 md:px-8 xl:mx-auto xl:px-0">
             {isTagsLoading ? (
               Array.from({ length: 8 }).map((_, i) => (
@@ -178,7 +179,7 @@ export default function DashboardPage() {
               </>
             )}
           </div>
-        </div>
+        </DragScrollRow>
 
       {/* Template Grid */}
       {isError ? (

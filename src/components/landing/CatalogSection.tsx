@@ -335,7 +335,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
 
             <button
               onClick={() => router.push("/dashboard")}
-              className="w-[300px] md:w-[350px] cursor-pointer rounded-xl bg-primary py-3.5 text-sm font-medium text-white shadow-lg shadow-indigo-200/50 transition-transform hover:-translate-y-0.5 active:scale-95 md:text-base"
+              className="w-[300px] md:w-[350px] cursor-pointer rounded-xl border border-transparent bg-primary py-3.5 text-sm font-medium text-white shadow-lg shadow-indigo-200/50 transition-colors hover:border-primary hover:bg-white hover:text-primary active:scale-95 md:text-base"
             >
               {t("viewAllTemplates")}
             </button>
