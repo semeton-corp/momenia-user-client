@@ -25,7 +25,7 @@ export type GetUserInvitationsParams = {
 
 export type UpdateUserInvitationRequest = {
     name: string
-    pathUrl: string
+    slug: string
     fieldValues: Record<string, string>
     status: string
     template: UserInvitationDetail["template"]

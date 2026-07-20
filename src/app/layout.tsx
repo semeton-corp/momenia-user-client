@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import QueryProvider from "@/providers/QueryProvider"
+import ToastProvider from "@/providers/ToastProvider"
 
 const geistSans = Inter({
   variable: "--font-geist-sans",
@@ -31,7 +32,9 @@ export default function RootLayout({
         style={{ fontFamily: "var(--font-geist-sans)" }}
       >
         <QueryProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </QueryProvider>
       </body>
     </html>

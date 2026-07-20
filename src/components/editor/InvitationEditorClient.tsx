@@ -8,6 +8,8 @@ import {
   Search, Star, Users, Upload, Play, X, CheckCircle2,
 } from "lucide-react"
 import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
+import { uploadImage } from "@/lib/api/object-storage/object-storage.service"
+import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
@@ -95,42 +97,39 @@ ${allJs}
 </html>`
 }
 
-// ── Image helpers ───────────────────────────────────────────────────────────
-
-function resizeToDataURL(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file)
-    const img = new Image()
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-      const scale = Math.min(1, 1200 / Math.max(img.width, img.height))
-      const w = Math.round(img.width * scale)
-      const h = Math.round(img.height * scale)
-      const canvas = document.createElement("canvas")
-      canvas.width = w; canvas.height = h
-      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h)
-      resolve(canvas.toDataURL("image/jpeg", 0.85))
-    }
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("load failed")) }
-    img.src = url
-  })
-}
+// ── Image upload ─────────────────────────────────────────────────────────────
 
 function UploadDropzone({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; e.target.value = ""
     if (!file) return
     setLoading(true)
-    try { onChange(await resizeToDataURL(file)) } finally { setLoading(false) }
+    try {
+      const url = await uploadImage(file, "invitation-content")
+      onChange(url)
+      toast("Image uploaded successfully", "success")
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to upload image", "error")
+    } finally {
+      setLoading(false)
+    }
   }
+
   return (
     <>
       <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="sr-only" onChange={handleFile} />
       {value ? (
         <div className="relative overflow-hidden rounded-xl border border-zinc-200">
           <img src={value} alt="" className="h-32 w-full object-cover" />
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/60">
+              <span className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-500" />
+            </div>
+          )}
           <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/50 px-3 py-1.5">
             <button type="button" onClick={() => inputRef.current?.click()} className="text-xs text-white/90">Ganti</button>
             <button type="button" onClick={() => onChange("")} className="text-xs text-white/60">Hapus</button>
@@ -145,7 +144,7 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
             <Upload className="h-5 w-5 text-indigo-500" />
           )}
           <div className="text-center">
-            <p className="text-sm font-medium text-zinc-700">Upload Photo</p>
+            <p className="text-sm font-medium text-zinc-700">{loading ? "Uploading..." : "Upload Photo"}</p>
             <p className="text-xs text-zinc-400">Upload a high-quality JPG or PNG image</p>
           </div>
         </button>
@@ -355,7 +354,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
     saveInvitation({
       name: name,
-      pathUrl: detail.pathUrl || "budi-joko",
+      slug: detail.pathUrl || "budi-joko",
       fieldValues: userData,
       status: detail.status,
       template: updatedTemplate,
