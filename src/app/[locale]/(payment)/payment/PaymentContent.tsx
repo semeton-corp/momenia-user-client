@@ -38,7 +38,8 @@ export function PaymentContent() {
   const price = Number(searchParams.get("price") ?? 0)
   const image = searchParams.get("image") ?? ""
   const category = searchParams.get("category") ?? ""
-  const durationKey = (searchParams.get("duration") ?? "basic2week") as ModalKey
+  const durationKey = searchParams.get("duration") ?? ""
+  const durationLabel = searchParams.get("durationLabel") ?? ""
   const durationPrice = Number(searchParams.get("durationPrice") ?? 0)
   const featuresParam = searchParams.get("features") ?? ""
   const selectedFeatures = featuresParam ? featuresParam.split(",").filter(Boolean) : []
@@ -111,7 +112,7 @@ export function PaymentContent() {
                   <p className="truncate text-lg font-medium text-zinc-500">{category}</p>
                 )}
                 {/* Duration info — Normal 14px */}
-                <p className="truncate text-sm font-normal text-zinc-400">{tModal(durationKey)}</p>
+                <p className="truncate text-sm font-normal text-zinc-400">{durationLabel}</p>
               </div>
               {/* Price — Medium 18px */}
               <p className="shrink-0 text-lg font-medium text-zinc-900">{fmt(price)}</p>
@@ -123,7 +124,7 @@ export function PaymentContent() {
                 className="mb-3 flex w-full items-center justify-between rounded-xl border border-indigo-200 bg-indigo-50 px-5"
                 style={{ height: "88px" }}
               >
-                <span className="text-lg font-medium text-zinc-800">{tModal(durationKey)}</span>
+                <span className="text-lg font-medium text-zinc-800">{durationLabel}</span>
                 <span className="text-lg font-medium text-zinc-800">{fmt(durationPrice)}</span>
               </div>
             )}

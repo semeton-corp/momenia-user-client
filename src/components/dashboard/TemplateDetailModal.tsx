@@ -68,6 +68,9 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
     if (!template) return
     const selectedDurationObj = durations.find((d) => d.id === selectedDuration)
     const durationPrice = selectedDurationObj ? Number(selectedDurationObj.price) : 0
+    const durationLabel = selectedDurationObj
+      ? `${selectedDurationObj.duration} ${t(`durationUnit.${selectedDurationObj.unit}`)}`
+      : ""
     const params = new URLSearchParams({
       templateId: String(template.id),
       title: template.title,
@@ -75,6 +78,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
       image: template.imageUrl,
       category: template.categoryLabel,
       duration: selectedDuration,
+      durationLabel,
       durationPrice: String(durationPrice),
     })
     if (template.originalPrice) params.set("originalPrice", String(template.originalPrice))
