@@ -341,7 +341,7 @@ export function Navbar() {
                   ) : (
                     <>
                       <Link href="/register" onClick={() => setIsOpen(false)}>
-                        <Button variant="outline" className="w-full border-primary text-primary font-medium hover:bg-primary/5">
+                        <Button variant="outline" className="w-full border-primary text-primary font-medium hover:bg-primary/10 hover:text-primary">
                           {tNavbar("signUp")}
                         </Button>
                       </Link>
@@ -469,7 +469,7 @@ export function Navbar() {
                   <Button
                     size="default"
                     variant="outline"
-                    className="h-9 px-4 font-medium border-primary text-primary hover:bg-primary/5 lg:h-10 lg:px-6"
+                    className="h-9 px-4 font-medium border-primary text-primary hover:bg-primary/10 hover:text-primary lg:h-10 lg:px-6"
                   >
                     {tNavbar("signUp")}
                   </Button>
