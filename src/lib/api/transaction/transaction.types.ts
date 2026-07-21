@@ -13,7 +13,7 @@ export type CreateTransactionResponse = {
     status: string
     amount: string
     qris: {
-        paymentUrl: string[]
+        paymentUrl: Array<{ method: string; url: string }>
         qrString: string
     }
     paymentDuration: {
