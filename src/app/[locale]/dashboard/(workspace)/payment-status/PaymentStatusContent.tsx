@@ -77,7 +77,7 @@ export function PaymentStatusContent() {
     )
   }
 
-  const qrImageUrl = transaction.qris.paymentUrl[0] || ""
+  const qrImageUrl = transaction.qris.paymentUrl[0]?.url || ""
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50 px-4 py-8">
