@@ -1,6 +1,6 @@
 "use client"
 
-import type { ComponentType, CSSProperties } from "react"
+import { useState, type ComponentType, type CSSProperties } from "react"
 import {
   Blocks,
   House,
@@ -13,9 +13,11 @@ import {
   Users,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Link, usePathname } from "@/i18n/navigation"
+import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
+import { useEditorDirty } from "@/contexts/EditorDirtyContext"
+import { UnsavedChangesModal } from "./UnsavedChangesModal"
 
 type InvitationWorkspaceSidebarProps = {
   readonly invitationId: string
@@ -31,9 +33,24 @@ type NavItem = {
 
 export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspaceSidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const t = useTranslations("dashboard.workspace.sidebar")
   const scale = useZoomScale()
   const basePath = `/dashboard/my-invitation/${invitationId}`
+  const { isDirty } = useEditorDirty()
+  const [pendingHref, setPendingHref] = useState<string | null>(null)
+
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    if (isDirty && href !== pathname) {
+      e.preventDefault()
+      setPendingHref(href)
+    }
+  }
+
+  const confirmNavigation = () => {
+    if (pendingHref) router.push(pendingHref)
+    setPendingHref(null)
+  }
 
   const navItems: NavItem[] = [
     { key: "dashboard", href: basePath,               icon: LayoutDashboard, exact: true },
@@ -64,6 +81,7 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
         {/* Home — plain icon, no box */}
         <Link
           href={basePath}
+          onClick={(e) => handleNavClick(e, basePath)}
           className="mt-6 mb-12 flex items-center justify-center transition-all hover:opacity-70"
         >
           <House className="h-8 w-8" style={{ color: "#4F46E5" }} />
@@ -80,6 +98,7 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
               <div key={key} className="flex w-full flex-col items-center gap-1">
                 <Link
                   href={href}
+                  onClick={(e) => handleNavClick(e, href)}
                   className="flex w-full flex-col items-center gap-1 rounded-xl py-1.5 text-center transition-all hover:bg-white/50"
                 >
                   <div
@@ -130,6 +149,7 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
               <Link
                 key={key}
                 href={href}
+                onClick={(e) => handleNavClick(e, href)}
                 className="flex shrink-0 flex-col items-center justify-center gap-1 px-3 py-2 transition-all"
               >
                 <div
@@ -153,6 +173,13 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
           })}
         </div>
       </nav>
+
+      {pendingHref && (
+        <UnsavedChangesModal
+          onConfirm={confirmNavigation}
+          onCancel={() => setPendingHref(null)}
+        />
+      )}
     </>
   )
 }

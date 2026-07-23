@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation"
 import { InvitationWorkspaceSidebar } from "@/components/dashboard/invitation/InvitationWorkspaceSidebar"
 import { ZoomWrapper } from "@/components/dashboard/invitation/ZoomWrapper"
 import { getInvitationWorkspaceData } from "@/lib/mocks/invitation-workspace"
+import { EditorDirtyProvider } from "@/contexts/EditorDirtyContext"
 
 type Props = {
   readonly children: ReactNode
@@ -16,6 +17,7 @@ export default async function InvitationWorkspaceLayout({ children, params }: Pr
 
   return (
     <ZoomWrapper>
+    <EditorDirtyProvider>
     <div className="min-h-screen bg-white">
       <InvitationWorkspaceSidebar invitationId={invitationId} />
 
@@ -39,6 +41,7 @@ export default async function InvitationWorkspaceLayout({ children, params }: Pr
         </div>
       </main>
     </div>
+    </EditorDirtyProvider>
     </ZoomWrapper>
   )
 }
