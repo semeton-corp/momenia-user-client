@@ -12,6 +12,7 @@ import { uploadImage } from "@/lib/api/object-storage/object-storage.service"
 import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
 import { useEditorDirty } from "@/contexts/EditorDirtyContext"
+import { ALL_FONTS, getGoogleFontsUrl } from "@/lib/fonts"
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
 
@@ -55,7 +56,7 @@ function buildHtml(
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(theme.font_title)}:wght@300;400;600&family=${encodeURIComponent(theme.font_body)}:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="${getGoogleFontsUrl(theme.font_title, theme.font_body)}" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -132,6 +133,8 @@ window.addEventListener('message', function(e) {
     if(th.color_primary) document.documentElement.style.setProperty('--color-primary', th.color_primary);
     if(th.color_accent)  document.documentElement.style.setProperty('--color-accent',  th.color_accent);
     if(th.color_background) document.documentElement.style.setProperty('--color-background', th.color_background);
+    if(th.font_title) document.documentElement.style.setProperty('--font-title', "'"+th.font_title+"',Georgia,serif");
+    if(th.font_body) document.documentElement.style.setProperty('--font-body', "'"+th.font_body+"',system-ui,sans-serif");
     window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
   }
 });
@@ -210,6 +213,7 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [height, setHeight] = useState(812)
   const loadedRef = useRef(false)
+  const loadedFontsRef = useRef<Set<string>>(new Set())
   const userDataRef = useRef(userData); userDataRef.current = userData
   const themeRef = useRef(theme); themeRef.current = theme
   const activePageRef = useRef(activePage); activePageRef.current = activePage
@@ -235,8 +239,32 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
     return () => iframe.removeEventListener("load", onLoad)
   }, [html])
 
+  const injectFont = (fontName: string) => {
+    const iframe = iframeRef.current
+    if (!iframe || !fontName) return
+    if (loadedFontsRef.current.has(fontName)) return
+
+    const doc = iframe.contentDocument || iframe.contentWindow?.document
+    if (!doc) return
+
+    const isSystem = ["Arial", "Georgia", "Times New Roman", "Courier New", "Verdana", "Trebuchet MS", "Comic Sans MS", "Impact"].includes(fontName)
+    if (isSystem) {
+      loadedFontsRef.current.add(fontName)
+      return
+    }
+
+    const link = doc.createElement("link")
+    link.href = getGoogleFontsUrl(fontName)
+    link.rel = "stylesheet"
+    link.onload = () => { loadedFontsRef.current.add(fontName) }
+    link.onerror = () => { loadedFontsRef.current.add(fontName) }
+    doc.head.appendChild(link)
+  }
+
   useEffect(() => {
     if (!loadedRef.current) return
+    injectFont(theme.font_title)
+    injectFont(theme.font_body)
     iframeRef.current?.contentWindow?.postMessage({ type: "memoriaUpdate", userData, theme }, "*")
   }, [userData, theme])
 
@@ -339,8 +367,6 @@ const SECTION_LABELS: Record<string, string> = {
   couple_section: "Bride & Groom",
   details_section: "Event Information",
 }
-
-const FONT_OPTIONS = ["Poppins", "Inter", "Playfair Display", "Jakarta Sans", "Lora", "Montserrat"]
 
 function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; invitationId: string }) {
   const router = useRouter()
@@ -539,7 +565,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 <div className="flex items-center gap-2">
                   <select value={theme.font_title} onChange={(e) => setTheme((p) => ({ ...p, font_title: e.target.value }))}
                     className="flex-1 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none">
-                    {FONT_OPTIONS.map((f) => <option key={f}>{f}</option>)}
+                    {ALL_FONTS.map((f) => <option key={f}>{f}</option>)}
                   </select>
                   <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-sm font-bold" style={{ fontFamily: theme.font_title }}>Ag</span>
                 </div>
@@ -549,7 +575,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 <div className="flex items-center gap-2">
                   <select value={theme.font_body} onChange={(e) => setTheme((p) => ({ ...p, font_body: e.target.value }))}
                     className="flex-1 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none">
-                    {FONT_OPTIONS.map((f) => <option key={f}>{f}</option>)}
+                    {ALL_FONTS.map((f) => <option key={f}>{f}</option>)}
                   </select>
                   <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-sm" style={{ fontFamily: theme.font_body }}>Ag</span>
                 </div>
