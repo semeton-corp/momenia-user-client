@@ -299,6 +299,7 @@ const FONT_OPTIONS = ["Poppins", "Inter", "Playfair Display", "Jakarta Sans", "L
 
 function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; invitationId: string }) {
   const router = useRouter()
+  const { toast } = useToast()
   const { template } = detail
   const { mutate: saveInvitation, isPending: isSaving } = useUpdateUserInvitation(invitationId)
 
@@ -350,6 +351,11 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             }
           : page
       ),
+    }
+
+    if (!detail.pathUrl) {
+      toast("Error: Invalid invitation path", "error")
+      return
     }
 
     saveInvitation({

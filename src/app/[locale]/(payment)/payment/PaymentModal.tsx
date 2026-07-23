@@ -115,9 +115,9 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
           type="button"
           onClick={handleClose}
           disabled={isExpired}
-          className="absolute right-4 top-4 rounded-lg p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute right-4 top-4 rounded-lg bg-white p-2 text-zinc-600 shadow-md transition-colors hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <X className="h-6 w-6" />
+          <X className="h-5 w-5" />
         </button>
 
         {/* Header with Countdown */}
