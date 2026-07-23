@@ -2,12 +2,15 @@
 
 import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import QrisIcon from "@/assets/logo/Qris-icon.svg"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "@/i18n/navigation"
 import { useCreateTransaction } from "@/hooks/useCreateTransaction"
+import { PaymentModal } from "./PaymentModal"
+import type { CreateTransactionResponse } from "@/lib/api/transaction/transaction.types"
 
 const FEATURE_ADDONS = [
   { key: "instagramFilter", price: 10000 },
@@ -31,7 +34,10 @@ export function PaymentContent() {
   const searchParams = useSearchParams()
   const t = useTranslations("dashboard.payment")
   const tModal = useTranslations("dashboard.modal")
-  const { mutate: createTransaction, isPending } = useCreateTransaction()
+  const { mutate: createTransaction, isPending, data: transactionData } = useCreateTransaction()
+
+  const [pendingTransaction, setPendingTransaction] = useState<CreateTransactionResponse | null>(null)
+  const [showModal, setShowModal] = useState(false)
 
   const templateId = searchParams.get("templateId") ?? ""
   const title = searchParams.get("title") ?? ""
@@ -43,6 +49,28 @@ export function PaymentContent() {
   const durationPrice = Number(searchParams.get("durationPrice") ?? 0)
   const featuresParam = searchParams.get("features") ?? ""
   const selectedFeatures = featuresParam ? featuresParam.split(",").filter(Boolean) : []
+
+  // Restore transaction from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("pendingTransaction")
+    if (stored) {
+      try {
+        const transaction = JSON.parse(stored)
+        setPendingTransaction(transaction)
+        setShowModal(true)
+      } catch {
+        localStorage.removeItem("pendingTransaction")
+      }
+    }
+  }, [])
+
+  // Show modal when new transaction is created
+  useEffect(() => {
+    if (transactionData) {
+      setPendingTransaction(transactionData)
+      setShowModal(true)
+    }
+  }, [transactionData])
 
   const featurePrices = selectedFeatures.map((key) => {
     const addon = FEATURE_ADDONS.find((a) => a.key === key)
@@ -225,14 +253,20 @@ export function PaymentContent() {
               <Button
                 className="w-full rounded-2xl text-lg font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40 active:scale-95 disabled:opacity-70"
                 style={{ height: "56px" }}
-                disabled={isPending}
-                onClick={() => createTransaction({
-                  invitationTemplateId: templateId,
-                  invitationDurationId: durationKey,
-                  paymentMethod: "qris",
-                })}
+                disabled={isPending || !!pendingTransaction}
+                onClick={() => {
+                  if (!pendingTransaction) {
+                    createTransaction({
+                      invitationTemplateId: templateId,
+                      invitationDurationId: durationKey,
+                      paymentMethod: "qris",
+                    })
+                  } else {
+                    setShowModal(true)
+                  }
+                }}
               >
-                {isPending ? "Processing..." : t("payOrder")}
+                {isPending ? "Processing..." : pendingTransaction ? "Complete Payment" : t("payOrder")}
               </Button>
 
               {/* Security badge */}
@@ -247,6 +281,18 @@ export function PaymentContent() {
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showModal && pendingTransaction && (
+        <PaymentModal
+          transaction={pendingTransaction}
+          onClose={() => {
+            setShowModal(false)
+            setPendingTransaction(null)
+            localStorage.removeItem("pendingTransaction")
+          }}
+        />
+      )}
     </div>
   )
 }

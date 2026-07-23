@@ -354,7 +354,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
     saveInvitation({
       name: name,
-      slug: detail.pathUrl || "budi-joko",
+      slug: detail.pathUrl,
       fieldValues: userData,
       status: detail.status,
       template: updatedTemplate,
