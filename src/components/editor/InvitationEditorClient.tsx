@@ -11,6 +11,7 @@ import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUse
 import { uploadImage } from "@/lib/api/object-storage/object-storage.service"
 import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
+import { useEditorDirty } from "@/contexts/EditorDirtyContext"
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
 
@@ -34,10 +35,14 @@ function buildHtml(
     const stype: SectionType = template.sectionTypes[sec.section_type_id]
     if (!stype) return ""
     let html = stype.html
-    for (const [k, v] of Object.entries(userData)) {
-      html = html.replaceAll(`{{${k}}}`, v || "")
-    }
-    html = html.replace(/\{\{[^}]+\}\}/g, "")
+    const imageFields = new Set(template.schema.fields.filter(f => f.type === "image").map(f => f.key))
+    html = html.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+      const value = userData[key] || ""
+      if (imageFields.has(key)) {
+        return `<img data-field-img="${key}" src="${value}" style="width:100%;height:auto;" />`
+      }
+      return `<span data-field="${key}">${value}</span>`
+    })
     return html
   }
 
@@ -256,7 +261,7 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
     >
       <iframe
         ref={iframeRef}
-        sandbox="allow-scripts"
+        sandbox="allow-scripts allow-same-origin"
         title="Invitation Preview"
         style={{
           width: 375,
@@ -356,6 +361,19 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   const dragIndexRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
+  // Snapshot of the last-saved state, used to detect unsaved changes
+  const [savedSnapshot, setSavedSnapshot] = useState(() =>
+    JSON.stringify({ name: detail.name || "", userData: detail.fieldValues ?? {}, theme: template.theme_defaults, sectionOrder: defaultSectionOrder })
+  )
+  const isDirty = useMemo(() => {
+    return JSON.stringify({ name, userData, theme, sectionOrder }) !== savedSnapshot
+  }, [name, userData, theme, sectionOrder, savedSnapshot])
+  const { setIsDirty } = useEditorDirty()
+  useEffect(() => {
+    setIsDirty(isDirty)
+    return () => setIsDirty(false)
+  }, [isDirty, setIsDirty])
+
   const activePage = template.pages[activePageIdx]?.id ?? "cover"
   const html = useMemo(() => buildHtml(detail, userData, theme, sectionOrder), [detail, sectionOrder, template])
 
@@ -407,6 +425,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
       fieldValues: userData,
       status: detail.status,
       template: updatedTemplate,
+    }, {
+      onSuccess: () => {
+        setSavedSnapshot(JSON.stringify({ name, userData, theme, sectionOrder }))
+      },
     })
   }
 
