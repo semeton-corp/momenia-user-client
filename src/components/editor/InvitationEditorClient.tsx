@@ -62,6 +62,46 @@ function buildHtml(
 }
 body{font-family:var(--font-body);background:var(--color-background);color:var(--color-primary);}
 ${allCss}
+@media (min-width: 768px) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  html {
+    background-color: #1a1a1a;
+    background-image: url('${theme.backgroundImage || "/background-default-desktop.png"}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  body {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    flex-direction: row;
+    pointer-events: auto;
+  }
+  #page-cover, #page-main {
+    max-width: 420px;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    z-index: 10;
+    position: relative;
+    pointer-events: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
 </style>
 </head>
 <body>
@@ -441,7 +481,19 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         <div className="flex items-center gap-2">
           <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50"><Undo2 className="h-4 w-4" /></button>
           <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50"><Redo2 className="h-4 w-4" /></button>
-          <button className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"><Eye className="h-4 w-4" />Preview</button>
+          <button
+            onClick={() => {
+              const htmlContent = buildHtml(detail, userData, theme, sectionOrder)
+              const newWindow = window.open("", "_blank")
+              if (newWindow) {
+                newWindow.document.write(htmlContent)
+                newWindow.document.close()
+              }
+            }}
+            className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          >
+            <Eye className="h-4 w-4" />Preview
+          </button>
           <button onClick={handleSave} disabled={isSaving} className="flex h-10 items-center gap-2 rounded-lg bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
             {isSaving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Save className="h-4 w-4" />}
             Save
@@ -484,20 +536,22 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
             <Section title="Colors" icon={<Palette className="h-4 w-4 text-indigo-500" />}>
               {swatch("color_primary", "Primary")}
-              {swatch("color_accent", "Secondary")}
+              {swatch("color_background", "Secondary")}
               {swatch("color_accent", "Accent")}
             </Section>
 
-            <Section title="Music" icon={<Music className="h-4 w-4 text-indigo-500" />} defaultOpen={false}>
-              <div className="flex items-center gap-3 rounded-xl border border-zinc-200 p-2">
-                <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white"><Play className="h-4 w-4" /></button>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-zinc-800">Promise - Laufey</p>
-                  <p className="text-xs text-zinc-400">03:54</p>
+            {process.env.NEXT_PUBLIC_FEATURE_MUSIC === "true" && (
+              <Section title="Music" icon={<Music className="h-4 w-4 text-indigo-500" />} defaultOpen={false}>
+                <div className="flex items-center gap-3 rounded-xl border border-zinc-200 p-2">
+                  <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white"><Play className="h-4 w-4" /></button>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-zinc-800">Promise - Laufey</p>
+                    <p className="text-xs text-zinc-400">03:54</p>
+                  </div>
+                  <button className="text-zinc-400 hover:text-zinc-600"><X className="h-4 w-4" /></button>
                 </div>
-                <button className="text-zinc-400 hover:text-zinc-600"><X className="h-4 w-4" /></button>
-              </div>
-            </Section>
+              </Section>
+            )}
 
             <Section title="Content List" icon={<ListOrdered className="h-4 w-4 text-indigo-500" />}>
               <p className="-mt-2 mb-1 text-xs text-zinc-400">Drag and drop to reorder section</p>
