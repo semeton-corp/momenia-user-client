@@ -353,14 +353,17 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
       ),
     }
 
-    if (!detail.pathUrl) {
-      toast("Error: Invalid invitation path", "error")
+    // Use pathUrl as slug, or generate from name as fallback
+    const slug = detail.pathUrl || name.toLowerCase().replace(/\s+/g, "-")
+
+    if (!slug) {
+      toast("Error: Please enter an invitation name", "error")
       return
     }
 
     saveInvitation({
       name: name,
-      slug: detail.pathUrl,
+      slug: slug,
       fieldValues: userData,
       status: detail.status,
       template: updatedTemplate,
