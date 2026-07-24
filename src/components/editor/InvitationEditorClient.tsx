@@ -13,6 +13,15 @@ import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
 import { useEditorDirty } from "@/contexts/EditorDirtyContext"
 import { ALL_FONTS, getGoogleFontsUrl } from "@/lib/fonts"
+import { RestoreChangesModal } from "./RestoreChangesModal"
+
+type UnsavedState = {
+  name: string
+  userData: Record<string, string>
+  theme: ThemeDefaults
+  sectionOrder: string[]
+  timestamp: number
+}
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
 
@@ -400,6 +409,67 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     return () => setIsDirty(false)
   }, [isDirty, setIsDirty])
 
+  // ── Autosave / restore ──────────────────────────────────────────────────
+  const autosaveKey = `momenia_autosave_${invitationId}`
+  const [unsavedState, setUnsavedState] = useState<UnsavedState | null>(null)
+  const hasCheckedAutosave = useRef(false)
+
+  // On mount: check for a leftover autosave that differs from the last-saved state
+  useEffect(() => {
+    if (hasCheckedAutosave.current) return
+    hasCheckedAutosave.current = true
+    try {
+      const raw = localStorage.getItem(autosaveKey)
+      if (!raw) return
+      const parsed: UnsavedState = JSON.parse(raw)
+      const parsedSnapshot = JSON.stringify({
+        name: parsed.name,
+        userData: parsed.userData,
+        theme: parsed.theme,
+        sectionOrder: parsed.sectionOrder,
+      })
+      if (parsedSnapshot !== savedSnapshot) {
+        setUnsavedState(parsed)
+      } else {
+        localStorage.removeItem(autosaveKey)
+      }
+    } catch {
+      localStorage.removeItem(autosaveKey)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Debounced autosave whenever the form is dirty
+  useEffect(() => {
+    if (!isDirty) return
+    const t = setTimeout(() => {
+      try {
+        const state: UnsavedState = { name, userData, theme, sectionOrder, timestamp: Date.now() }
+        localStorage.setItem(autosaveKey, JSON.stringify(state))
+      } catch {
+        // ignore storage errors (e.g. quota exceeded, private mode)
+      }
+    }, 800)
+    return () => clearTimeout(t)
+  }, [name, userData, theme, sectionOrder, isDirty, autosaveKey])
+
+  const handleRestore = (state: UnsavedState) => {
+    setName(state.name)
+    setUserData(state.userData)
+    setTheme(state.theme)
+    setSectionOrder(state.sectionOrder)
+    setUnsavedState(null)
+  }
+
+  const handleDiscardAutosave = () => {
+    try {
+      localStorage.removeItem(autosaveKey)
+    } catch {
+      // ignore
+    }
+    setUnsavedState(null)
+  }
+
   const activePage = template.pages[activePageIdx]?.id ?? "cover"
   const html = useMemo(() => buildHtml(detail, userData, theme, sectionOrder), [detail, sectionOrder, template])
 
@@ -454,6 +524,11 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     }, {
       onSuccess: () => {
         setSavedSnapshot(JSON.stringify({ name, userData, theme, sectionOrder }))
+        try {
+          localStorage.removeItem(autosaveKey)
+        } catch {
+          // ignore
+        }
       },
     })
   }
@@ -490,7 +565,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     <div className="fixed inset-x-0 top-15 bottom-0 z-30 flex flex-col gap-4 overflow-hidden bg-zinc-50 p-4 sm:p-6 lg:left-24 lg:top-0">
       {/* ── Top bar ── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0 pl-6">
           <div className="flex items-center gap-2">
             {isEditingName ? (
               <input
@@ -695,6 +770,15 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           </div>
         </div>
       </div>
+
+      {unsavedState && (
+        <RestoreChangesModal
+          unsavedState={unsavedState}
+          detail={detail}
+          onRestore={handleRestore}
+          onDiscard={handleDiscardAutosave}
+        />
+      )}
     </div>
   )
 }
