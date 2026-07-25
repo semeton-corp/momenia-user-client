@@ -14,6 +14,7 @@ import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.
 import { useEditorDirty } from "@/contexts/EditorDirtyContext"
 import { ALL_FONTS, getGoogleFontsUrl } from "@/lib/fonts"
 import { RestoreChangesModal } from "./RestoreChangesModal"
+import { ImageCropModal } from "./ImageCropModal"
 
 type UnsavedState = {
   name: string
@@ -166,14 +167,27 @@ ${allJs}
 function UploadDropzone({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
+  const [pendingImage, setPendingImage] = useState<{ src: string; fileName: string } | null>(null)
   const { toast } = useToast()
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; e.target.value = ""
     if (!file) return
+    const src = URL.createObjectURL(file)
+    setPendingImage({ src, fileName: file.name })
+  }
+
+  const handleCropCancel = () => {
+    if (pendingImage) URL.revokeObjectURL(pendingImage.src)
+    setPendingImage(null)
+  }
+
+  const handleCropConfirm = async (croppedFile: File) => {
+    if (pendingImage) URL.revokeObjectURL(pendingImage.src)
+    setPendingImage(null)
     setLoading(true)
     try {
-      const url = await uploadImage(file, "invitation-content")
+      const url = await uploadImage(croppedFile, "invitation-content")
       onChange(url)
       toast("Image uploaded successfully", "success")
     } catch (err) {
@@ -186,6 +200,14 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
   return (
     <>
       <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="sr-only" onChange={handleFile} />
+      {pendingImage && (
+        <ImageCropModal
+          imageSrc={pendingImage.src}
+          fileName={pendingImage.fileName}
+          onCancel={handleCropCancel}
+          onConfirm={handleCropConfirm}
+        />
+      )}
       {value ? (
         <div className="relative overflow-hidden rounded-xl border border-zinc-200">
           <img src={value} alt="" className="h-32 w-full object-cover" />
