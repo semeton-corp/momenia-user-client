@@ -3,7 +3,7 @@
 import * as React from "react"
 import { ChevronDown, Settings2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import type { InvitationWorkspaceGuest } from "@/lib/types/invitation-workspace"
+import type { RsvpListItem } from "@/lib/api/rsvp/rsvp.types"
 import { WorkspaceBadge } from "./WorkspaceBadge"
 import { WorkspaceCard } from "./WorkspaceCard"
 import { WorkspaceTableFooter } from "./WorkspaceTableFooter"
@@ -18,22 +18,29 @@ type RsvpGuestTableProps = {
   categoryLabel: string
   attendanceLabel: string
   guestCountLabel: string
+  presentLabel: string
+  absentLabel: string
+  notConfirmedLabel: string
   selectionLabel: string
   rowsPerPageLabel: string
   pageLabel: string
-  guests: InvitationWorkspaceGuest[]
+  guests: RsvpListItem[]
+  searchValue?: string
+  onSearchChange?: (value: string) => void
+  onSortToggle?: () => void
+  pageSize?: number
+  onPageSizeChange?: (size: number) => void
+  canGoPrev?: boolean
+  canGoNext?: boolean
+  onFirstPage?: () => void
+  onPrevPage?: () => void
+  onNextPage?: () => void
 }
 
-function resolveAttendanceTone(attendance: InvitationWorkspaceGuest["attendance"]) {
-  if (attendance === "attending") return "green" as const
-  if (attendance === "declined") return "red" as const
+function resolveStatusTone(status: RsvpListItem["status"]) {
+  if (status === "present") return "green" as const
+  if (status === "absent") return "red" as const
   return "amber" as const
-}
-
-function resolveAttendanceLabel(attendance: InvitationWorkspaceGuest["attendance"]) {
-  if (attendance === "attending") return "Hadir"
-  if (attendance === "declined") return "Tidak Hadir"
-  return "Belum Konfirmasi"
 }
 
 export function RsvpGuestTable({
@@ -46,11 +53,43 @@ export function RsvpGuestTable({
   categoryLabel,
   attendanceLabel,
   guestCountLabel,
+  presentLabel,
+  absentLabel,
+  notConfirmedLabel,
   selectionLabel,
   rowsPerPageLabel,
   pageLabel,
   guests,
+  searchValue,
+  onSearchChange,
+  onSortToggle,
+  pageSize,
+  onPageSizeChange,
+  canGoPrev,
+  canGoNext,
+  onFirstPage,
+  onPrevPage,
+  onNextPage,
 }: RsvpGuestTableProps) {
+  const statusLabel = (status: RsvpListItem["status"]) => {
+    if (status === "present") return presentLabel
+    if (status === "absent") return absentLabel
+    return notConfirmedLabel
+  }
+
+  const footerProps = {
+    selectionLabel,
+    rowsPerPageLabel,
+    pageLabel,
+    pageSize,
+    onPageSizeChange,
+    canGoPrev,
+    canGoNext,
+    onFirstPage,
+    onPrevPage,
+    onNextPage,
+  }
+
   return (
     <WorkspaceCard className="flex flex-col gap-4 px-4 py-4 sm:px-6 xl:p-5 border-0 shadow-none xl:border xl:shadow-sm">
       <h2 className="text-2xl font-semibold text-zinc-900 xl:mb-2">{title}</h2>
@@ -60,9 +99,15 @@ export function RsvpGuestTable({
         <Input
           aria-label={searchPlaceholder}
           placeholder={searchPlaceholder}
+          value={searchValue}
+          onChange={(e) => onSearchChange?.(e.target.value)}
           className="h-9 min-w-0 flex-1 border-zinc-200 text-sm xl:max-w-80"
         />
-        <button className="flex shrink-0 items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-50 transition-colors whitespace-nowrap">
+        <button
+          type="button"
+          onClick={onSortToggle}
+          className="flex shrink-0 items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-50 transition-colors whitespace-nowrap"
+        >
           <Settings2 className="h-3.5 w-3.5" />
           {sortLabel}
         </button>
@@ -97,23 +142,23 @@ export function RsvpGuestTable({
                     {guest.name}
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
-                    {guest.whatsApp}
+                    {guest.whatsAppNumber}
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
                     {guest.email}
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3">
                     <span className="inline-flex items-center rounded-md border border-zinc-300 bg-white px-2.5 py-0.5 text-xs font-medium text-popover-foreground">
-                      {guest.category === "vip" ? "VIP" : "Reguler"}
+                      {guest.guestInvitationCategory}
                     </span>
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3">
-                    <WorkspaceBadge tone={resolveAttendanceTone(guest.attendance)} className="text-popover-foreground">
-                      {resolveAttendanceLabel(guest.attendance)}
+                    <WorkspaceBadge tone={resolveStatusTone(guest.status)} className="text-popover-foreground">
+                      {statusLabel(guest.status)}
                     </WorkspaceBadge>
                   </td>
                   <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
-                    {guest.guestCount} orang
+                    {guest.totalAttendee} orang
                   </td>
                 </tr>
               ))}
@@ -123,21 +168,13 @@ export function RsvpGuestTable({
 
         {/* Desktop: footer inside bordered container */}
         <div className="hidden lg:block">
-          <WorkspaceTableFooter
-            selectionLabel={selectionLabel}
-            rowsPerPageLabel={rowsPerPageLabel}
-            pageLabel={pageLabel}
-          />
+          <WorkspaceTableFooter {...footerProps} />
         </div>
       </div>
 
       {/* Mobile: footer outside bordered container */}
       <div className="lg:hidden">
-        <WorkspaceTableFooter
-          selectionLabel={selectionLabel}
-          rowsPerPageLabel={rowsPerPageLabel}
-          pageLabel={pageLabel}
-        />
+        <WorkspaceTableFooter {...footerProps} />
       </div>
     </WorkspaceCard>
   )

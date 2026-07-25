@@ -1,6 +1,5 @@
 import type {
   GuestMessage,
-  InvitationAddOn,
   InvitationWorkspaceData,
   InvitationWorkspaceGuest,
 } from "@/lib/types/invitation-workspace"
@@ -151,42 +150,6 @@ const messageRows: GuestMessage[] = [
   },
 ]
 
-const addOns: InvitationAddOn[] = [
-  {
-    id: "instagram-filter",
-    title: "Instagram Filter & Add Yours",
-    subtitle: "Jadikan pernikahanmu viral!",
-    description:
-      "Filter Instagram khusus dan template Add Yours agar tamu dapat berbagi momen secara instan.",
-    price: 10000,
-    status: "active",
-    accent: "instagram",
-    ctaLabel: "Atur Sekarang",
-  },
-  {
-    id: "multi-language",
-    title: "Multi-language Invitation",
-    subtitle: "Buat setiap tamu merasa dilibatkan",
-    description:
-      "Terjemahkan undangan Anda untuk tamu internasional dan buat komunikasi menjadi mudah.",
-    price: 10000,
-    status: "locked",
-    accent: "language",
-    ctaLabel: "Beli sekarang!",
-  },
-  {
-    id: "gallery-momenia",
-    title: "Gallery Momenia",
-    subtitle: "Galeri kenangan interaktif",
-    description:
-      "Buat galeri momen pernikahan yang indah dengan foto, musik, dan alur cerita.",
-    price: 10000,
-    status: "locked",
-    accent: "gallery",
-    ctaLabel: "Beli sekarang!",
-  },
-]
-
 export function getInvitationWorkspaceData(
   invitationId: string,
   locale: string,
@@ -230,6 +193,5 @@ export function getInvitationWorkspaceData(
       message:
         "Thank you for celebrating our special day. Here is the photo gallery and our after party note for you.",
     },
-    addOns,
   }
 }

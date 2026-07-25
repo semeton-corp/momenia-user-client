@@ -2,14 +2,12 @@
 
 import { useState, type ComponentType, type CSSProperties } from "react"
 import {
-  Blocks,
   House,
   LayoutDashboard,
   MailOpen,
   MessageSquareText,
   NotebookText,
   PencilLine,
-  ShoppingBag,
   Users,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -59,8 +57,6 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
     { key: "rsvp",      href: `${basePath}/rsvp`,     icon: MailOpen,        dividerAfter: true },
     { key: "notes",     href: `${basePath}/notes`,    icon: NotebookText },
     { key: "messages",  href: `${basePath}/messages`, icon: MessageSquareText },
-    { key: "gifts",     href: `${basePath}/gifts`,    icon: ShoppingBag,     dividerAfter: true },
-    { key: "addOns",    href: `${basePath}/add-ons`,  icon: Blocks },
   ]
 
   const sidebarHeight = scale > 0 && scale < 1 ? `${100 / scale}vh` : "100vh"
@@ -127,51 +123,50 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
         </nav>
       </aside>
 
-      {/* ── Mobile: fixed bottom bar (scrollable, bigger items) ── */}
+      {/* ── Mobile: fixed bottom bar — proporsi disamakan persis dengan
+          DashboardMobileNav (tinggi 90px + padding aman gesture-bar iPhone,
+          supaya tidak mepet ke tepi bawah layar). Item pakai flex-1 supaya
+          mengisi penuh lebar layar secara proporsional, bukan discroll. ── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
-        style={{
-          background: "#FAFAFA",
-          borderTop: "1.5px solid #E5E5E5",
-          height: "72px",
-        }}
+        className="fixed inset-x-0 bottom-0 z-40 flex h-[90px] items-stretch border-t border-zinc-200 bg-white px-1 lg:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div
-          className="flex h-full items-center gap-1 overflow-x-auto px-2"
-          style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as CSSProperties}
-        >
-          {navItems.map(({ key, href, icon: Icon, exact }) => {
-            const isActive = exact
-              ? pathname === href
-              : pathname === href || pathname.startsWith(`${href}/`)
+        {navItems.map(({ key, href, icon: Icon, exact }) => {
+          const isActive = exact
+            ? pathname === href
+            : pathname === href || pathname.startsWith(`${href}/`)
 
-            return (
-              <Link
-                key={key}
-                href={href}
-                onClick={(e) => handleNavClick(e, href)}
-                className="flex shrink-0 flex-col items-center justify-center gap-1 px-3 py-2 transition-all"
+          return (
+            <Link
+              key={key}
+              href={href}
+              onClick={(e) => handleNavClick(e, href)}
+              className="flex flex-1 flex-col items-center justify-center gap-1.5 transition-all"
+            >
+              <div
+                className="flex items-center justify-center transition-all"
+                style={{
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "10px",
+                  background: isActive ? "#4F46E5" : "transparent",
+                }}
               >
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-[14px] transition-all"
-                  style={isActive ? { background: "#4F46E5" } : undefined}
-                >
-                  <Icon
-                    className="h-6 w-6 transition-colors"
-                    style={{ color: isActive ? "white" : "#52525b" }}
-                    strokeWidth={1.8}
-                  />
-                </div>
-                <span
-                  className="whitespace-nowrap text-[10px] font-semibold leading-none"
-                  style={{ color: isActive ? "#4F46E5" : "#71717a" }}
-                >
-                  {t(key)}
-                </span>
-              </Link>
-            )
-          })}
-        </div>
+                <Icon
+                  className="transition-colors"
+                  style={{ width: "26px", height: "26px", color: isActive ? "white" : "#52525b" }}
+                  strokeWidth={1.8}
+                />
+              </div>
+              <span
+                className="whitespace-nowrap text-xs font-medium leading-none"
+                style={{ color: isActive ? "#4F46E5" : "#71717a" }}
+              >
+                {t(key)}
+              </span>
+            </Link>
+          )
+        })}
       </nav>
 
       {pendingHref && (

@@ -10,6 +10,7 @@ import GuestManagementPreview from "@/assets/llandingpage/guest-management-previ
 import FrontEnvelope from "@/assets/llandingpage/front-envelope.svg"
 import PromoFrontEnvelope from "@/assets/llandingpage/promotion-front-envelope.svg"
 import { Button } from "@/components/ui/button"
+import { Link } from "@/i18n/navigation"
 
 type PromoContent = {
   readonly badge: string
@@ -246,10 +247,11 @@ export function HeroSection({ promoContent }: HeroSectionProps = {}) {
               className="mt-6 hidden md:mt-8 md:flex"
             >
               <Button
+                asChild
                 variant="secondary"
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 h-12 w-full max-w-[90vw] rounded-[25px] text-base font-semibold shadow-sm md:h-20 md:w-115 md:text-2xl"
               >
-                {t("cta")}
+                <Link href="/login">{t("cta")}</Link>
               </Button>
             </motion.div>
 
@@ -260,10 +262,11 @@ export function HeroSection({ promoContent }: HeroSectionProps = {}) {
               className="mt-6 flex w-full justify-center md:mt-8 md:hidden"
             >
               <Button
+                asChild
                 variant="secondary"
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 flex h-12 w-full max-w-70 rounded-[25px] text-base font-semibold shadow-sm"
               >
-                {t("cta")}
+                <Link href="/login">{t("cta")}</Link>
               </Button>
             </motion.div>
           </>
