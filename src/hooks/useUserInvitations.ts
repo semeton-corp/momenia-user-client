@@ -40,6 +40,7 @@ export const useUpdateUserInvitation = (id: string) => {
         mutationFn: (data: UpdateUserInvitationRequest) => updateUserInvitation(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["user-invitation-detail", id] })
+            queryClient.invalidateQueries({ queryKey: ["user-invitation-dashboard", id] })
             queryClient.invalidateQueries({ queryKey: ["user-invitations"] })
         },
     })
