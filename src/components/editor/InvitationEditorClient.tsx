@@ -11,6 +11,17 @@ import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUse
 import { uploadImage } from "@/lib/api/object-storage/object-storage.service"
 import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
+import { useEditorDirty } from "@/contexts/EditorDirtyContext"
+import { ALL_FONTS, getGoogleFontsUrl } from "@/lib/fonts"
+import { RestoreChangesModal } from "./RestoreChangesModal"
+
+type UnsavedState = {
+  name: string
+  userData: Record<string, string>
+  theme: ThemeDefaults
+  sectionOrder: string[]
+  timestamp: number
+}
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
 
@@ -34,10 +45,14 @@ function buildHtml(
     const stype: SectionType = template.sectionTypes[sec.section_type_id]
     if (!stype) return ""
     let html = stype.html
-    for (const [k, v] of Object.entries(userData)) {
-      html = html.replaceAll(`{{${k}}}`, v || "")
-    }
-    html = html.replace(/\{\{[^}]+\}\}/g, "")
+    const imageFields = new Set(template.schema.fields.filter(f => f.type === "image").map(f => f.key))
+    html = html.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+      const value = userData[key] || ""
+      if (imageFields.has(key)) {
+        return `<img data-field-img="${key}" src="${value}" style="width:100%;height:auto;" />`
+      }
+      return `<span data-field="${key}">${value}</span>`
+    })
     return html
   }
 
@@ -50,7 +65,7 @@ function buildHtml(
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(theme.font_title)}:wght@300;400;600&family=${encodeURIComponent(theme.font_body)}:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="${getGoogleFontsUrl(theme.font_title, theme.font_body)}" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -62,6 +77,46 @@ function buildHtml(
 }
 body{font-family:var(--font-body);background:var(--color-background);color:var(--color-primary);}
 ${allCss}
+@media (min-width: 768px) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  html {
+    background-color: #1a1a1a;
+    background-image: url('${theme.backgroundImage || "/background-default-desktop.png"}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  body {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    flex-direction: row;
+    pointer-events: auto;
+  }
+  #page-cover, #page-main {
+    max-width: 420px;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    z-index: 10;
+    position: relative;
+    pointer-events: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
 </style>
 </head>
 <body>
@@ -87,6 +142,8 @@ window.addEventListener('message', function(e) {
     if(th.color_primary) document.documentElement.style.setProperty('--color-primary', th.color_primary);
     if(th.color_accent)  document.documentElement.style.setProperty('--color-accent',  th.color_accent);
     if(th.color_background) document.documentElement.style.setProperty('--color-background', th.color_background);
+    if(th.font_title) document.documentElement.style.setProperty('--font-title', "'"+th.font_title+"',Georgia,serif");
+    if(th.font_body) document.documentElement.style.setProperty('--font-body', "'"+th.font_body+"',system-ui,sans-serif");
     window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
   }
 });
@@ -165,6 +222,7 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [height, setHeight] = useState(812)
   const loadedRef = useRef(false)
+  const loadedFontsRef = useRef<Set<string>>(new Set())
   const userDataRef = useRef(userData); userDataRef.current = userData
   const themeRef = useRef(theme); themeRef.current = theme
   const activePageRef = useRef(activePage); activePageRef.current = activePage
@@ -190,8 +248,32 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
     return () => iframe.removeEventListener("load", onLoad)
   }, [html])
 
+  const injectFont = (fontName: string) => {
+    const iframe = iframeRef.current
+    if (!iframe || !fontName) return
+    if (loadedFontsRef.current.has(fontName)) return
+
+    const doc = iframe.contentDocument || iframe.contentWindow?.document
+    if (!doc) return
+
+    const isSystem = ["Arial", "Georgia", "Times New Roman", "Courier New", "Verdana", "Trebuchet MS", "Comic Sans MS", "Impact"].includes(fontName)
+    if (isSystem) {
+      loadedFontsRef.current.add(fontName)
+      return
+    }
+
+    const link = doc.createElement("link")
+    link.href = getGoogleFontsUrl(fontName)
+    link.rel = "stylesheet"
+    link.onload = () => { loadedFontsRef.current.add(fontName) }
+    link.onerror = () => { loadedFontsRef.current.add(fontName) }
+    doc.head.appendChild(link)
+  }
+
   useEffect(() => {
     if (!loadedRef.current) return
+    injectFont(theme.font_title)
+    injectFont(theme.font_body)
     iframeRef.current?.contentWindow?.postMessage({ type: "memoriaUpdate", userData, theme }, "*")
   }, [userData, theme])
 
@@ -216,7 +298,7 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
     >
       <iframe
         ref={iframeRef}
-        sandbox="allow-scripts"
+        sandbox="allow-scripts allow-same-origin"
         title="Invitation Preview"
         style={{
           width: 375,
@@ -295,10 +377,9 @@ const SECTION_LABELS: Record<string, string> = {
   details_section: "Event Information",
 }
 
-const FONT_OPTIONS = ["Poppins", "Inter", "Playfair Display", "Jakarta Sans", "Lora", "Montserrat"]
-
 function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; invitationId: string }) {
   const router = useRouter()
+  const { toast } = useToast()
   const { template } = detail
   const { mutate: saveInvitation, isPending: isSaving } = useUpdateUserInvitation(invitationId)
 
@@ -314,6 +395,80 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   const [zoom, setZoom] = useState(1)
   const dragIndexRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+
+  // Snapshot of the last-saved state, used to detect unsaved changes
+  const [savedSnapshot, setSavedSnapshot] = useState(() =>
+    JSON.stringify({ name: detail.name || "", userData: detail.fieldValues ?? {}, theme: template.theme_defaults, sectionOrder: defaultSectionOrder })
+  )
+  const isDirty = useMemo(() => {
+    return JSON.stringify({ name, userData, theme, sectionOrder }) !== savedSnapshot
+  }, [name, userData, theme, sectionOrder, savedSnapshot])
+  const { setIsDirty } = useEditorDirty()
+  useEffect(() => {
+    setIsDirty(isDirty)
+    return () => setIsDirty(false)
+  }, [isDirty, setIsDirty])
+
+  // ── Autosave / restore ──────────────────────────────────────────────────
+  const autosaveKey = `momenia_autosave_${invitationId}`
+  const [unsavedState, setUnsavedState] = useState<UnsavedState | null>(null)
+  const hasCheckedAutosave = useRef(false)
+
+  // On mount: check for a leftover autosave that differs from the last-saved state
+  useEffect(() => {
+    if (hasCheckedAutosave.current) return
+    hasCheckedAutosave.current = true
+    try {
+      const raw = localStorage.getItem(autosaveKey)
+      if (!raw) return
+      const parsed: UnsavedState = JSON.parse(raw)
+      const parsedSnapshot = JSON.stringify({
+        name: parsed.name,
+        userData: parsed.userData,
+        theme: parsed.theme,
+        sectionOrder: parsed.sectionOrder,
+      })
+      if (parsedSnapshot !== savedSnapshot) {
+        setUnsavedState(parsed)
+      } else {
+        localStorage.removeItem(autosaveKey)
+      }
+    } catch {
+      localStorage.removeItem(autosaveKey)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Debounced autosave whenever the form is dirty
+  useEffect(() => {
+    if (!isDirty) return
+    const t = setTimeout(() => {
+      try {
+        const state: UnsavedState = { name, userData, theme, sectionOrder, timestamp: Date.now() }
+        localStorage.setItem(autosaveKey, JSON.stringify(state))
+      } catch {
+        // ignore storage errors (e.g. quota exceeded, private mode)
+      }
+    }, 800)
+    return () => clearTimeout(t)
+  }, [name, userData, theme, sectionOrder, isDirty, autosaveKey])
+
+  const handleRestore = (state: UnsavedState) => {
+    setName(state.name)
+    setUserData(state.userData)
+    setTheme(state.theme)
+    setSectionOrder(state.sectionOrder)
+    setUnsavedState(null)
+  }
+
+  const handleDiscardAutosave = () => {
+    try {
+      localStorage.removeItem(autosaveKey)
+    } catch {
+      // ignore
+    }
+    setUnsavedState(null)
+  }
 
   const activePage = template.pages[activePageIdx]?.id ?? "cover"
   const html = useMemo(() => buildHtml(detail, userData, theme, sectionOrder), [detail, sectionOrder, template])
@@ -352,12 +507,29 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
       ),
     }
 
+    // Use pathUrl as slug, or generate from name as fallback
+    const slug = detail.pathUrl || name.toLowerCase().replace(/\s+/g, "-")
+
+    if (!slug) {
+      toast("Error: Please enter an invitation name", "error")
+      return
+    }
+
     saveInvitation({
       name: name,
-      slug: detail.pathUrl || "budi-joko",
+      slug: slug,
       fieldValues: userData,
       status: detail.status,
       template: updatedTemplate,
+    }, {
+      onSuccess: () => {
+        setSavedSnapshot(JSON.stringify({ name, userData, theme, sectionOrder }))
+        try {
+          localStorage.removeItem(autosaveKey)
+        } catch {
+          // ignore
+        }
+      },
     })
   }
 
@@ -393,7 +565,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     <div className="fixed inset-x-0 top-15 bottom-0 z-30 flex flex-col gap-4 overflow-hidden bg-zinc-50 p-4 sm:p-6 lg:left-24 lg:top-0">
       {/* ── Top bar ── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0 pl-6">
           <div className="flex items-center gap-2">
             {isEditingName ? (
               <input
@@ -432,7 +604,19 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         <div className="flex items-center gap-2">
           <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50"><Undo2 className="h-4 w-4" /></button>
           <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50"><Redo2 className="h-4 w-4" /></button>
-          <button className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"><Eye className="h-4 w-4" />Preview</button>
+          <button
+            onClick={() => {
+              const htmlContent = buildHtml(detail, userData, theme, sectionOrder)
+              const newWindow = window.open("", "_blank")
+              if (newWindow) {
+                newWindow.document.write(htmlContent)
+                newWindow.document.close()
+              }
+            }}
+            className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          >
+            <Eye className="h-4 w-4" />Preview
+          </button>
           <button onClick={handleSave} disabled={isSaving} className="flex h-10 items-center gap-2 rounded-lg bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
             {isSaving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Save className="h-4 w-4" />}
             Save
@@ -456,7 +640,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 <div className="flex items-center gap-2">
                   <select value={theme.font_title} onChange={(e) => setTheme((p) => ({ ...p, font_title: e.target.value }))}
                     className="flex-1 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none">
-                    {FONT_OPTIONS.map((f) => <option key={f}>{f}</option>)}
+                    {ALL_FONTS.map((f) => <option key={f}>{f}</option>)}
                   </select>
                   <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-sm font-bold" style={{ fontFamily: theme.font_title }}>Ag</span>
                 </div>
@@ -466,7 +650,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 <div className="flex items-center gap-2">
                   <select value={theme.font_body} onChange={(e) => setTheme((p) => ({ ...p, font_body: e.target.value }))}
                     className="flex-1 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none">
-                    {FONT_OPTIONS.map((f) => <option key={f}>{f}</option>)}
+                    {ALL_FONTS.map((f) => <option key={f}>{f}</option>)}
                   </select>
                   <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-sm" style={{ fontFamily: theme.font_body }}>Ag</span>
                 </div>
@@ -475,20 +659,22 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
             <Section title="Colors" icon={<Palette className="h-4 w-4 text-indigo-500" />}>
               {swatch("color_primary", "Primary")}
-              {swatch("color_accent", "Secondary")}
+              {swatch("color_background", "Secondary")}
               {swatch("color_accent", "Accent")}
             </Section>
 
-            <Section title="Music" icon={<Music className="h-4 w-4 text-indigo-500" />} defaultOpen={false}>
-              <div className="flex items-center gap-3 rounded-xl border border-zinc-200 p-2">
-                <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white"><Play className="h-4 w-4" /></button>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-zinc-800">Promise - Laufey</p>
-                  <p className="text-xs text-zinc-400">03:54</p>
+            {process.env.NEXT_PUBLIC_FEATURE_MUSIC === "true" && (
+              <Section title="Music" icon={<Music className="h-4 w-4 text-indigo-500" />} defaultOpen={false}>
+                <div className="flex items-center gap-3 rounded-xl border border-zinc-200 p-2">
+                  <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white"><Play className="h-4 w-4" /></button>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-zinc-800">Promise - Laufey</p>
+                    <p className="text-xs text-zinc-400">03:54</p>
+                  </div>
+                  <button className="text-zinc-400 hover:text-zinc-600"><X className="h-4 w-4" /></button>
                 </div>
-                <button className="text-zinc-400 hover:text-zinc-600"><X className="h-4 w-4" /></button>
-              </div>
-            </Section>
+              </Section>
+            )}
 
             <Section title="Content List" icon={<ListOrdered className="h-4 w-4 text-indigo-500" />}>
               <p className="-mt-2 mb-1 text-xs text-zinc-400">Drag and drop to reorder section</p>
@@ -584,6 +770,15 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           </div>
         </div>
       </div>
+
+      {unsavedState && (
+        <RestoreChangesModal
+          unsavedState={unsavedState}
+          detail={detail}
+          onRestore={handleRestore}
+          onDiscard={handleDiscardAutosave}
+        />
+      )}
     </div>
   )
 }
