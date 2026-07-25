@@ -3,7 +3,7 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import Image from "next/image"
-import { Heart, Star, Smartphone, Monitor, Eye, X, ArrowLeft } from "lucide-react"
+import { Heart, Smartphone, Monitor, Eye, X, ArrowLeft } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 import { useTranslations, useLocale } from "next-intl"
 
@@ -19,11 +19,11 @@ export type TemplateDetail = {
   title: string
   categoryLabel: string
   tags: string[]
-  rating: number
-  reviewCount: number
   price: number
   originalPrice?: number
   imageUrl: string
+  /** Screenshot khusus tampilan desktop — fallback ke imageUrl kalau backend belum kirim. */
+  desktopImageUrl?: string
   description: string
 }
 
@@ -121,6 +121,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                         src={template.imageUrl}
                         alt={template.title}
                         fill
+                        quality={90}
                         className="object-cover"
                         sizes="270px"
                       />
@@ -138,9 +139,10 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                     style={{ height: "526px" }}
                   >
                     <Image
-                      src={template.imageUrl}
+                      src={template.desktopImageUrl || template.imageUrl}
                       alt={template.title}
                       fill
+                      quality={90}
                       className="object-cover"
                       sizes="270px"
                     />
@@ -301,34 +303,6 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   ))}
                 </div>
 
-                {/* Rating */}
-                <div className="flex shrink-0 items-center" style={{ marginBottom: "16px" }}>
-                  <div className="flex items-center">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <Star
-                        key={i}
-                        style={{ width: "20px", height: "20px" }}
-                        className={cn(
-                          i < template.rating
-                            ? "fill-amber-500 text-amber-500"
-                            : "fill-zinc-200 text-zinc-200"
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <span
-                    style={{
-                      marginLeft: "10px",
-                      fontSize: "16px",
-                      fontWeight: 400,
-                      lineHeight: "24px",
-                      color: "var(--muted-foreground)",
-                    }}
-                  >
-                    ({template.reviewCount})
-                  </span>
-                </div>
-
                 {/* Price */}
                 <div className="flex shrink-0 items-center" style={{ marginBottom: "26px" }}>
                   <span
@@ -480,7 +454,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                         className="absolute overflow-hidden"
                         style={{ left: "2.593%", right: "2.593%", top: "1.331%", bottom: "1.331%", borderRadius: "28px" }}
                       >
-                        <Image src={template.imageUrl} alt={template.title} fill className="object-cover" sizes="150px" />
+                        <Image src={template.imageUrl} alt={template.title} fill quality={90} className="object-cover" sizes="150px" />
                       </div>
                       <Image src={MobileFrame} alt="" fill className="pointer-events-none object-contain" />
                     </div>
@@ -489,7 +463,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                       className="relative w-[150px] shrink-0 overflow-hidden rounded-lg ring-4 ring-zinc-800"
                       style={{ height: "292px" }}
                     >
-                      <Image src={template.imageUrl} alt={template.title} fill className="object-cover" sizes="150px" />
+                      <Image src={template.desktopImageUrl || template.imageUrl} alt={template.title} fill quality={90} className="object-cover" sizes="150px" />
                     </div>
                   )}
                 </div>
@@ -528,38 +502,24 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   </button>
                 </div>
 
-                {/* Rating + Price */}
-                <div className="mt-4 flex shrink-0 items-start justify-between">
-                  <div className="flex items-center">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <Star
-                        key={i}
-                        style={{ width: "16px", height: "16px" }}
-                        className={cn(i < template.rating ? "fill-amber-500 text-amber-500" : "fill-zinc-200 text-zinc-200")}
-                      />
-                    ))}
-                    <span style={{ marginLeft: "8px", fontSize: "14px", color: "var(--muted-foreground)" }}>
-                      ({template.reviewCount})
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span style={{ fontSize: "18px", fontWeight: 700, lineHeight: "24px", color: "var(--primary)" }}>
-                      Rp {template.price.toLocaleString("id-ID")}
-                    </span>
-                    {!!template.originalPrice && (
+                {/* Price */}
+                <div className="mt-4 flex shrink-0 items-center" style={{ gap: "8px" }}>
+                  <span style={{ fontSize: "18px", fontWeight: 700, lineHeight: "24px", color: "var(--primary)" }}>
+                    Rp {template.price.toLocaleString("id-ID")}
+                  </span>
+                  {!!template.originalPrice && (
+                    <span
+                      className="relative"
+                      style={{ fontSize: "14px", fontWeight: 400, lineHeight: "20px", color: "var(--muted-foreground)" }}
+                    >
+                      Rp {template.originalPrice.toLocaleString("id-ID")}
                       <span
-                        className="relative"
-                        style={{ fontSize: "14px", fontWeight: 400, lineHeight: "20px", color: "var(--muted-foreground)" }}
-                      >
-                        Rp {template.originalPrice.toLocaleString("id-ID")}
-                        <span
-                          aria-hidden
-                          className="pointer-events-none absolute inset-0"
-                          style={{ background: "linear-gradient(-9.37deg, transparent calc(50% - 1px), var(--destructive) 50%, transparent calc(50% + 1px))" }}
-                        />
-                      </span>
-                    )}
-                  </div>
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0"
+                        style={{ background: "linear-gradient(-9.37deg, transparent calc(50% - 1px), var(--destructive) 50%, transparent calc(50% + 1px))" }}
+                      />
+                    </span>
+                  )}
                 </div>
 
                 {/* Style chips */}

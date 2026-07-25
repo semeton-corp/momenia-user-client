@@ -142,13 +142,13 @@ export function GuestAddForm({
       <div className="mt-4 rounded-[10px] border border-zinc-200 p-5">
         <div className="space-y-5">
           {/* Nama Lengkap */}
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             <label className="text-sm font-medium text-zinc-700">{nameLabel}</label>
             <Input placeholder="John Doe" className="h-11 rounded-xl border-zinc-200" />
           </div>
 
           {/* WhatsApp */}
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             <label className="text-sm font-medium text-zinc-700">{whatsAppLabel}</label>
             <div className="flex gap-2">
               <Input
@@ -161,13 +161,13 @@ export function GuestAddForm({
           </div>
 
           {/* Email */}
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             <label className="text-sm font-medium text-zinc-700">{emailLabel}</label>
             <Input placeholder="johndoe@gmail.com" className="h-11 rounded-xl border-zinc-200" />
           </div>
 
           {/* Kategori */}
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             <label className="text-sm font-medium text-zinc-700">{categoryLabel}</label>
             <CategorySelect
               placeholder={chooseCategoryLabel}

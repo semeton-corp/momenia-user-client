@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server"
 import { GuestsManagementTable } from "@/components/dashboard/invitation/GuestsManagementTable"
 import { GuestAddForm } from "@/components/dashboard/invitation/GuestAddForm"
+import { GuestMessageTemplateCard } from "@/components/dashboard/invitation/GuestMessageTemplateCard"
 import { InvitationWorkspaceHeader } from "@/components/dashboard/invitation/InvitationWorkspaceHeader"
 import { getInvitationWorkspaceData } from "@/lib/mocks/invitation-workspace"
 
@@ -17,6 +18,21 @@ export default async function GuestsPage({ params }: Props) {
     <div className="space-y-6 xl:space-y-10 xl:pl-8 xl:pt-6">
       <div className="hidden xl:block">
         <InvitationWorkspaceHeader title={t("guests.title")} subtitle={data.title} />
+      </div>
+
+      <div className="min-w-0 -mx-4 sm:-mx-6 xl:mx-0">
+        <GuestMessageTemplateCard
+          title={t("guests.messageTemplate.title")}
+          defaultBody={t("guests.messageTemplate.defaultBody")}
+          helperText={t("guests.messageTemplate.helperText")}
+          saveLabel={t("guests.messageTemplate.save")}
+          savedToast={t("guests.messageTemplate.savedToast")}
+          variableLabels={{
+            guestName: t("guests.messageTemplate.variables.guestName"),
+            eventName: t("guests.messageTemplate.variables.eventName"),
+            link: t("guests.messageTemplate.variables.link"),
+          }}
+        />
       </div>
 
       <div className="grid gap-6 xl:gap-9 xl:grid-cols-[minmax(0,1fr)_420px]">

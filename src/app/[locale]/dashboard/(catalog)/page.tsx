@@ -11,6 +11,7 @@ import { useInvitationTemplateCategories, useInvitationTemplateDetail, useInvita
 import { templateCategoryName, type GetTemplatesParams, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
 import { useAuthGate } from "@/components/dashboard/DashboardAuthGate"
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
+import { formatLabel } from "@/lib/utils"
 
 const ALL_STYLES_ID = "all"
 const ALL_CATEGORIES = ""
@@ -29,13 +30,12 @@ function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): Temp
   return {
     id: data.id,
     title: data.name,
-    categoryLabel: data.category.name,
-    tags: data.tags.map((t) => t.name),
-    rating: 5,
-    reviewCount: 0,
+    categoryLabel: formatLabel(data.category.name),
+    tags: data.tags.map((t) => formatLabel(t.name)),
     price: parseFloat(data.priceAfterDiscount),
     originalPrice: data.price !== data.priceAfterDiscount ? parseFloat(data.price) : undefined,
     imageUrl: data.mobileThumbnail,
+    desktopImageUrl: data.desktopThumbnail,
     description: locale === "id" ? data.descriptionIdn : data.descriptionEn,
   }
 }
@@ -76,7 +76,7 @@ export default function DashboardPage() {
 
   const categoryOptions = [
     { value: ALL_CATEGORIES, label: tBanner("allCategories") },
-    ...templateCategories.map((c) => ({ value: String(c.id), label: c.name })),
+    ...templateCategories.map((c) => ({ value: String(c.id), label: formatLabel(c.name) })),
   ]
   const sortOptions = SORT_OPTIONS.map((o) => ({ value: o.value, label: tBanner(`sortOptions.${o.key}`) }))
 
@@ -171,7 +171,7 @@ export default function DashboardPage() {
                 {templateTags.map((tag) => (
                   <StyleTag
                     key={tag.id}
-                    label={tag.name}
+                    label={formatLabel(tag.name)}
                     active={selectedTagIds.includes(tag.id)}
                     onClick={() => toggleTag(tag.id)}
                   />
@@ -203,7 +203,7 @@ export default function DashboardPage() {
                   key={template.id}
                   id={template.id}
                   title={template.name}
-                  category={templateCategoryName(template.category)}
+                  category={formatLabel(templateCategoryName(template.category))}
                   price={parseFloat(template.priceAfterDiscount)}
                   originalPrice={template.price !== template.priceAfterDiscount ? parseFloat(template.price) : undefined}
                   imageUrl={template.mobileThumbnail}
