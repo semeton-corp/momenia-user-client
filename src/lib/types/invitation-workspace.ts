@@ -2,8 +2,6 @@ export type GuestCategory = "vip" | "regular"
 
 export type AttendanceStatus = "attending" | "declined" | "pending"
 
-export type AddOnStatus = "active" | "locked"
-
 export type InvitationCountdown = {
   days: number
   hours: number
@@ -52,18 +50,6 @@ export type AfterPartyNote = {
   message: string
 }
 
-export type InvitationAddOn = {
-  id: string
-  title: string
-  subtitle: string
-  description: string
-  price: number
-  status: AddOnStatus
-  accent: "instagram" | "language" | "gallery"
-  ctaLabel: string
-  secondaryLabel?: string
-}
-
 export type InvitationWorkspaceData = {
   id: string
   title: string
@@ -78,7 +64,6 @@ export type InvitationWorkspaceData = {
   guests: InvitationWorkspaceGuest[]
   messages: GuestMessage[]
   afterPartyNote: AfterPartyNote
-  addOns: InvitationAddOn[]
 }
 
 export type MyInvitationStatus = "published" | "draft" | "expired"

@@ -17,6 +17,7 @@
       "home": "Beranda",
       "about": "Tentang",
       "features": "Fitur",
+      "catalog": "Katalog",
       "review": "Ulasan",
       "faq": "FAQ"
     },
@@ -24,7 +25,9 @@
     "sheetLabel": "Navigasi",
     "language": "Bahasa",
     "signUp": "Daftar",
-    "login": "Masuk"
+    "login": "Masuk",
+    "dashboard": "Dashboard",
+    "logout": "Keluar"
   },
   "landing": {
     "hero": {
@@ -143,6 +146,8 @@
       },
       "empty": "Belum ada template favorit.",
       "loadError": "Gagal memuat favorit. Periksa koneksi kamu.",
+      "addedToast": "Ditambahkan ke favorit",
+      "removedToast": "Dihapus dari favorit",
       "unfavouriteDialog": {
         "title": "Hapus dari Favorit",
         "description": "Apakah kamu yakin ingin menghapus template ini dari favoritmu?",
@@ -293,9 +298,7 @@
         "guests": "Tamu",
         "rsvp": "RSVP",
         "notes": "Catatan",
-        "messages": "Ucapan",
-        "gifts": "Hadiah",
-        "addOns": "Add Ons"
+        "messages": "Ucapan"
       },
       "common": {
         "vip": "VIP",
@@ -365,12 +368,14 @@
       "overview": {
         "title": "Dashboard Invitation",
         "publishNow": "Publish Sekarang",
+        "published": "Telah Ter-Publish",
+        "notActiveWarning": "Durasi belum aktif, publish undangan terlebih dahulu",
         "editTemplate": "Edit Template",
+        "editTemplateSubtitle": "Sesuaikan tampilan dan layout",
         "manageGuests": "Kelola Tamu",
+        "manageGuestsSubtitle": "Atur daftar hadir dan undangan",
         "guestStatsTitle": "Statistik Tamu",
         "invitationLink": "Link Undangan",
-        "messageTemplateTitle": "Template Pesan Untuk Tamu",
-        "generateText": "Generate Invitation Text",
         "countdownUnits": {
           "days": "Hari",
           "hours": "Jam",
@@ -399,6 +404,18 @@
           "category": "Kategori",
           "chooseCategory": "Pilih kategori",
           "categoryHint": "Silakan sesuaikan kategori"
+        },
+        "messageTemplate": {
+          "title": "Template Pesan Untuk Tamu",
+          "defaultBody": "Dengan penuh kebahagiaan, kami mengundang {{guestName}} untuk menghadiri upacara pernikahan:\n{{eventName}}\n\nSilakan melihat detail lengkap acara melalui tautan berikut:\n{{link}}\n\nMerupakan suatu kehormatan bagi kami apabila Anda berkenan hadir.\nTerima kasih 🙏",
+          "helperText": "Klik variabel untuk menyisipkan ke dalam template pesan.",
+          "save": "Simpan",
+          "savedToast": "Template pesan berhasil disimpan",
+          "variables": {
+            "guestName": "Nama Tamu",
+            "eventName": "Nama Acara",
+            "link": "Link"
+          }
         }
       },
       "rsvp": {
@@ -429,11 +446,6 @@
         "recipientTitle": "Pilih Tamu dan Kirim",
         "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan after party Anda."
       },
-      "addOns": {
-        "title": "Add Ons",
-        "active": "ACTIVE",
-        "locked": "LOCKED"
-      },
       "edit": {
         "title": "Edit Template",
         "subtitle": "Atur informasi utama undangan dan status publikasinya.",
@@ -445,16 +457,13 @@
         "colorLabel": "Aksen Warna",
         "previewTitle": "Status Preview",
         "previewDescription": "Preview masih memakai mock data, tetapi struktur page dan komponennya sudah siap untuk integrasi selanjutnya."
-      },
-      "gifts": {
-        "title": "Hadiah",
-        "summaryTitle": "Metode Hadiah",
-        "summaryDescription": "Kelola metode hadiah digital yang akan tampil di halaman undangan.",
-        "bankTransfer": "Transfer Bank",
-        "digitalWallet": "Dompet Digital",
-        "shippingGift": "Pengiriman Hadiah",
-        "comingSoon": "Integrasi checkout hadiah akan disambungkan setelah API siap."
       }
     }
+  },
+  "notFound": {
+    "title": "Oops!",
+    "heading": "Halaman tidak ditemukan.",
+    "description": "Halaman yang kamu cari mungkin telah dipindahkan, dihapus, atau memang tidak pernah ada.",
+    "backToDashboard": "Kembali ke Dashboard"
   }
 }
