@@ -1,11 +1,13 @@
 "use client"
 
-import { BookOpenCheck, Copy, PencilLine, WandSparkles } from "lucide-react"
+import * as React from "react"
+import { BookOpenCheck, Copy, MessageSquareText, Palette, PencilLine, SquarePen, TableProperties, UserPlus, Users } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
 import { DonutChart } from "@/components/dashboard/invitation/DonutChart"
 import { InvitationPhonePreview } from "@/components/dashboard/invitation/InvitationPhonePreview"
+import { WorkspaceActionCard } from "@/components/dashboard/invitation/WorkspaceActionCard"
 import { WorkspaceCard } from "@/components/dashboard/invitation/WorkspaceCard"
 import { typography } from "@/lib/typography"
 import { useUserInvitationDashboard } from "@/hooks/useUserInvitations"
@@ -32,6 +34,10 @@ type Props = {
 export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const t = useTranslations("dashboard.workspace")
   const { data, isLoading } = useUserInvitationDashboard(invitationId)
+  // UI-only untuk sekarang (belum disambungkan ke API publish sungguhan) —
+  // begitu ditekan, tombol jadi non-aktif & status berubah dari peringatan
+  // merah ke tanggal aktif berwarna biru.
+  const [isPublished, setIsPublished] = React.useState(false)
 
   const basePath = `/dashboard/my-invitation/${invitationId}`
 
@@ -58,23 +64,26 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const declined = data?.declinedCount ?? mock.stats.declined
   const pending = data?.pendingCount ?? mock.stats.pending
   const pathUrl = data?.pathUrl || mock.invitationLink.slug
-  const messageTemplate = data?.messageTemplate || mock.messageTemplate
   const eventDateLabel = eventDate
     ? new Date(eventDate).toLocaleDateString(locale === "id" ? "id-ID" : "en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
     : mock.eventDateLabel
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-8 xl:gap-32 xl:grid-cols-[420px_minmax(0,1fr)] mt-16">
+      <div className="grid gap-8 xl:gap-20 xl:grid-cols-[336px_minmax(0,1fr)] xl:mt-6">
 
         {/* ── Left: Phone Preview ── */}
-        <div className="ml-6">
+        <div className="xl:ml-6">
           <InvitationPhonePreview
             imageUrl={previewImage}
             title={title}
             planName={planName}
             activeUntilLabel={activeUntilLabel}
             publishLabel={t("overview.publishNow")}
+            publishedLabel={t("overview.published")}
+            notActiveWarning={t("overview.notActiveWarning")}
+            isPublished={isPublished}
+            onPublish={() => setIsPublished(true)}
             editLabel={t("overview.editTemplate")}
             guestsLabel={t("overview.manageGuests")}
             editHref={`${basePath}/edit`}
@@ -83,19 +92,20 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
         </div>
 
         {/* ── Right: Content ── */}
-        <div className="flex flex-col gap-3 xl:gap-0">
+        <div className="flex flex-col gap-4 xl:gap-0">
 
-          {/* Title + Date */}
-          <div className="flex items-start justify-between gap-2">
+          {/* Title + Date — cuma tampil desktop, di mobile tanggal event
+              sudah terwakili lewat foto preview & tanggal countdown di bawah */}
+          <div className="hidden items-start justify-between gap-2 xl:flex">
             <div className="flex-1">
-              <h2 className={`hidden ${typography["5xl"].semibold} text-zinc-900 lg:block`}>
+              <h2 className={`${typography["5xl"].semibold} text-zinc-900`}>
                 {title}
               </h2>
-              <p className={`text-center ${typography["2xl"].regular} lg:text-left xl:mt-16`} style={{ color: "var(--semantic-border)" }}>
+              <p className={`${typography["2xl"].regular} xl:mt-16`} style={{ color: "var(--semantic-border)" }}>
                 {eventDateLabel}
               </p>
             </div>
-            <Button asChild variant="ghost" size="icon" className="hidden h-9 w-9 shrink-0 rounded-full text-zinc-400 hover:text-zinc-600 lg:flex">
+            <Button asChild variant="ghost" size="icon" className="h-9 w-9 shrink-0 rounded-full text-zinc-400 hover:text-zinc-600">
               <Link href={`${basePath}/edit`} aria-label={t("overview.editTemplate")}>
                 <PencilLine className="h-4 w-4" />
               </Link>
@@ -103,7 +113,10 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
           </div>
 
           {/* Countdown */}
-          <WorkspaceCard className="border-0 shadow-none xl:border xl:shadow-sm p-4 sm:p-5 xl:p-0 xl:mt-8">
+          <WorkspaceCard className="border-0 shadow-none xl:border xl:shadow-sm p-4 pt-3 sm:p-5 xl:p-0 xl:mt-8">
+            <p className="mb-3 text-center text-lg font-normal xl:hidden" style={{ color: "var(--semantic-border)" }}>
+              {eventDateLabel}
+            </p>
             <div className="grid grid-cols-4 xl:h-[136px]">
               {[
                 { key: "days",    value: countdown.days },
@@ -112,7 +125,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                 { key: "seconds", value: countdown.seconds },
               ].map((item) => (
                 <div key={item.key} className="flex flex-col items-center justify-center py-3 text-center sm:py-4 xl:py-0">
-                  <p className={typography["5xl"].medium} style={{ color: "var(--indigo-deep)" }}>
+                  <p className={`text-2xl font-semibold leading-none sm:text-4xl xl:${typography["5xl"].medium}`} style={{ color: "var(--indigo-deep)" }}>
                     {item.value}
                   </p>
                   <p className={`mt-1.5 ${typography.xl.regular} sm:mt-2`} style={{ color: "var(--foreground)" }}>
@@ -123,9 +136,12 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             </div>
           </WorkspaceCard>
 
+          {/* Divider — mobile only, desktop pakai xl:mt-8 di section berikutnya */}
+          <div className="h-px w-full xl:hidden" style={{ background: "var(--border)" }} />
+
           {/* Guest Stats */}
-          <div className="space-y-5 xl:space-y-8 xl:mt-8">
-            <h3 className={`text-center ${typography["2xl"].regular} lg:text-left`} style={{ color: "var(--semantic-border)" }}>
+          <div className="space-y-4 xl:space-y-8 xl:mt-8">
+            <h3 className="text-center text-lg font-normal xl:text-left xl:text-2xl" style={{ color: "var(--semantic-border)" }}>
               {t("overview.guestStatsTitle")}
             </h3>
 
@@ -159,7 +175,10 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                     ))}
                   </div>
 
-                  <Button asChild className="h-12 w-full justify-start rounded-xl gap-3 p-4 text-sm font-semibold sm:text-base xl:h-16 xl:p-4 xl:text-xl xl:font-semibold">
+                  <Button
+                    asChild
+                    className="h-12 w-full justify-start gap-3 rounded-[10px] border border-primary bg-white px-4 text-sm font-semibold text-primary hover:bg-primary/5 hover:text-primary sm:text-base xl:h-16 xl:rounded-xl xl:border-0 xl:bg-primary xl:p-4 xl:text-xl xl:font-semibold xl:text-primary-foreground xl:hover:bg-primary/90 xl:hover:text-primary-foreground"
+                  >
                     <Link href={`${basePath}/rsvp`}>
                       <BookOpenCheck className="h-5 w-5 xl:h-8 xl:w-8" />
                       {t("sidebar.rsvp")}
@@ -170,8 +189,11 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             </WorkspaceCard>
           </div>
 
+          {/* Divider — mobile only, desktop pakai xl:mt-8 di section berikutnya */}
+          <div className="h-px w-full xl:hidden" style={{ background: "var(--border)" }} />
+
           {/* Invitation Link */}
-          <div className="space-y-3 xl:mt-8">
+          <div className="space-y-4 xl:mt-8 xl:space-y-3">
             <div className="hidden xl:flex xl:items-center xl:justify-between xl:gap-2">
               <h3 className={typography["2xl"].regular} style={{ color: "var(--semantic-border)" }}>
                 {t("overview.invitationLink")}
@@ -188,7 +210,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
               </div>
             </div>
 
-            <h3 className={`text-center ${typography["2xl"].regular} xl:hidden`} style={{ color: "var(--semantic-border)" }}>
+            <h3 className="text-center text-lg font-normal xl:hidden" style={{ color: "var(--semantic-border)" }}>
               {t("overview.invitationLink")}
             </h3>
 
@@ -216,36 +238,28 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             </div>
           </div>
 
-          {/* Message Template */}
-          <div className="space-y-3 xl:mt-8">
-            <h3 className={`text-center ${typography["2xl"].regular} xl:text-left`} style={{ color: "var(--semantic-border)" }}>
-              {t("overview.messageTemplateTitle")}
-            </h3>
-
-            <textarea
-              placeholder={messageTemplate}
-              className="min-h-32 w-full resize-none rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-700 shadow-sm outline-none placeholder:text-zinc-400 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 sm:min-h-40 sm:px-4 sm:py-3"
+          {/* Edit Template / Kelola Tamu — dulu tombol ini ada di kolom kiri
+              (bawah Publish Sekarang) & ada bagian "Template Pesan" di sini;
+              sekarang digabung jadi 2 kartu besar berdampingan di sini.
+              Versi mobile tetap pakai tombol outline di InvitationPhonePreview
+              (di bawah foto), jadi baris ini cuma tampil di desktop. */}
+          <div className="hidden gap-4 xl:mt-8 xl:grid xl:grid-cols-2">
+            <WorkspaceActionCard
+              href={`${basePath}/edit`}
+              icon={SquarePen}
+              topBadgeIcon={Palette}
+              bottomBadgeIcon={TableProperties}
+              title={t("overview.editTemplate")}
+              subtitle={t("overview.editTemplateSubtitle")}
             />
-
-            <div className="mt-3 flex items-center gap-2 xl:hidden">
-              <Button className="h-11 flex-1 gap-2 rounded-xl text-sm font-semibold">
-                <WandSparkles className="h-4 w-4" />
-                {t("overview.generateText")}
-              </Button>
-              <Button variant="outline" className="h-11 rounded-xl border-zinc-200 px-5 text-sm">
-                {t("common.save")}
-              </Button>
-            </div>
-
-            <div className="mt-3 hidden items-center justify-end gap-2 xl:flex">
-              <Button size="sm" className="h-9 w-[217px] gap-1.5 rounded-md text-sm font-medium" style={{ background: "var(--primary)" }}>
-                <WandSparkles className="h-3.5 w-3.5" />
-                {t("overview.generateText")}
-              </Button>
-              <Button size="sm" className="h-9 rounded-md px-4 text-sm font-medium" style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}>
-                {t("common.save")}
-              </Button>
-            </div>
+            <WorkspaceActionCard
+              href={`${basePath}/guests`}
+              icon={Users}
+              topBadgeIcon={MessageSquareText}
+              bottomBadgeIcon={UserPlus}
+              title={t("overview.manageGuests")}
+              subtitle={t("overview.manageGuestsSubtitle")}
+            />
           </div>
 
         </div>

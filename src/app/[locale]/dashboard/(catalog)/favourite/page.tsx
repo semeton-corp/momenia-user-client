@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useTranslations, useLocale } from "next-intl"
-import { cn } from "@/lib/utils"
+import { cn, formatLabel } from "@/lib/utils"
 import { SortDropdown } from "@/components/dashboard/SortDropdown"
 import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
@@ -33,13 +33,12 @@ function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): Temp
   return {
     id: data.id,
     title: data.name,
-    categoryLabel: data.category.name,
-    tags: data.tags.map((t) => t.name),
-    rating: 5,
-    reviewCount: 0,
+    categoryLabel: formatLabel(data.category.name),
+    tags: data.tags.map((t) => formatLabel(t.name)),
     price: parseFloat(data.priceAfterDiscount),
     originalPrice: data.price !== data.priceAfterDiscount ? parseFloat(data.price) : undefined,
     imageUrl: data.mobileThumbnail,
+    desktopImageUrl: data.desktopThumbnail,
     description: locale === "id" ? data.descriptionIdn : data.descriptionEn,
   }
 }
@@ -66,7 +65,7 @@ export default function FavouritePage() {
   const realCards: FavCard[] = (favouritesData?.data ?? []).map((tpl) => ({
     id: tpl.id,
     name: tpl.name,
-    category: templateCategoryName(tpl.category),
+    category: formatLabel(templateCategoryName(tpl.category)),
     priceAfterDiscount: tpl.priceAfterDiscount,
     price: tpl.price,
     mobileThumbnail: tpl.mobileThumbnail,

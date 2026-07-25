@@ -17,6 +17,7 @@
       "home": "Home",
       "about": "About",
       "features": "Features",
+      "catalog": "Catalog",
       "review": "Review",
       "faq": "FAQ"
     },
@@ -24,7 +25,9 @@
     "sheetLabel": "Nav",
     "language": "Language",
     "signUp": "Sign Up",
-    "login": "Login"
+    "login": "Login",
+    "dashboard": "Dashboard",
+    "logout": "Log Out"
   },
   "landing": {
     "hero": {
@@ -143,6 +146,8 @@
       },
       "empty": "No favourite templates found.",
       "loadError": "Failed to load favourites. Please check your connection.",
+      "addedToast": "Added to favorites",
+      "removedToast": "Removed from favorites",
       "unfavouriteDialog": {
         "title": "Remove from Favorites",
         "description": "Are you sure you want to remove this template from your favorites?",
@@ -293,9 +298,7 @@
         "guests": "Guests",
         "rsvp": "RSVP",
         "notes": "Notes",
-        "messages": "Messages",
-        "gifts": "Gifts",
-        "addOns": "Add Ons"
+        "messages": "Messages"
       },
       "common": {
         "vip": "VIP",
@@ -365,12 +368,14 @@
       "overview": {
         "title": "Dashboard Invitation",
         "publishNow": "Publish Now",
+        "published": "Already Published",
+        "notActiveWarning": "Duration not yet active, please publish the invitation first",
         "editTemplate": "Edit Template",
+        "editTemplateSubtitle": "Adjust appearance and layout",
         "manageGuests": "Manage Guests",
+        "manageGuestsSubtitle": "Manage guest list and invitations",
         "guestStatsTitle": "Guest Statistics",
         "invitationLink": "Invitation Link",
-        "messageTemplateTitle": "Guest Message Template",
-        "generateText": "Generate Invitation Text",
         "countdownUnits": {
           "days": "Days",
           "hours": "Hours",
@@ -399,6 +404,18 @@
           "category": "Category",
           "chooseCategory": "Choose Category",
           "categoryHint": "Adjust the guest category as needed."
+        },
+        "messageTemplate": {
+          "title": "Guest Message Template",
+          "defaultBody": "With great joy, we invite {{guestName}} to attend the wedding ceremony:\n{{eventName}}\n\nPlease see the full event details via the link below:\n{{link}}\n\nIt would be an honor for us if you could attend.\nThank you 🙏",
+          "helperText": "Click a variable to insert it into the message template.",
+          "save": "Save",
+          "savedToast": "Message template saved successfully",
+          "variables": {
+            "guestName": "Guest Name",
+            "eventName": "Event Name",
+            "link": "Link"
+          }
         }
       },
       "rsvp": {
@@ -429,11 +446,6 @@
         "recipientTitle": "Pick Guests and Send",
         "recipientSubtitle": "Select invitation guests and distribute your after party notes."
       },
-      "addOns": {
-        "title": "Add Ons",
-        "active": "ACTIVE",
-        "locked": "LOCKED"
-      },
       "edit": {
         "title": "Edit Template",
         "subtitle": "Adjust the main invitation settings and publish state.",
@@ -445,16 +457,13 @@
         "colorLabel": "Accent Color",
         "previewTitle": "Preview Status",
         "previewDescription": "The preview still uses mock data, but the screen is already split into reusable components for the real integration phase."
-      },
-      "gifts": {
-        "title": "Gifts",
-        "summaryTitle": "Gift Methods",
-        "summaryDescription": "Manage digital gift methods that will appear on the invitation page.",
-        "bankTransfer": "Bank Transfer",
-        "digitalWallet": "Digital Wallet",
-        "shippingGift": "Gift Delivery",
-        "comingSoon": "Gift checkout integration will be connected after the API is ready."
       }
     }
+  },
+  "notFound": {
+    "title": "Oops!",
+    "heading": "This page couldn't be found.",
+    "description": "The page you're looking for may have been moved, deleted, or never existed.",
+    "backToDashboard": "Back to Dashboard"
   }
 }

@@ -43,7 +43,11 @@ export function TemplateCard({
             src={imageUrl}
             alt={title}
             fill
-            sizes="196px"
+            quality={90}
+            // Harus mengikuti lebar kartu sesungguhnya di tiap breakpoint grid
+            // (2/3/4/6 kolom) — sizes yang lebih kecil dari render aktual bikin
+            // Next.js minta gambar resolusi rendah lalu di-stretch → blur.
+            sizes="(min-width: 1280px) 260px, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 45vw"
             className="object-cover"
           />
         </div>

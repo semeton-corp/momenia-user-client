@@ -142,6 +142,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
 
   return (
     <section
+      id="catalog"
       className="relative mx-auto w-full max-w-[1600px] overflow-hidden px-4 pt-3 pb-4 md:px-12 md:pt-6 md:pb-8 lg:pt-6 lg:pb-8"
       style={{ fontFamily: "var(--font-geist-sans)" }}
       aria-label="Momenia Catalog"

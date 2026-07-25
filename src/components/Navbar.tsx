@@ -16,13 +16,14 @@ import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { useLogout } from "@/hooks/auth/useLogout"
 
 type SectionItem = {
-  id: "home" | "about" | "features" | "review" | "faq"
+  id: "home" | "about" | "features" | "catalog" | "review" | "faq"
 }
 
 const sectionItems: SectionItem[] = [
   { id: "home" },
   { id: "about" },
   { id: "features" },
+  { id: "catalog" },
   { id: "review" },
   { id: "faq" },
 ]
@@ -325,7 +326,7 @@ export function Navbar() {
                       <Link href="/dashboard" onClick={() => setIsOpen(false)}>
                         <Button variant="outline" className="w-full gap-2 font-medium">
                           <LayoutGrid className="h-4 w-4" />
-                          Dashboard
+                          {tNavbar("dashboard")}
                         </Button>
                       </Link>
                       <Button
@@ -335,7 +336,7 @@ export function Navbar() {
                         onClick={() => { setIsOpen(false); doLogout() }}
                       >
                         <LogOut className="h-4 w-4" />
-                        Keluar
+                        {tNavbar("logout")}
                       </Button>
                     </>
                   ) : (
@@ -447,7 +448,7 @@ export function Navbar() {
                           className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors"
                         >
                           <LayoutGrid className="h-4 w-4 text-zinc-400" />
-                          Dashboard
+                          {tNavbar("dashboard")}
                         </Link>
                         <button
                           type="button"
@@ -456,7 +457,7 @@ export function Navbar() {
                           className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
                         >
                           <LogOut className="h-4 w-4" />
-                          Keluar
+                          {tNavbar("logout")}
                         </button>
                       </div>
                     </motion.div>

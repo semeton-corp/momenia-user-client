@@ -1,6 +1,8 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useTranslations } from "next-intl"
+import { useToast } from "@/providers/ToastProvider"
 import {
   addFavouriteTemplate,
   getFavouriteTemplates,
@@ -110,6 +112,8 @@ export function useFavouriteTemplates(params: GetFavouritesParams = {}) {
 
 export function useToggleFavourite() {
   const queryClient = useQueryClient()
+  const { toast } = useToast()
+  const t = useTranslations("dashboard.favourite")
 
   return useMutation({
     mutationFn: ({ id, isFavourite }: { id: string; isFavourite: boolean }) =>
@@ -177,12 +181,15 @@ export function useToggleFavourite() {
     // Tandai daftar favorit sebagai stale (TANPA refetch aktif) supaya saat halaman
     // favorit dibuka berikutnya ia otomatis ambil data terbaru dari server. refetch
     // aktif sengaja dihindari karena bisa balapan dengan backend dan memicu glitch.
-    onSuccess: () => {
+    onSuccess: (_data, { isFavourite }) => {
       queryClient.invalidateQueries({
         queryKey: ["invitation-templates"],
         refetchType: "none",
         predicate: (q) => q.queryKey[1] === "favourites",
       })
+      // isFavourite = status SEBELUM toggle: true berarti baru saja dihapus,
+      // false berarti baru saja ditambahkan.
+      toast(isFavourite ? t("removedToast") : t("addedToast"), "success")
     },
   })
 }

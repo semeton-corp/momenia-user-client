@@ -18,6 +18,11 @@ type BannerFilterDropdownProps = {
   onChange: (value: string) => void
   /** Ukuran responsif trigger (per kontrol), digabung ke class dasar tombol banner. */
   triggerClassName?: string
+  /** true = ikon+label dipusatkan sebagai satu grup (dipakai saat tombol melebar
+   * penuh, mis. baris mobile). Default: ikon tetap di kiri, label mengisi sisa
+   * ruang rata kiri — supaya posisi ikon tetap konsisten walau isi label beda
+   * panjang antar dropdown yang berdampingan. */
+  centerContent?: boolean
 }
 
 export function BannerFilterDropdown({
@@ -27,6 +32,7 @@ export function BannerFilterDropdown({
   options,
   onChange,
   triggerClassName,
+  centerContent,
 }: BannerFilterDropdownProps) {
   const [open, setOpen] = React.useState(false)
   const ref = React.useRef<HTMLDivElement>(null)
@@ -42,20 +48,23 @@ export function BannerFilterDropdown({
   }, [open])
 
   return (
-    <div ref={ref} className="relative shrink-0">
+    <div ref={ref} className={cn("relative", centerContent ? "flex-1" : "shrink-0")}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
         className={cn(
-          "flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl bg-white px-3 text-xs font-medium hover:bg-zinc-50 md:gap-2 md:px-4 md:text-base xl:gap-2 xl:rounded-2xl xl:border xl:px-5",
+          "flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl border bg-white px-3 text-xs font-medium hover:bg-zinc-50 md:gap-2 md:px-4 md:text-base xl:gap-2 xl:rounded-2xl xl:px-5",
+          centerContent && "w-full justify-center",
           triggerClassName,
         )}
         style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
       >
         <span className="flex shrink-0 items-center">{icon}</span>
-        <span className="min-w-0 flex-1 truncate text-left">{displayLabel}</span>
+        <span className={cn("truncate", centerContent ? "flex-none" : "min-w-0 flex-1 text-left")}>
+          {displayLabel}
+        </span>
       </button>
 
       <AnimatePresence>
