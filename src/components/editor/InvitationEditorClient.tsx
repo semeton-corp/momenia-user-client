@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useLocale } from "next-intl"
 import {
   Pencil, Type, Palette, Music, ListOrdered, GripVertical, ChevronDown,
   ChevronLeft, ChevronRight, Undo2, Redo2, Eye, Save, Smartphone, Plus, Minus,
@@ -209,16 +210,20 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
         />
       )}
       {value ? (
-        <div className="relative overflow-hidden rounded-xl border border-zinc-200">
-          <img src={value} alt="" className="h-32 w-full object-cover" />
+        <div className="relative w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+          <img src={value} alt="" className="w-full h-auto object-contain" />
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-white/60">
               <span className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-500" />
             </div>
           )}
-          <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/50 px-3 py-1.5">
-            <button type="button" onClick={() => inputRef.current?.click()} className="text-xs text-white/90">Ganti</button>
-            <button type="button" onClick={() => onChange("")} className="text-xs text-white/60">Hapus</button>
+          <div className="absolute inset-x-0 bottom-0 flex justify-between gap-2 bg-linear-to-t from-black/80 to-black/40 px-3 py-2">
+            <button type="button" onClick={() => inputRef.current?.click()} className="flex-1 rounded bg-white/20 px-2 py-1.5 text-xs font-medium text-white transition-all hover:bg-white/30 backdrop-blur-sm">
+              Ganti
+            </button>
+            <button type="button" onClick={() => onChange("")} className="flex-1 rounded bg-red-500/20 px-2 py-1.5 text-xs font-medium text-white transition-all hover:bg-red-500/40 backdrop-blur-sm">
+              Hapus
+            </button>
           </div>
         </div>
       ) : (
@@ -418,6 +423,7 @@ const SECTION_LABELS: Record<string, string> = {
 
 function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; invitationId: string }) {
   const router = useRouter()
+  const locale = useLocale()
   const { toast } = useToast()
   const { template } = detail
   const { mutate: saveInvitation, isPending: isSaving } = useUpdateUserInvitation(invitationId)
@@ -644,6 +650,18 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     }))
   }, [template.schema.fields])
 
+  // Only show sections/fields that belong to the page currently shown in the preview,
+  // so switching pages doesn't dump every field from every page on the user at once.
+  const activePageSectionTypeIds = useMemo(() => {
+    const page = template.pages[activePageIdx]
+    return new Set((page?.sections ?? []).map((s) => s.section_type_id))
+  }, [template.pages, activePageIdx])
+
+  const visibleGroups = useMemo(
+    () => groups.filter((g) => activePageSectionTypeIds.has(g.sectionId)),
+    [groups, activePageSectionTypeIds]
+  )
+
   const swatch = (key: keyof ThemeDefaults, label: string) => (
     <div className="flex items-center justify-between">
       <span className="text-sm text-zinc-600">{label}</span>
@@ -709,12 +727,21 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           </button>
           <button
             onClick={() => {
-              const htmlContent = buildHtml(detail, userData, theme, sectionOrder)
-              const newWindow = window.open("", "_blank")
-              if (newWindow) {
-                newWindow.document.write(htmlContent)
-                newWindow.document.close()
+              // Hand off to the same-origin /preview route, which renders the invitation in a
+              // sandboxed srcDoc iframe — the exact mechanism the inline editor preview uses.
+              // We pass userData/theme separately (not just baked-into-HTML) so /preview can apply
+              // image URLs via `el.src = url` over postMessage, identical to the working inline
+              // preview. Baking a dynamic URL into the srcDoc string means the iframe's HTML parser
+              // re-parses it (entity-decoding `&` etc.), which can corrupt the URL — that's why the
+              // photo loaded everywhere on the editor page but broke only in the popup.
+              const previewState = {
+                html: buildHtml(detail, userData, theme, sectionOrder),
+                userData,
+                theme,
+                activePage,
               }
+              sessionStorage.setItem("momenia_preview", JSON.stringify(previewState))
+              window.open(`/${locale}/preview`, "_blank")
             }}
             className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
           >
@@ -780,24 +807,45 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             )}
 
             <Section title="Content List" icon={<ListOrdered className="h-4 w-4 text-indigo-500" />}>
-              <p className="-mt-2 mb-1 text-xs text-zinc-400">Drag and drop to reorder section</p>
-              {sectionOrder.map((id, idx) => (
-                <div key={id} draggable
-                  onDragStart={() => { dragIndexRef.current = idx }}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverIndex(idx) }}
-                  onDrop={() => {
-                    const from = dragIndexRef.current
-                    if (from !== null && from !== idx) {
-                      setSectionOrder((prev) => { const n = [...prev]; const [r] = n.splice(from, 1); n.splice(idx, 0, r); return n })
-                    }
-                    dragIndexRef.current = null; setDragOverIndex(null)
-                  }}
-                  onDragEnd={() => { dragIndexRef.current = null; setDragOverIndex(null) }}
-                  className={`flex cursor-grab items-center justify-between rounded-xl border px-3.5 py-3 text-sm text-zinc-700 transition active:cursor-grabbing ${dragOverIndex === idx ? "border-indigo-300 bg-indigo-50" : "border-zinc-200 bg-white hover:bg-zinc-50"}`}>
-                  <span>{sectionLabel(id)}</span>
-                  <GripVertical className="h-4 w-4 text-zinc-300" />
-                </div>
-              ))}
+              {activePage === "main" ? (
+                <>
+                  <p className="-mt-2 mb-1 text-xs text-zinc-400">Drag and drop to reorder section</p>
+                  {sectionOrder.map((id, idx) => (
+                    <div key={id} className="relative">
+                      {dragOverIndex === idx && (
+                        <div className="pointer-events-none absolute -top-2.5 left-0 right-0 h-1 rounded bg-indigo-500" />
+                      )}
+                      <div draggable
+                        onDragStart={() => { dragIndexRef.current = idx }}
+                        onDragOver={(e) => { e.preventDefault(); setDragOverIndex(idx) }}
+                        onDrop={() => {
+                          const from = dragIndexRef.current
+                          if (from !== null && from !== idx) {
+                            setSectionOrder((prev) => { const n = [...prev]; const [r] = n.splice(from, 1); n.splice(idx, 0, r); return n })
+                          }
+                          dragIndexRef.current = null; setDragOverIndex(null)
+                        }}
+                        onDragEnd={() => { dragIndexRef.current = null; setDragOverIndex(null) }}
+                        onDragLeave={(e) => {
+                          if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverIndex(null)
+                        }}
+                        className="flex cursor-grab items-center justify-between rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-sm text-zinc-700 transition hover:bg-zinc-50 active:cursor-grabbing">
+                        <span>{sectionLabel(id)}</span>
+                        <GripVertical className="h-4 w-4 text-zinc-300" />
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <p className="-mt-2 mb-1 text-xs text-zinc-400">Sections in this page</p>
+                  {(template.pages[activePageIdx]?.sections ?? []).map((s) => (
+                    <div key={s.id} className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-sm text-zinc-700">
+                      <span>{sectionLabel(s.id)}</span>
+                    </div>
+                  ))}
+                </>
+              )}
             </Section>
           </div>
         </div>
@@ -844,7 +892,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             <p className="text-sm text-zinc-400">Update content and setting</p>
           </div>
           <div className="flex-1 space-y-3 overflow-y-auto p-4">
-            {groups.map((group, gi) => (
+            {visibleGroups.map((group, gi) => (
               <Section
                 key={group.sectionId}
                 title={group.label}
