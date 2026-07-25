@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   Pencil, Type, Palette, Music, ListOrdered, GripVertical, ChevronDown,
   ChevronLeft, ChevronRight, Undo2, Redo2, Eye, Save, Smartphone, Plus, Minus,
-  Search, Star, Users, Upload, Play, X, CheckCircle2,
+  Search, Star, Users, Upload, Play, X, CheckCircle2, Check,
 } from "lucide-react"
 import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
 import { uploadImage } from "@/lib/api/object-storage/object-storage.service"
@@ -21,6 +21,13 @@ type UnsavedState = {
   theme: ThemeDefaults
   sectionOrder: string[]
   timestamp: number
+}
+
+type HistoryState = {
+  name: string
+  userData: Record<string, string>
+  theme: ThemeDefaults
+  sectionOrder: string[]
 }
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
@@ -370,6 +377,16 @@ function formatDateId(iso: string) {
   return `${DAYS_ID[d.getDay()]}, ${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`
 }
 
+function formatLastModified(dateStr: string) {
+  const date = new Date(dateStr)
+  const month = MONTHS_ID[date.getMonth()]
+  const day = date.getDate()
+  const year = date.getFullYear()
+  const hours = String(date.getHours()).padStart(2, "0")
+  const minutes = String(date.getMinutes()).padStart(2, "0")
+  return `${day} ${month} ${year}, ${hours}:${minutes}`
+}
+
 const SECTION_LABELS: Record<string, string> = {
   cover_section: "Cover",
   hero_section: "Hero Section",
@@ -395,6 +412,62 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   const [zoom, setZoom] = useState(1)
   const dragIndexRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+
+  // ── History / Undo-Redo ────────────────────────────────────────────────
+  const initialState: HistoryState = {
+    name: detail.name || "",
+    userData: detail.fieldValues ?? {},
+    theme: template.theme_defaults,
+    sectionOrder: defaultSectionOrder,
+  }
+  const [history, setHistory] = useState<HistoryState[]>([initialState])
+  const [historyIndex, setHistoryIndex] = useState(0)
+
+  const canUndo = historyIndex > 0
+  const canRedo = historyIndex < history.length - 1
+
+  const addToHistory = useCallback((state: HistoryState) => {
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), state])
+    setHistoryIndex((prev) => prev + 1)
+  }, [historyIndex])
+
+  const handleUndo = useCallback(() => {
+    if (!canUndo) return
+    const newIndex = historyIndex - 1
+    const state = history[newIndex]
+    setName(state.name)
+    setUserData(state.userData)
+    setTheme(state.theme)
+    setSectionOrder(state.sectionOrder)
+    setHistoryIndex(newIndex)
+  }, [canUndo, historyIndex, history])
+
+  const handleRedo = useCallback(() => {
+    if (!canRedo) return
+    const newIndex = historyIndex + 1
+    const state = history[newIndex]
+    setName(state.name)
+    setUserData(state.userData)
+    setTheme(state.theme)
+    setSectionOrder(state.sectionOrder)
+    setHistoryIndex(newIndex)
+  }, [canRedo, historyIndex, history])
+
+  // Track state changes for undo/redo (debounced to avoid excessive history entries)
+  const historyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  useEffect(() => {
+    if (historyTimeoutRef.current) clearTimeout(historyTimeoutRef.current)
+    historyTimeoutRef.current = setTimeout(() => {
+      const currentState: HistoryState = { name, userData, theme, sectionOrder }
+      const lastState = history[historyIndex]
+      if (JSON.stringify(currentState) !== JSON.stringify(lastState)) {
+        addToHistory(currentState)
+      }
+    }, 300)
+    return () => {
+      if (historyTimeoutRef.current) clearTimeout(historyTimeoutRef.current)
+    }
+  }, [name, userData, theme, sectionOrder, addToHistory, history, historyIndex])
 
   // Snapshot of the last-saved state, used to detect unsaved changes
   const [savedSnapshot, setSavedSnapshot] = useState(() =>
@@ -589,8 +662,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             )}
           </div>
           <p className="mt-0.5 flex items-center gap-1.5 text-xs text-zinc-400">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
-            Last modified
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500">
+              <Check className="h-2.5 w-2.5 text-white" />
+            </span>
+            Last modified {detail.lastUpdatedAt && formatLastModified(detail.lastUpdatedAt)}
           </p>
         </div>
 
@@ -602,8 +677,14 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
         {/* actions */}
         <div className="flex items-center gap-2">
-          <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50"><Undo2 className="h-4 w-4" /></button>
-          <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50"><Redo2 className="h-4 w-4" /></button>
+          <button onClick={handleUndo} disabled={!canUndo} aria-label="Undo" title={canUndo ? "Undo" : "Nothing to undo"}
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed">
+            <Undo2 className="h-4 w-4" />
+          </button>
+          <button onClick={handleRedo} disabled={!canRedo} aria-label="Redo" title={canRedo ? "Redo" : "Nothing to redo"}
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed">
+            <Redo2 className="h-4 w-4" />
+          </button>
           <button
             onClick={() => {
               const htmlContent = buildHtml(detail, userData, theme, sectionOrder)

@@ -41,6 +41,7 @@ export type UserInvitationDetail = {
     address: string
     googleMapsUrl: string
     expiredAt: string
+    lastUpdatedAt: string
     fieldValues: Record<string, string>
     guestStatistic: {
         totalAttending: number
