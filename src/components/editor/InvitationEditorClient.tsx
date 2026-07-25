@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useMemo, useEffect, useRef } from "react"
+import { useState, useCallback, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 import { useRouter } from "next/navigation"
 import { useLocale } from "next-intl"
 import {
@@ -62,7 +62,7 @@ function buildHtml(
       }
       return `<span data-field="${key}">${value}</span>`
     })
-    return html
+    return `<div data-section-id="${sec.id}">${html}</div>`
   }
 
   const coverSections = (coverPage?.sections ?? []).map((s) => renderSection(s.id, coverPage)).join("\n")
@@ -246,34 +246,49 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
 
 // ── Preview iframe (phone) ──────────────────────────────────────────────────
 
-function PreviewFrame({ html, userData, theme, activePage, zoom }: {
+export type PreviewFrameHandle = {
+  scrollToSection: (sectionId: string) => void
+}
+
+// Fixed "phone viewport" the invitation renders into — matches a standard iPhone content
+// area. Content longer than this scrolls inside the frame instead of growing it.
+const VIEWPORT_W = 375
+const VIEWPORT_H = 812
+
+function resetIframeScroll(iframe: HTMLIFrameElement | null) {
+  const body = iframe?.contentDocument?.body
+  if (body) body.scrollTop = 0
+}
+
+const PreviewFrame = forwardRef<PreviewFrameHandle, {
   html: string
   userData: Record<string, string>
   theme: ThemeDefaults
   activePage: string
   zoom: number
-}) {
+}>(function PreviewFrame({ html, userData, theme, activePage, zoom }, ref) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [height, setHeight] = useState(812)
   const loadedRef = useRef(false)
   const loadedFontsRef = useRef<Set<string>>(new Set())
   const userDataRef = useRef(userData); userDataRef.current = userData
   const themeRef = useRef(theme); themeRef.current = theme
   const activePageRef = useRef(activePage); activePageRef.current = activePage
 
-  useEffect(() => {
-    const handler = (e: MessageEvent) => {
-      if (e.data?.type === "memoriaResize" && typeof e.data.height === "number") setHeight(e.data.height)
-    }
-    window.addEventListener("message", handler)
-    return () => window.removeEventListener("message", handler)
-  }, [])
+  // Makes the iframe's own <body> scroll internally instead of the document growing to fit
+  // content — the html element clips at the fixed viewport, body carries the scrollbar.
+  const injectScrollContainment = (doc: Document) => {
+    const style = doc.createElement("style")
+    style.textContent = `html{height:100%;overflow:hidden}body{height:100%;overflow-y:auto;overflow-x:hidden}`
+    doc.head.appendChild(style)
+  }
 
   useEffect(() => {
     const iframe = iframeRef.current; if (!iframe || !html) return
     loadedRef.current = false
     const onLoad = () => {
       loadedRef.current = true
+      const doc = iframe.contentDocument
+      if (doc) injectScrollContainment(doc)
       iframe.contentWindow?.postMessage({ type: "memoriaUpdate", userData: userDataRef.current, theme: themeRef.current }, "*")
       iframe.contentWindow?.postMessage({ type: "memoriaGoTo", pageId: activePageRef.current }, "*")
     }
@@ -314,18 +329,27 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
   useEffect(() => {
     if (!loadedRef.current) return
     iframeRef.current?.contentWindow?.postMessage({ type: "memoriaGoTo", pageId: activePage }, "*")
+    // Switching cover/main should land at the top of that page, not wherever the previous page was scrolled to.
+    resetIframeScroll(iframeRef.current)
   }, [activePage])
 
   const FRAME_W = 340
-  const scale = (FRAME_W * zoom) / 375
-  const contentH = Math.max(height, 720)
+  const scale = (FRAME_W * zoom) / VIEWPORT_W
+
+  useImperativeHandle(ref, () => ({
+    scrollToSection(sectionId: string) {
+      const doc = iframeRef.current?.contentDocument
+      const el = doc?.querySelector(`[data-section-id="${sectionId}"]`) as HTMLElement | null
+      el?.scrollIntoView({ behavior: "smooth", block: "start" })
+    },
+  }), [])
 
   return (
     <div
       className="relative shrink-0 overflow-hidden bg-black shadow-2xl"
       style={{
         width: FRAME_W * zoom,
-        height: contentH * scale,
+        height: VIEWPORT_H * scale,
         borderRadius: 48 * zoom,
         border: `${12 * zoom}px solid #000`,
       }}
@@ -335,8 +359,8 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
         sandbox="allow-scripts allow-same-origin"
         title="Invitation Preview"
         style={{
-          width: 375,
-          height: contentH,
+          width: VIEWPORT_W,
+          height: VIEWPORT_H,
           border: 0,
           transform: `scale(${scale})`,
           transformOrigin: "top left",
@@ -344,22 +368,28 @@ function PreviewFrame({ html, userData, theme, activePage, zoom }: {
       />
     </div>
   )
-}
+})
 
 // ── Collapsible card ─────────────────────────────────────────────────────────
 
-function Section({ title, icon, defaultOpen = true, children }: {
+function Section({ title, icon, defaultOpen = true, onOpen, children }: {
   title: string
   icon?: React.ReactNode
   defaultOpen?: boolean
+  onOpen?: () => void
   children: React.ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
+  const toggle = () => {
+    const next = !open
+    setOpen(next)
+    if (next) onOpen?.()
+  }
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         className="flex w-full items-center justify-between px-4 py-3.5"
       >
         <span className="flex items-center gap-2.5 text-sm font-semibold text-zinc-900">
@@ -440,6 +470,8 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   const [zoom, setZoom] = useState(1)
   const dragIndexRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const previewRef = useRef<PreviewFrameHandle>(null)
+  const previewScrollRef = useRef<HTMLDivElement>(null)
 
   // ── History / Undo-Redo ────────────────────────────────────────────────
   const initialState: HistoryState = {
@@ -583,6 +615,12 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
       .replace(/\b\w/g, (c) => c.toUpperCase())
   }, [template.pages])
 
+  // when a Content field-group is expanded, scroll the mockup to the matching section
+  const handleSectionOpen = useCallback((sectionTypeId: string) => {
+    const instance = template.pages[activePageIdx]?.sections.find((s) => s.section_type_id === sectionTypeId)
+    if (instance) previewRef.current?.scrollToSection(instance.id)
+  }, [template.pages, activePageIdx])
+
   const handleFieldChange = useCallback((key: string, value: string) => {
     setUserData((prev) => {
       const next = { ...prev, [key]: value }
@@ -657,10 +695,27 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     return new Set((page?.sections ?? []).map((s) => s.section_type_id))
   }, [template.pages, activePageIdx])
 
-  const visibleGroups = useMemo(
-    () => groups.filter((g) => activePageSectionTypeIds.has(g.sectionId)),
-    [groups, activePageSectionTypeIds]
-  )
+  // Sort visible groups to match the left panel's Content List order.
+  // For main page: use sectionOrder (user's reorder). For other pages: use page.sections order.
+  const visibleGroups = useMemo(() => {
+    const filtered = groups.filter((g) => activePageSectionTypeIds.has(g.sectionId))
+
+    const page = template.pages[activePageIdx]
+    const sectionIds = activePage === "main" ? sectionOrder : (page?.sections ?? []).map(s => s.id)
+
+    // Map each section ID to its section_type_id
+    const typeIdOrder = sectionIds.map(sectionId => {
+      const section = template.pages.flatMap(p => p.sections).find(s => s.id === sectionId)
+      return section?.section_type_id
+    })
+
+    // Sort groups to match the left panel's order
+    return filtered.sort((a, b) => {
+      const idxA = typeIdOrder.indexOf(a.sectionId)
+      const idxB = typeIdOrder.indexOf(b.sectionId)
+      return idxA - idxB
+    })
+  }, [groups, activePageSectionTypeIds, activePage, sectionOrder, template.pages, activePageIdx])
 
   const swatch = (key: keyof ThemeDefaults, label: string) => (
     <div className="flex items-center justify-between">
@@ -871,8 +926,8 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           </div>
 
           {/* phone */}
-          <div className="flex flex-1 items-start justify-center overflow-auto p-6">
-            <PreviewFrame html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} />
+          <div ref={previewScrollRef} className="flex flex-1 items-center justify-center overflow-auto p-6">
+            <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} />
           </div>
 
           {/* zoom */}
@@ -896,6 +951,8 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               <Section
                 key={group.sectionId}
                 title={group.label}
+                defaultOpen={false}
+                onOpen={() => handleSectionOpen(group.sectionId)}
                 icon={gi === 0
                   ? <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100"><Star className="h-4 w-4 text-indigo-600" /></span>
                   : <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100"><Users className="h-4 w-4 text-indigo-600" /></span>}
