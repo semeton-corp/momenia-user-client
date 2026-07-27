@@ -190,7 +190,7 @@ export function DashboardSidebar() {
             title={user.name}
           >
             {user.profilePicture ? (
-              <Image src={user.profilePicture} alt={user.name} width={40} height={40} className="h-full w-full object-cover" />
+              <Image src={user.profilePicture} alt={user.name} width={40} height={40} unoptimized className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-xs font-semibold text-indigo-700">
                 {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}

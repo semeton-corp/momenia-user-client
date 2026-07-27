@@ -30,6 +30,7 @@ export function DashboardMobileHeader() {
               alt={user.name}
               width={36}
               height={36}
+              unoptimized
               className="h-full w-full object-cover"
             />
           ) : (

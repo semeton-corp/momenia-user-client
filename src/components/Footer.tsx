@@ -2,6 +2,9 @@
 
 import * as React from "react"
 import { useTranslations } from "next-intl"
+import { MessageCircle } from "lucide-react"
+
+const WHATSAPP_NUMBER = "628561114275"
 
 export function Footer() {
   // ── Semua hooks dideklarasikan di atas, berurutan ──
@@ -63,6 +66,16 @@ export function Footer() {
         }}
       >
         <div className="mx-auto w-full max-w-[1600px] px-4 md:px-12">
+          <a
+            href={`https://wa.me/${WHATSAPP_NUMBER}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-3 flex items-center justify-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white md:text-base"
+            style={{ fontFamily: "var(--font-geist-sans)" }}
+          >
+            <MessageCircle className="h-4 w-4 shrink-0" />
+            <span>{t("contactUs")}: {t("whatsappNumber")}</span>
+          </a>
           <p
             className="text-center text-sm font-semibold text-white/90 md:text-base"
             style={{ fontFamily: "var(--font-geist-sans)" }}

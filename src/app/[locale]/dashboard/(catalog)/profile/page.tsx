@@ -8,6 +8,7 @@ import { useLogout } from "@/hooks/auth/useLogout"
 import { ProfileHeaderCard } from "@/components/dashboard/profile/ProfileHeaderCard"
 import { ProfileInfoRow } from "@/components/dashboard/profile/ProfileInfoRow"
 import { ProfileLogoutCard } from "@/components/dashboard/profile/ProfileLogoutCard"
+import { ProfileContactSupportCard } from "@/components/dashboard/profile/ProfileContactSupportCard"
 import { EditProfileDialog } from "@/components/dashboard/profile/EditProfileDialog"
 import { LogoutConfirmDialog } from "@/components/dashboard/profile/LogoutConfirmDialog"
 import { ProfileSkeleton } from "@/components/dashboard/profile/ProfileSkeleton"
@@ -49,7 +50,10 @@ export default function ProfilePage() {
             <ProfileInfoRow icon={Phone} label={t("phoneNumber")} value={account.phoneNumber} isLast />
           </div>
 
-          <ProfileLogoutCard title={t("logOut")} subtitle={t("logOutSubtitle")} onClick={() => setLogoutOpen(true)} />
+          <div className="flex flex-col gap-4 xl:flex-row">
+            <ProfileContactSupportCard title={t("contactSupport")} subtitle={t("contactSupportSubtitle")} />
+            <ProfileLogoutCard title={t("logOut")} subtitle={t("logOutSubtitle")} onClick={() => setLogoutOpen(true)} />
+          </div>
         </div>
       )}
 
