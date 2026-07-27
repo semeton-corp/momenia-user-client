@@ -271,8 +271,8 @@
       "month6": "Basic + 6 Month invitation duration",
       "month8": "Basic + 8 Month invitation duration",
       "durationUnit": {
-        "week": "WEEK",
-        "month": "MONTH"
+        "week": "Week",
+        "month": "Month"
       },
       "continueToPayment": "Continue to Payment"
     },

@@ -271,8 +271,8 @@
       "month6": "Durasi undangan Basic + 6 Bulan",
       "month8": "Durasi undangan Basic + 8 Bulan",
       "durationUnit": {
-        "week": "MINGGU",
-        "month": "BULAN"
+        "week": "Minggu",
+        "month": "Bulan"
       },
       "continueToPayment": "Lanjut ke Pembayaran"
     },
