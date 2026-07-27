@@ -114,6 +114,7 @@ export function EditProfileDialog({ account, open, onOpenChange, onSave, isSavin
                     alt={name}
                     width={96}
                     height={96}
+                    unoptimized
                     className="h-full w-full object-cover"
                   />
                 ) : (

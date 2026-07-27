@@ -80,7 +80,9 @@
     "copyright": "© 2026 Momenia. Hak cipta dilindungi. Dirancang untuk membuat momenmu lebih berkesan.",
     "builtBy": "Dibuat oleh",
     "sourceCode": "Kode sumber tersedia di",
-    "github": "GitHub"
+    "github": "GitHub",
+    "contactUs": "Butuh bantuan? Hubungi kami via WhatsApp",
+    "whatsappNumber": "+62 856-1114-275"
   },
   "home": {
     "demoTitle": "Halo dari Framer Motion!",
@@ -232,6 +234,8 @@
       "phoneNumber": "Nomor Telepon",
       "logOut": "Keluar",
       "logOutSubtitle": "Keluar dari akun Momenia kamu",
+      "contactSupport": "Hubungi Dukungan",
+      "contactSupportSubtitle": "Chat via WhatsApp: +62 856-1114-275",
       "loadError": "Gagal memuat profil kamu. Periksa koneksi kamu.",
       "editDialog": {
         "title": "Edit Profil",
@@ -289,7 +293,168 @@
       "checkout": "Checkout",
       "selectPaymentMethod": "Pilih metode pembayaran",
       "paymentInfo": "Setelah kamu klik \"Bayar Sekarang\", kamu akan diarahkan ke halaman pembayaran aman untuk menyelesaikan pembayaran melalui QR Code.",
-      "securedBy": "Semua transaksi dilindungi dan diproses dengan aman oleh Momenia."
+      "securedBy": "Semua transaksi dilindungi dan diproses dengan aman oleh Momenia.",
+      "termsCheckboxLabelPrefix": "Saya telah membaca dan menyetujui",
+      "termsLinkText": "Syarat & Ketentuan",
+      "termsModalTitle": "Syarat & Ketentuan",
+      "termsLastUpdated": "Terakhir Diperbarui: 26 Juli 2026",
+      "termsAccept": "Setuju",
+      "termsDecline": "Tolak",
+      "needHelp": "Ada kendala dengan pembayaranmu? Hubungi dukungan",
+      "termsSections": [
+        {
+          "title": "Selamat Datang di Momenia",
+          "body": [
+            "Syarat & Ketentuan ini (\"Ketentuan\") merupakan perjanjian yang mengikat secara hukum antara Momenia (\"Momenia\", \"kami\") dan setiap individu atau badan hukum (\"Pengguna\", \"Anda\") yang mengakses, mendaftar, membeli, atau dengan cara lain menggunakan produk atau layanan apa pun yang tersedia melalui Platform Momenia.",
+            "Momenia adalah platform daring yang memungkinkan Pengguna membuat dan menerbitkan situs web undangan digital dengan membeli templat undangan digital serta memanfaatkan berbagai layanan pendukung, termasuk namun tidak terbatas pada pembuatan konten undangan berbasis AI, manajemen RSVP, Buku Tamu (Guestbook), Dasbor Undangan, Galeri, fitur After Party, Add-on, dan layanan digital lainnya yang mungkin dihadirkan dari waktu ke waktu.",
+            "Dengan mengakses atau menggunakan Platform, membuat akun, membeli Templat atau Add-on apa pun, atau menggunakan fitur apa pun yang disediakan oleh Momenia, Anda menyatakan bahwa Anda telah membaca, memahami, dan setuju untuk terikat secara hukum pada Ketentuan ini serta kebijakan lain yang diterbitkan oleh Momenia yang menjadi bagian tidak terpisahkan dari Ketentuan ini.",
+            "Apabila Anda tidak menyetujui Ketentuan ini, Anda harus segera menghentikan akses dan penggunaan Platform."
+          ]
+        },
+        {
+          "title": "Ketentuan Penggunaan",
+          "body": [
+            "Akses dan penggunaan Anda atas Platform disyaratkan pada penerimaan dan kepatuhan Anda terhadap Ketentuan ini. Dengan menggunakan Platform, Anda menyatakan dan menjamin bahwa Anda memiliki kecakapan hukum untuk mengikatkan diri dalam perjanjian yang mengikat berdasarkan hukum yang berlaku di Republik Indonesia, dan bahwa seluruh informasi yang disampaikan kepada Momenia adalah benar, akurat, lengkap, dan terkini.",
+            "Anda mengakui bahwa Anda bertanggung jawab penuh atas kerahasiaan kredensial akun Anda serta atas seluruh aktivitas yang dilakukan melalui akun Anda. Anda selanjutnya setuju untuk menggunakan Platform semata-mata untuk tujuan yang sah dan sesuai dengan Ketentuan ini, hukum yang berlaku, serta standar perilaku daring yang berlaku umum.",
+            "Momenia berhak, atas kebijakannya sendiri, untuk menolak akses ke Platform, menangguhkan akun mana pun, membatasi akses ke fitur tertentu, atau menghentikan layanan apa pun jika Momenia secara wajar meyakini bahwa penggunaan Platform oleh Anda melanggar Ketentuan ini, hukum yang berlaku, hak pihak ketiga mana pun, atau dapat berdampak negatif terhadap integritas, keamanan, atau operasional Platform."
+          ]
+        },
+        {
+          "title": "Gambaran Umum",
+          "body": [
+            "Momenia menyediakan platform berbasis cloud yang memungkinkan Pengguna membeli templat undangan digital, mempersonalisasi konten undangan, menerbitkan situs web undangan, mengelola informasi tamu, mengumpulkan respons RSVP, menerima pesan dari tamu, dan membeli layanan digital tambahan yang tersedia melalui Platform.",
+            "Fitur, fungsionalitas, dan ketersediaan Platform dapat berubah dari waktu ke waktu sebagai bagian dari pengembangan produk dan peningkatan operasional Momenia yang berkelanjutan. Momenia berhak menghadirkan fitur baru, menghentikan layanan yang ada, mengubah penawaran produk, atau memperbarui aspek apa pun dari Platform tanpa pemberitahuan sebelumnya, sepanjang perubahan tersebut tidak bertentangan dengan hukum yang berlaku.",
+            "Penggunaan Platform secara berkelanjutan oleh Anda merupakan bentuk penerimaan Anda atas setiap pembaruan atau perubahan yang dilakukan terhadap Platform maupun Ketentuan ini."
+          ]
+        },
+        {
+          "title": "Perubahan Platform dan Ketentuan Ini",
+          "body": [
+            "Momenia senantiasa berupaya meningkatkan produk dan layanannya guna memberikan pengalaman pengguna yang lebih baik. Oleh karena itu, Momenia berhak, kapan saja dan tanpa pemberitahuan sebelumnya, untuk mengubah, memperbarui, menangguhkan, atau menghentikan bagian mana pun dari Platform, termasuk namun tidak terbatas pada Templat, Add-on, paket langganan, harga, fitur, arsitektur sistem, atau antarmuka pengguna.",
+            "Momenia selanjutnya berhak mengubah Ketentuan ini dari waktu ke waktu apabila dianggap perlu. Setiap perubahan akan berlaku efektif segera setelah dipublikasikan di Platform, kecuali ditentukan lain.",
+            "Anda bertanggung jawab untuk meninjau Ketentuan ini secara berkala. Akses atau penggunaan Platform yang berkelanjutan setelah publikasi Ketentuan yang telah direvisi merupakan bentuk penerimaan Anda atas revisi tersebut."
+          ]
+        },
+        {
+          "title": "Pemberian Lisensi",
+          "body": [
+            "Dengan tunduk pada kepatuhan penuh Anda terhadap Ketentuan ini dan keberhasilan verifikasi pembayaran Anda, Momenia memberikan Anda lisensi terbatas, non-eksklusif, tidak dapat dialihkan, tidak dapat disublisensikan, dan dapat dicabut untuk menggunakan Templat digital serta layanan digital terkait yang dibeli melalui Platform.",
+            "Lisensi yang diberikan berdasarkan Ketentuan ini semata-mata untuk tujuan membuat, menyunting, menerbitkan, dan mengelola situs web undangan melalui Platform Momenia untuk acara pribadi atau organisasi Anda sendiri. Tidak ada satu pun ketentuan dalam Ketentuan ini yang dapat ditafsirkan sebagai pengalihan kepemilikan atas hak kekayaan intelektual apa pun dalam Templat atau materi lain yang disediakan oleh Momenia.",
+            "Kecuali diizinkan secara tegas oleh Momenia secara tertulis, Anda tidak diperkenankan untuk menggandakan, mendistribusikan, mensublisensikan, mengalihkan, menyewakan, menjual kembali, mengubah, melakukan rekayasa balik, melakukan dekompilasi, mengekstraksi, atau dengan cara lain mengeksploitasi Templat, kode sumber, aset desain, atau materi hak milik lainnya yang tersedia melalui Platform.",
+            "Penggunaan materi berlisensi tanpa izin akan secara otomatis mengakhiri lisensi yang diberikan dalam Ketentuan ini, tanpa mengurangi hak atau upaya pemulihan lain yang tersedia bagi Momenia berdasarkan hukum yang berlaku."
+          ]
+        },
+        {
+          "title": "Hak Kepemilikan",
+          "body": [
+            "Platform, termasuk seluruh Templat, perangkat lunak, kode sumber, basis data, grafis, ilustrasi, desain antarmuka pengguna, logo, merek dagang, merek jasa, dokumentasi, Add-on, layanan Galeri, dan seluruh materi lain yang tersedia melalui Platform, dimiliki oleh atau dilisensikan kepada Momenia dan dilindungi oleh hukum kekayaan intelektual yang berlaku serta prinsip hak cipta internasional.",
+            "Tidak ada satu pun ketentuan dalam Ketentuan ini yang memberikan kepada Anda hak kepemilikan atas kekayaan intelektual apa pun milik Momenia atau pemberi lisensinya. Seluruh hak yang tidak secara tegas diberikan kepada Anda berdasarkan Ketentuan ini tetap menjadi hak Momenia.",
+            "Anda setuju untuk tidak menyalin, menggandakan, mendistribusikan, mengubah, mempublikasikan, mentransmisikan, menampilkan secara publik, membuat karya turunan dari, atau dengan cara lain mengeksploitasi bagian mana pun dari Platform, kecuali diizinkan secara tegas berdasarkan Ketentuan ini atau dengan persetujuan tertulis sebelumnya dari Momenia."
+          ]
+        },
+        {
+          "title": "Biaya",
+          "body": [
+            "Biaya yang harus dibayarkan untuk penggunaan Platform akan ditampilkan pada halaman pembayaran yang berlaku sebelum transaksi diselesaikan. Biaya tersebut dapat mencakup, namun tidak terbatas pada, harga pembelian Templat digital, Add-on, perpanjangan langganan, fitur premium, atau produk dan layanan digital lain yang ditawarkan oleh Momenia.",
+            "Seluruh pembayaran akan diproses melalui metode pembayaran yang secara resmi didukung oleh Platform. Suatu transaksi hanya akan dianggap selesai setelah pembayaran berhasil diotorisasi dan diverifikasi melalui sistem pembayaran yang berlaku.",
+            "Mengingat sifat produk dan layanan digital, seluruh pembelian yang telah berhasil diselesaikan pada umumnya tidak dapat dikembalikan (non-refundable). Setelah Templat atau layanan digital tersedia bagi Pengguna, transaksi dianggap final.",
+            "Meskipun demikian, Momenia dapat, atas kebijakannya sendiri, menyetujui permohonan pengembalian dana apabila Pengguna dapat membuktikan bahwa layanan yang dibeli tidak dapat diberikan akibat kegagalan teknis yang disebabkan oleh Momenia, terjadinya pembayaran ganda untuk transaksi yang sama, atau pembayaran yang berhasil diproses namun gagal membentuk pesanan akibat kesalahan sistem.",
+            "Setiap permohonan pengembalian dana harus diajukan melalui kanal Layanan Pelanggan resmi Momenia disertai dokumen pendukung yang memadai, termasuk informasi akun terdaftar, detail transaksi, bukti pembayaran, dan uraian kendala yang dihadapi. Momenia berhak meminta informasi tambahan sebagaimana wajar diperlukan untuk menyelesaikan proses verifikasi.",
+            "Apabila permohonan pengembalian dana disetujui, Momenia akan memproses pengembalian dana tersebut dalam waktu tiga (3) × dua puluh empat (24) jam kerja sejak selesainya proses verifikasi. Waktu penerimaan dana pengembalian yang sebenarnya dapat bervariasi tergantung pada kebijakan dan waktu pemrosesan bank, gerbang pembayaran, penyedia dompet elektronik, atau lembaga keuangan terkait.",
+            "Momenia berhak menolak permohonan pengembalian dana apabila Templat atau layanan yang dibeli telah berhasil diberikan, diakses, atau digunakan oleh Pengguna, apabila tidak terjadi kesalahan sistem, atau apabila permohonan tersebut semata-mata didasarkan pada perubahan preferensi atau keadaan lain di luar kendali wajar Momenia."
+          ]
+        },
+        {
+          "title": "Kelayakan",
+          "body": [
+            "Dengan mengakses atau menggunakan Platform, Anda menyatakan dan menjamin bahwa Anda berhak secara hukum untuk menggunakan layanan yang disediakan oleh Momenia dan bahwa Anda memiliki kewenangan untuk melakukan transaksi sebagaimana dimaksud dalam Ketentuan ini.",
+            "Anda selanjutnya menyatakan dan menjamin bahwa seluruh konten yang diunggah ke Platform, termasuk namun tidak terbatas pada foto, video, rekaman audio, logo, informasi tamu, detail acara, dan materi lainnya, adalah milik Anda atau digunakan dengan otorisasi yang sah dari pemegang hak yang berwenang.",
+            "Anda mengakui dan setuju bahwa Momenia tidak bertanggung jawab atas sengketa apa pun yang timbul dari penggunaan konten oleh Anda yang melanggar hak kekayaan intelektual, hak privasi, atau hak hukum lain milik pihak ketiga."
+          ]
+        },
+        {
+          "title": "Dukungan",
+          "body": [
+            "Momenia menyediakan Layanan Pelanggan untuk membantu Pengguna dalam hal-hal yang berkaitan dengan pengoperasian dan penggunaan Platform, termasuk pendaftaran akun, pemrosesan pembayaran, pembelian Templat, Dasbor Undangan, pembuatan konten berbasis AI, Add-on, dan layanan lain yang tersedia melalui Platform.",
+            "Layanan Pelanggan akan menggunakan upaya yang wajar secara komersial untuk merespons pertanyaan dan menyelesaikan masalah yang dilaporkan dalam jangka waktu yang wajar. Namun demikian, waktu respons dapat bervariasi tergantung pada kompleksitas masalah, ketersediaan informasi pendukung, dan apakah penyelesaiannya memerlukan keterlibatan penyedia layanan pihak ketiga, termasuk namun tidak terbatas pada penyedia gerbang pembayaran, penyedia infrastruktur cloud, atau mitra teknologi lainnya.",
+            "Tidak ada satu pun ketentuan dalam Ketentuan ini yang dapat ditafsirkan sebagai jaminan atas layanan dukungan yang tidak terputus atau mewajibkan Momenia untuk menyelesaikan setiap masalah yang dilaporkan dalam jangka waktu tertentu."
+          ]
+        },
+        {
+          "title": "Ketentuan Pengakhiran",
+          "body": [
+            "Momenia berhak, atas kebijakannya sendiri dan tanpa mengurangi hak atau upaya pemulihan lain yang tersedia berdasarkan hukum yang berlaku, untuk menangguhkan, membatasi, atau menghentikan akses Anda ke Platform, baik sementara maupun permanen, apabila Momenia secara wajar menentukan bahwa Anda telah melanggar Ketentuan ini, hukum yang berlaku, atau kebijakan apa pun yang mengatur penggunaan Platform.",
+            "Tanpa membatasi hal tersebut di atas, Momenia dapat menghentikan atau menangguhkan akun Anda apabila Anda melakukan aktivitas penipuan, menyalahgunakan Platform, mencoba memperoleh akses tanpa izin ke sistem atau data apa pun, menyebarkan perangkat lunak berbahaya, melanggar hak kekayaan intelektual milik Momenia atau pihak ketiga mana pun, mengunggah konten yang melanggar hukum, atau dengan cara lain menggunakan Platform dengan cara yang dapat merugikan Momenia, Penggunanya, atau pihak ketiga mana pun.",
+            "Setelah akun Anda dihentikan, hak Anda untuk mengakses dan menggunakan Platform, termasuk lisensi apa pun yang diberikan berdasarkan Ketentuan ini, akan segera berakhir. Momenia tidak bertanggung jawab atas hilangnya akses ke Templat, situs web undangan, konten digital, atau layanan lain akibat penghentian akun Anda secara sah berdasarkan Ketentuan ini.",
+            "Penghentian akun Anda tidak akan memengaruhi hak, kewajiban, atau tanggung jawab yang telah timbul sebelum tanggal berlakunya penghentian tersebut."
+          ]
+        },
+        {
+          "title": "Kerahasiaan",
+          "body": [
+            "Momenia menyadari pentingnya menjaga kerahasiaan informasi yang dipercayakan oleh Pengguna kepada kami. Oleh karena itu, Momenia akan menggunakan upaya yang wajar secara komersial untuk melindungi informasi rahasia yang diberikan melalui Platform dan akan memproses informasi tersebut sesuai dengan hukum yang berlaku serta Kebijakan Privasi Momenia.",
+            "Untuk tujuan Ketentuan ini, informasi rahasia mencakup namun tidak terbatas pada kredensial akun, informasi pembayaran, riwayat transaksi, konten undangan yang tidak ditujukan untuk akses publik, informasi tamu, catatan RSVP, pesan pribadi yang disampaikan melalui Platform, dan informasi lain yang secara sifatnya bersifat rahasia.",
+            "Momenia tidak akan mengungkapkan informasi rahasia kepada pihak ketiga mana pun kecuali apabila pengungkapan tersebut diperlukan untuk penyediaan layanan, diwajibkan oleh hukum yang berlaku, diminta oleh Pengguna, atau diizinkan berdasarkan Ketentuan ini atau Kebijakan Privasi.",
+            "Kewajiban yang diatur dalam Bagian ini akan tetap berlaku meskipun Ketentuan ini telah berakhir, selama informasi tersebut masih bersifat rahasia berdasarkan hukum yang berlaku."
+          ]
+        },
+        {
+          "title": "Penyangkalan Jaminan",
+          "body": [
+            "Platform serta seluruh produk dan layanan yang disediakan melalui Momenia ditawarkan berdasarkan prinsip \"sebagaimana adanya\" (\"as is\") dan \"sebagaimana tersedia\" (\"as available\"). Sepanjang diizinkan oleh hukum yang berlaku, Momenia menyangkal seluruh jaminan, pernyataan, dan garansi dalam bentuk apa pun, baik yang tersurat, tersirat, berdasarkan undang-undang, maupun lainnya, termasuk namun tidak terbatas pada jaminan tersirat atas kelayakan untuk diperdagangkan, kesesuaian untuk tujuan tertentu, tidak adanya pelanggaran, ketersediaan, keandalan, keakuratan, atau operasional yang tidak terputus.",
+            "Momenia tidak menjamin bahwa Platform akan beroperasi tanpa gangguan, bahwa cacat atau kesalahan apa pun akan segera diperbaiki, bahwa Platform akan selalu aman atau bebas dari virus atau kode berbahaya, atau bahwa layanan akan memenuhi kebutuhan atau ekspektasi khusus setiap Pengguna.",
+            "Fitur yang memanfaatkan kecerdasan buatan, termasuk namun tidak terbatas pada teks undangan atau saran konten yang dihasilkan oleh AI, disediakan semata-mata sebagai alat bantu. Momenia tidak menjamin keakuratan, kelengkapan, legalitas, orisinalitas, atau kesesuaian konten apa pun yang dihasilkan melalui fitur tersebut. Pengguna tetap bertanggung jawab penuh untuk meninjau, menyunting, dan menyetujui seluruh konten sebelum dipublikasikan."
+          ]
+        },
+        {
+          "title": "Batasan Tanggung Jawab",
+          "body": [
+            "Sepanjang diizinkan oleh hukum yang berlaku, Momenia tidak bertanggung jawab atas kerugian tidak langsung, insidental, konsekuensial, eksemplar, punitif, atau khusus yang timbul dari atau berkaitan dengan penggunaan, atau ketidakmampuan menggunakan, Platform atau layanan apa pun yang disediakan melalui Platform, termasuk namun tidak terbatas pada kehilangan keuntungan, kehilangan pendapatan, kehilangan peluang bisnis, kehilangan reputasi (goodwill), kehilangan data, gangguan bisnis, atau kerugian komersial lainnya.",
+            "Tanpa membatasi hal tersebut di atas, Momenia tidak bertanggung jawab atas kegagalan atau keterlambatan yang diakibatkan oleh keadaan di luar kendali wajarnya, termasuk namun tidak terbatas pada bencana alam, tindakan pemerintah, perang, kerusuhan sipil, sengketa ketenagakerjaan, kegagalan jaringan telekomunikasi, gangguan layanan internet, kegagalan gerbang pembayaran, gangguan infrastruktur cloud, serangan siber, atau peristiwa force majeure lainnya.",
+            "Dalam keadaan apa pun, total tanggung jawab Momenia secara keseluruhan yang timbul dari atau berkaitan dengan Ketentuan ini, baik berdasarkan kontrak, perbuatan melawan hukum, kelalaian, tanggung jawab mutlak, atau lainnya, tidak akan melebihi jumlah total yang benar-benar dibayarkan oleh Pengguna kepada Momenia untuk transaksi spesifik yang menjadi dasar klaim tersebut.",
+            "Tidak ada satu pun ketentuan dalam Ketentuan ini yang mengecualikan atau membatasi tanggung jawab yang tidak dapat dikecualikan atau dibatasi berdasarkan hukum yang berlaku."
+          ]
+        },
+        {
+          "title": "Kewajiban Pengguna",
+          "body": [
+            "Dengan menggunakan Platform, Anda setuju untuk menggunakan Platform secara bertanggung jawab, sah, dan sesuai dengan Ketentuan ini. Anda selanjutnya setuju bahwa seluruh informasi dan materi yang disampaikan melalui Platform adalah akurat, sah, dan tidak melanggar hak pihak ketiga mana pun.",
+            "Anda tidak diperkenankan mengunggah, mempublikasikan, mentransmisikan, atau mendistribusikan konten apa pun yang melanggar hukum, bersifat fitnah, penipuan, menyesatkan, kasar, cabul, diskriminatif, atau dilarang berdasarkan hukum yang berlaku. Anda juga tidak diperkenankan menggunakan Platform untuk menyebarkan malware, spam, konten phishing, iklan tanpa izin, atau materi apa pun yang ditujukan untuk mengganggu operasional Platform atau pengalaman Pengguna lain.",
+            "Anda mengakui bahwa Anda bertanggung jawab penuh atas seluruh konten undangan, foto, video, berkas audio, informasi tamu, data RSVP, pesan, dan materi lain yang diunggah atau dipublikasikan melalui akun Anda. Momenia tidak bertanggung jawab untuk memverifikasi legalitas, kepemilikan, atau keakuratan konten tersebut.",
+            "Anda selanjutnya setuju untuk tidak melewati langkah-langkah keamanan yang diterapkan oleh Momenia, mencoba mengakses Platform tanpa izin, atau melakukan rekayasa balik, pengambilan data otomatis (scraping), atau aktivitas apa pun yang ditujukan untuk membahayakan integritas atau keamanan Platform."
+          ]
+        },
+        {
+          "title": "Keamanan",
+          "body": [
+            "Momenia menerapkan langkah-langkah administratif, teknis, dan organisasional yang wajar secara komersial untuk melindungi keamanan dan integritas Platform serta informasi yang diproses melaluinya. Langkah-langkah tersebut dapat mencakup mekanisme autentikasi yang aman, komunikasi terenkripsi, kontrol akses, pemantauan sistem, dan peningkatan keamanan secara berkala.",
+            "Meskipun demikian, tidak ada metode transmisi atau penyimpanan elektronik yang sepenuhnya aman. Oleh karena itu, Momenia tidak menjamin bahwa Platform akan kebal dari akses tanpa izin, serangan siber, kebocoran data, atau insiden keamanan lain di luar kendali wajarnya.",
+            "Pengguna bertanggung jawab penuh untuk menjaga kerahasiaan kredensial akun mereka dan mengambil langkah pencegahan yang memadai untuk mencegah akses tanpa izin ke akun mereka. Setiap aktivitas yang dilakukan melalui akun Pengguna akan dianggap telah dilakukan oleh Pengguna tersebut, kecuali terbukti sebaliknya sesuai dengan hukum yang berlaku."
+          ]
+        },
+        {
+          "title": "Privasi",
+          "body": [
+            "Momenia menghormati privasi Penggunanya dan berkomitmen untuk melindungi informasi pribadi yang dikumpulkan melalui Platform. Pengumpulan, penggunaan, penyimpanan, pemrosesan, pengungkapan, dan perlindungan data pribadi akan diatur oleh Kebijakan Privasi Momenia, yang merupakan bagian tidak terpisahkan dari Ketentuan ini.",
+            "Dengan menggunakan Platform, Anda menyetujui pengumpulan dan pemrosesan informasi pribadi Anda, termasuk informasi yang berkaitan dengan akun, transaksi, situs web undangan, daftar tamu, respons RSVP, dan komunikasi Anda, semata-mata untuk tujuan menyediakan, memelihara, meningkatkan, dan mengamankan layanan yang ditawarkan oleh Momenia.",
+            "Apabila diwajibkan oleh hukum yang berlaku, Momenia dapat mengungkapkan informasi tertentu kepada otoritas pemerintah yang berwenang atau pihak lain yang sah sehubungan dengan proses hukum, kewajiban regulasi, pencegahan penipuan, atau perlindungan hak dan kepentingan sah Momenia."
+          ]
+        },
+        {
+          "title": "Hukum yang Berlaku dan Informasi Kontak",
+          "body": [
+            "Ketentuan ini diatur oleh dan ditafsirkan sesuai dengan hukum Republik Indonesia, tanpa memperhatikan prinsip pertentangan hukum (conflict of law).",
+            "Setiap sengketa, perselisihan, atau klaim yang timbul dari atau berkaitan dengan Ketentuan ini atau penggunaan Platform akan terlebih dahulu diselesaikan melalui musyawarah dengan itikad baik di antara para pihak. Apabila sengketa tersebut tidak dapat diselesaikan secara musyawarah dalam jangka waktu yang wajar, sengketa akan diajukan ke pengadilan yang berwenang di Republik Indonesia yang memiliki yurisdiksi atas perkara tersebut.",
+            "Apabila Anda memiliki pertanyaan, kekhawatiran, keluhan, atau permintaan mengenai Ketentuan ini atau layanan yang disediakan oleh Momenia, Anda dapat menghubungi kami melalui kanal komunikasi resmi sebagaimana dipublikasikan di Platform. Momenia akan melakukan upaya yang wajar untuk menanggapi pertanyaan Anda sesuai dengan prosedur operasionalnya."
+          ]
+        },
+        {
+          "title": "Pemberitahuan Hukum",
+          "body": [
+            "Hak Cipta © 2026 Momenia. Seluruh Hak Dilindungi."
+          ]
+        }
+      ]
     },
     "workspace": {
       "sidebar": {

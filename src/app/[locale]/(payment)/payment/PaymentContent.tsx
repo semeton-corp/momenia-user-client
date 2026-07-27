@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "@/i18n/navigation"
 import { useCreateTransaction } from "@/hooks/useCreateTransaction"
 import { PaymentModal } from "./PaymentModal"
+import { TermsAndConditionsModal } from "./TermsAndConditionsModal"
 import type { CreateTransactionResponse } from "@/lib/api/transaction/transaction.types"
 
 const FEATURE_ADDONS = [
@@ -38,6 +39,8 @@ export function PaymentContent() {
 
   const [pendingTransaction, setPendingTransaction] = useState<CreateTransactionResponse | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [showTermsModal, setShowTermsModal] = useState(false)
 
   const templateId = searchParams.get("templateId") ?? ""
   const title = searchParams.get("title") ?? ""
@@ -249,11 +252,43 @@ export function PaymentContent() {
                 <p className="text-sm text-zinc-600">{t("paymentInfo")}</p>
               </div>
 
+              {/* Terms & Conditions acceptance */}
+              <label className="mb-4 flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => {
+                    if (e.target.checked && !agreedToTerms) {
+                      // Checking requires reading the Terms first — the controlled
+                      // `checked={agreedToTerms}` prop keeps the box visually
+                      // unchecked until the modal's Accept button sets it true.
+                      setShowTermsModal(true)
+                    } else {
+                      setAgreedToTerms(false)
+                    }
+                  }}
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-zinc-600">
+                  {t("termsCheckboxLabelPrefix")}{" "}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setShowTermsModal(true)
+                    }}
+                    className="font-medium text-indigo-600 underline underline-offset-2 hover:text-indigo-700"
+                  >
+                    {t("termsLinkText")}
+                  </button>
+                </span>
+              </label>
+
               {/* Pay Order button */}
               <Button
                 className="w-full rounded-2xl text-lg font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40 active:scale-95 disabled:opacity-70"
                 style={{ height: "56px" }}
-                disabled={isPending || !!pendingTransaction}
+                disabled={isPending || !!pendingTransaction || !agreedToTerms}
                 onClick={() => {
                   if (!pendingTransaction) {
                     createTransaction({
@@ -276,6 +311,17 @@ export function PaymentContent() {
                 </svg>
                 <p className="text-xs text-zinc-500">{t("securedBy")}</p>
               </div>
+
+              {/* Support contact — the Terms & Conditions' refund clause points
+                  users here ("official Customer Support channel") */}
+              <a
+                href="https://wa.me/628561114275"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 flex items-center justify-center gap-1.5 text-xs text-indigo-600 underline underline-offset-2 hover:text-indigo-700"
+              >
+                {t("needHelp")}
+              </a>
             </div>
 
           </div>
@@ -290,6 +336,20 @@ export function PaymentContent() {
             setShowModal(false)
             setPendingTransaction(null)
             localStorage.removeItem("pendingTransaction")
+          }}
+        />
+      )}
+
+      {/* Terms & Conditions Modal */}
+      {showTermsModal && (
+        <TermsAndConditionsModal
+          onAccept={() => {
+            setAgreedToTerms(true)
+            setShowTermsModal(false)
+          }}
+          onDecline={() => {
+            setAgreedToTerms(false)
+            setShowTermsModal(false)
           }}
         />
       )}

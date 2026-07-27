@@ -80,7 +80,9 @@
     "copyright": "© 2026 Momenia. All rights reserved. Designed to make your moments memorable.",
     "builtBy": "Built by",
     "sourceCode": "The source code is available on",
-    "github": "GitHub"
+    "github": "GitHub",
+    "contactUs": "Need help? Contact us on WhatsApp",
+    "whatsappNumber": "+62 856-1114-275"
   },
   "home": {
     "demoTitle": "Hello from Framer Motion!",
@@ -232,6 +234,8 @@
       "phoneNumber": "Phone Number",
       "logOut": "Log Out",
       "logOutSubtitle": "Sign out of your Momenia account",
+      "contactSupport": "Contact Support",
+      "contactSupportSubtitle": "Chat with us on WhatsApp: +62 856-1114-275",
       "loadError": "Failed to load your profile. Please check your connection.",
       "editDialog": {
         "title": "Edit Profile",
@@ -289,7 +293,168 @@
       "checkout": "Checkout",
       "selectPaymentMethod": "Select payment method",
       "paymentInfo": "Once you click \"Pay Order\", you will be redirected to a secure payment page where you can complete your payment via QR Code.",
-      "securedBy": "All transactions are protected and processed securely by Momenia."
+      "securedBy": "All transactions are protected and processed securely by Momenia.",
+      "termsCheckboxLabelPrefix": "I have read and agree to the",
+      "termsLinkText": "Terms & Conditions",
+      "termsModalTitle": "Terms & Conditions",
+      "termsLastUpdated": "Last Updated: 26 July 2026",
+      "termsAccept": "Accept",
+      "termsDecline": "Decline",
+      "needHelp": "Having trouble with your payment? Contact support",
+      "termsSections": [
+        {
+          "title": "Welcome to Momenia",
+          "body": [
+            "These Terms & Conditions (\"Terms\") constitute a legally binding agreement between Momenia (\"Momenia\", \"we\", \"our\", or \"us\") and any individual or legal entity (\"User\", \"you\", or \"your\") who accesses, registers for, purchases, or otherwise uses any products or services available through the Momenia Platform.",
+            "Momenia is an online platform that enables Users to create and publish digital invitation websites by purchasing digital invitation templates and utilizing various supporting services, including but not limited to AI-powered invitation content generation, RSVP management, Guestbook, Invitation Dashboard, Gallery, After Party features, Add-ons, and other digital services that may be introduced from time to time.",
+            "By accessing or using the Platform, creating an account, purchasing any Template or Add-on, or using any feature made available by Momenia, you acknowledge that you have read, understood, and agreed to be legally bound by these Terms as well as any other policies published by Momenia that are incorporated herein by reference.",
+            "If you do not agree to these Terms, you must immediately discontinue your access to and use of the Platform."
+          ]
+        },
+        {
+          "title": "Conditions of Use",
+          "body": [
+            "Your access to and use of the Platform are conditioned upon your acceptance of and compliance with these Terms. By using the Platform, you represent and warrant that you possess the legal capacity to enter into a binding agreement under the applicable laws of the Republic of Indonesia and that all information submitted to Momenia is true, accurate, complete, and current.",
+            "You acknowledge that you are solely responsible for maintaining the confidentiality of your account credentials and for all activities conducted through your account. You further agree to use the Platform solely for lawful purposes and in accordance with these Terms, applicable laws, and generally accepted standards of online conduct.",
+            "Momenia reserves the right, at its sole discretion, to refuse access to the Platform, suspend any account, restrict access to certain features, or terminate any service if Momenia reasonably believes that your use of the Platform violates these Terms, applicable laws, the rights of any third party, or may adversely affect the integrity, security, or operation of the Platform."
+          ]
+        },
+        {
+          "title": "Overview",
+          "body": [
+            "Momenia provides a cloud-based platform that allows Users to purchase digital invitation templates, personalize invitation content, publish invitation websites, manage guest information, collect RSVP responses, receive guest messages, and purchase additional digital services made available through the Platform.",
+            "The features, functionality, and availability of the Platform may change from time to time as part of Momenia's ongoing product development and operational improvements. Momenia reserves the right to introduce new features, discontinue existing services, modify product offerings, or update any aspect of the Platform without prior notice, provided that such modifications do not conflict with applicable laws.",
+            "Your continued use of the Platform constitutes your acceptance of any updates or modifications made to the Platform and these Terms."
+          ]
+        },
+        {
+          "title": "Modification of the Platform and These Terms",
+          "body": [
+            "Momenia continuously seeks to improve its products and services in order to provide a better user experience. Accordingly, Momenia reserves the right, at any time and without prior notice, to modify, update, suspend, or discontinue any portion of the Platform, including but not limited to Templates, Add-ons, subscription packages, pricing, features, system architecture, or user interface.",
+            "Momenia further reserves the right to amend these Terms from time to time whenever deemed necessary. Any amendment shall become effective immediately upon publication on the Platform unless otherwise specified.",
+            "It is your responsibility to review these Terms periodically. Your continued access to or use of the Platform following the publication of any revised Terms constitutes your acceptance of such revisions."
+          ]
+        },
+        {
+          "title": "Grant of License",
+          "body": [
+            "Subject to your full compliance with these Terms and successful verification of your payment, Momenia grants you a limited, non-exclusive, non-transferable, non-sublicensable, and revocable license to use the digital Template and any related digital services purchased through the Platform.",
+            "The license granted under these Terms is solely for the purpose of creating, editing, publishing, and managing invitation websites through the Momenia Platform for your own personal or organizational event. Nothing contained in these Terms shall be construed as transferring ownership of any intellectual property rights in the Template or any other materials made available by Momenia.",
+            "Except as expressly permitted by Momenia in writing, you shall not reproduce, distribute, sublicense, assign, lease, resell, modify, reverse engineer, decompile, extract, or otherwise exploit any Template, source code, design asset, or other proprietary material available through the Platform.",
+            "Any unauthorized use of the licensed materials shall automatically terminate the license granted herein without prejudice to any other rights or remedies available to Momenia under applicable law."
+          ]
+        },
+        {
+          "title": "Proprietary Rights",
+          "body": [
+            "The Platform, including all Templates, software, source code, databases, graphics, illustrations, user interface designs, logos, trademarks, service marks, documentation, Add-ons, Gallery services, and all other materials made available through the Platform, are owned by or licensed to Momenia and are protected by applicable intellectual property laws and international copyright principles.",
+            "Nothing contained in these Terms shall grant you any ownership interest in or to any intellectual property belonging to Momenia or its licensors. All rights not expressly granted to you under these Terms are reserved by Momenia.",
+            "You agree not to copy, reproduce, distribute, modify, publish, transmit, publicly display, create derivative works from, or otherwise exploit any portion of the Platform except as expressly permitted under these Terms or with Momenia's prior written consent."
+          ]
+        },
+        {
+          "title": "Fees",
+          "body": [
+            "The fees payable for the use of the Platform shall be displayed on the applicable payment page prior to the completion of any transaction. Such fees may include, without limitation, the purchase price of digital Templates, Add-ons, subscription extensions, premium features, or any other digital products and services offered by Momenia.",
+            "All payments shall be processed through the payment methods officially supported by the Platform. A transaction shall only be deemed completed after payment has been successfully authorized and verified through the applicable payment system.",
+            "Due to the nature of digital products and services, all successfully completed purchases are generally non-refundable. Once a Template or digital service has been made available to the User, the transaction shall be considered final.",
+            "Notwithstanding the foregoing, Momenia may, at its sole discretion, approve a refund request if the User demonstrates that the purchased service could not be delivered due to a technical failure attributable to Momenia, a duplicate payment for the same transaction, or a payment successfully processed without successful order creation due to a system error.",
+            "Any refund request must be submitted through Momenia's official Customer Support channel together with sufficient supporting documentation, including the registered account information, transaction details, proof of payment, and a description of the issue encountered. Momenia reserves the right to request additional information as reasonably necessary to complete the verification process.",
+            "Where a refund request is approved, Momenia shall process the refund within three (3) × twenty-four (24) working hours following the completion of the verification process. The actual receipt of the refunded amount may vary depending upon the policies and processing times of the relevant bank, payment gateway, electronic wallet provider, or financial institution.",
+            "Momenia reserves the right to reject any refund request where the purchased Template or service has been successfully delivered, accessed, or used by the User, where no system error has occurred, or where the request is based solely upon a change of preference or any circumstance outside Momenia's reasonable control."
+          ]
+        },
+        {
+          "title": "Eligibility",
+          "body": [
+            "By accessing or using the Platform, you represent and warrant that you are legally entitled to use the services provided by Momenia and that you have the authority to enter into transactions contemplated under these Terms.",
+            "You further represent and warrant that all content uploaded to the Platform, including but not limited to photographs, videos, audio recordings, logos, guest information, event details, and any other materials, is either owned by you or used with the appropriate authorization from the lawful rights holder.",
+            "You acknowledge and agree that Momenia shall not be responsible for any dispute arising from your use of content that infringes upon the intellectual property rights, privacy rights, or other legal rights of any third party."
+          ]
+        },
+        {
+          "title": "Support",
+          "body": [
+            "Momenia provides Customer Support to assist Users with matters relating to the operation and use of the Platform, including account registration, payment processing, Template purchases, Invitation Dashboard, AI-powered content generation, Add-ons, and other services made available through the Platform.",
+            "Customer Support shall use commercially reasonable efforts to respond to inquiries and resolve reported issues within a reasonable timeframe. However, response times may vary depending upon the complexity of the issue, the availability of supporting information, and whether the resolution requires the involvement of third-party service providers, including but not limited to payment gateway providers, cloud infrastructure providers, or other technology partners.",
+            "Nothing in these Terms shall be construed as guaranteeing uninterrupted support services or requiring Momenia to resolve every reported issue within a specified period of time."
+          ]
+        },
+        {
+          "title": "Terms of Termination",
+          "body": [
+            "Momenia reserves the right, at its sole discretion and without prejudice to any other rights or remedies available under applicable law, to suspend, restrict, or terminate your access to the Platform, either temporarily or permanently, if Momenia reasonably determines that you have violated these Terms, applicable laws, or any policy governing the use of the Platform.",
+            "Without limiting the foregoing, Momenia may terminate or suspend your account if you engage in fraudulent activities, misuse the Platform, attempt to gain unauthorized access to any system or data, distribute malicious software, infringe upon the intellectual property rights of Momenia or any third party, upload unlawful content, or otherwise use the Platform in a manner that may harm Momenia, its Users, or any third party.",
+            "Upon termination of your account, your right to access and use the Platform, including any licenses granted under these Terms, shall immediately cease. Momenia shall not be liable for any loss of access to Templates, invitation websites, digital content, or other services resulting from the lawful termination of your account pursuant to these Terms.",
+            "Termination of your account shall not affect any rights, obligations, or liabilities accrued prior to the effective date of such termination."
+          ]
+        },
+        {
+          "title": "Confidentiality",
+          "body": [
+            "Momenia recognizes the importance of maintaining the confidentiality of information entrusted to us by our Users. Accordingly, Momenia shall use commercially reasonable efforts to safeguard confidential information provided through the Platform and shall process such information in accordance with applicable laws and Momenia's Privacy Policy.",
+            "For the purposes of these Terms, confidential information includes, but is not limited to, account credentials, payment information, transaction history, invitation content not intended for public access, guest information, RSVP records, private messages submitted through the Platform, and any other information designated as confidential by its nature.",
+            "Momenia shall not disclose confidential information to any third party except where such disclosure is necessary for the provision of the services, required by applicable law, requested by the User, or otherwise permitted under these Terms or the Privacy Policy.",
+            "The obligations set forth in this Section shall survive the termination of these Terms for so long as such information remains confidential under applicable law."
+          ]
+        },
+        {
+          "title": "Warranty Disclaimer",
+          "body": [
+            "The Platform and all products and services provided through Momenia are offered on an \"as is\" and \"as available\" basis. To the fullest extent permitted by applicable law, Momenia disclaims all warranties, representations, and guarantees of any kind, whether express, implied, statutory, or otherwise, including but not limited to any implied warranties of merchantability, fitness for a particular purpose, non-infringement, availability, reliability, accuracy, or uninterrupted operation.",
+            "Momenia does not warrant that the Platform will operate without interruption, that any defects or errors will be corrected immediately, that the Platform will always be secure or free from viruses or malicious code, or that the services will satisfy every User's particular requirements or expectations.",
+            "Features utilizing artificial intelligence, including but not limited to AI-generated invitation wording or content suggestions, are provided solely as supporting tools. Momenia does not guarantee the accuracy, completeness, legality, originality, or suitability of any content generated through such features. Users remain solely responsible for reviewing, editing, and approving all content before publication."
+          ]
+        },
+        {
+          "title": "Limitation of Liability",
+          "body": [
+            "To the maximum extent permitted by applicable law, Momenia shall not be liable for any indirect, incidental, consequential, exemplary, punitive, or special damages arising out of or relating to the use of, or inability to use, the Platform or any services provided through the Platform, including but not limited to loss of profits, loss of revenue, loss of business opportunities, loss of goodwill, loss of data, interruption of business, or any other commercial damages or losses.",
+            "Without limiting the foregoing, Momenia shall not be responsible for any failure or delay resulting from circumstances beyond its reasonable control, including but not limited to natural disasters, acts of government, war, civil unrest, labor disputes, failures of telecommunications networks, internet service interruptions, payment gateway failures, cloud infrastructure outages, cyberattacks, or other force majeure events.",
+            "In any event, Momenia's total aggregate liability arising out of or relating to these Terms, whether in contract, tort, negligence, strict liability, or otherwise, shall not exceed the total amount actually paid by the User to Momenia for the specific transaction giving rise to the claim.",
+            "Nothing contained herein shall exclude or limit any liability that cannot be excluded or limited under applicable law."
+          ]
+        },
+        {
+          "title": "User Obligations",
+          "body": [
+            "By using the Platform, you agree that you shall use the Platform responsibly, lawfully, and in accordance with these Terms. You further agree that all information and materials submitted through the Platform are accurate, lawful, and do not infringe upon the rights of any third party.",
+            "You shall not upload, publish, transmit, or distribute any content that is unlawful, defamatory, fraudulent, misleading, abusive, obscene, discriminatory, or otherwise prohibited under applicable law. You shall likewise refrain from using the Platform to distribute malware, spam, phishing content, unauthorized advertisements, or any material intended to interfere with the operation of the Platform or the experience of other Users.",
+            "You acknowledge that you are solely responsible for all invitation content, photographs, videos, audio files, guest information, RSVP data, messages, and any other materials uploaded or published through your account. Momenia shall not be responsible for verifying the legality, ownership, or accuracy of such content.",
+            "You further agree not to circumvent any security measures implemented by Momenia, attempt unauthorized access to the Platform, or engage in reverse engineering, automated scraping, or any activity intended to compromise the integrity or security of the Platform."
+          ]
+        },
+        {
+          "title": "Security",
+          "body": [
+            "Momenia employs commercially reasonable administrative, technical, and organizational measures designed to protect the security and integrity of the Platform and the information processed through it. Such measures may include secure authentication mechanisms, encrypted communications, access controls, system monitoring, and periodic security improvements.",
+            "Notwithstanding the foregoing, no method of electronic transmission or storage is entirely secure. Accordingly, Momenia does not warrant that the Platform will be immune from unauthorized access, cyberattacks, data breaches, or other security incidents beyond its reasonable control.",
+            "Users are solely responsible for maintaining the confidentiality of their account credentials and for taking appropriate precautions to prevent unauthorized access to their accounts. Any activity performed through a User's account shall be deemed to have been performed by the User unless proven otherwise in accordance with applicable law."
+          ]
+        },
+        {
+          "title": "Privacy",
+          "body": [
+            "Momenia respects the privacy of its Users and is committed to protecting personal information collected through the Platform. The collection, use, storage, processing, disclosure, and protection of personal data shall be governed by Momenia's Privacy Policy, which forms an integral part of these Terms.",
+            "By using the Platform, you consent to the collection and processing of your personal information, including information relating to your account, transactions, invitation websites, guest lists, RSVP responses, and communications, solely for the purposes of providing, maintaining, improving, and securing the services offered by Momenia.",
+            "Where required by applicable law, Momenia may disclose certain information to competent governmental authorities or other authorized parties in connection with legal proceedings, regulatory obligations, fraud prevention, or the protection of Momenia's legitimate rights and interests."
+          ]
+        },
+        {
+          "title": "Governing Law and Contact Information",
+          "body": [
+            "These Terms shall be governed by and construed in accordance with the laws of the Republic of Indonesia, without regard to its conflict of law principles.",
+            "Any dispute, controversy, or claim arising out of or relating to these Terms or the use of the Platform shall first be resolved through good faith negotiations between the parties. If such dispute cannot be resolved amicably within a reasonable period of time, the dispute shall be submitted to the competent courts of the Republic of Indonesia having jurisdiction over the matter.",
+            "If you have any questions, concerns, complaints, or requests regarding these Terms or the services provided by Momenia, you may contact us through our official communication channels as published on the Platform. Momenia will make reasonable efforts to respond to your inquiry in accordance with its operational procedures."
+          ]
+        },
+        {
+          "title": "Legal Notice",
+          "body": [
+            "Copyright © 2026 Momenia. All Rights Reserved."
+          ]
+        }
+      ]
     },
     "workspace": {
       "sidebar": {
