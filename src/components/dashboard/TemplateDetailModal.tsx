@@ -3,7 +3,7 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import Image from "next/image"
-import { Heart, Smartphone, Monitor, Eye, X, ArrowLeft } from "lucide-react"
+import { Heart, Smartphone, Monitor, Eye, X, ArrowLeft, Clock } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 import { useTranslations, useLocale } from "next-intl"
 
@@ -63,6 +63,9 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
       setSelectedDuration(durations[0].id)
     }
   }, [durations, selectedDuration])
+
+  const selectedDurationPrice = Number(durations.find((d) => d.id === selectedDuration)?.price ?? 0)
+  const totalPrice = (template?.price ?? 0) + selectedDurationPrice
 
   const handleContinueToPayment = () => {
     if (!template) return
@@ -600,23 +603,37 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                 <div>
                   <p className="text-lg text-zinc-900 xl:text-2xl">{t("durationAddOns")}</p>
                   <p className="mb-3 mt-1 text-sm text-zinc-400 xl:mb-4">{t("durationAddOnsSubtitle")}</p>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {isDurationsLoading ? (
                       <div className="flex items-center justify-center py-6 text-sm text-zinc-400">Loading...</div>
                     ) : durations.map((duration) => {
                       const price = Number(duration.price)
                       const label = `${duration.duration} ${t(`durationUnit.${duration.unit}`)}`
+                      const isSelected = selectedDuration === duration.id
                       return (
                         <div
                           key={duration.id}
-                          className="flex min-h-20 cursor-pointer items-center gap-3 rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-3 transition-colors hover:bg-indigo-100 xl:gap-4 xl:py-0"
+                          className={cn(
+                            "flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-3.5 transition-all xl:gap-4",
+                            isSelected
+                              ? "border-indigo-300 bg-indigo-50"
+                              : "border-zinc-200 bg-white hover:border-zinc-300"
+                          )}
                           onClick={() => setSelectedDuration(duration.id)}
                         >
-                          <span className="flex-1 text-sm font-medium text-foreground xl:text-lg">{label}</span>
-                          <span className="whitespace-nowrap text-sm font-medium text-foreground xl:text-lg">
+                          <div
+                            className={cn(
+                              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                              isSelected ? "bg-indigo-100 text-indigo-600" : "bg-zinc-100 text-zinc-400"
+                            )}
+                          >
+                            <Clock className="h-5 w-5" />
+                          </div>
+                          <span className="flex-1 text-sm font-semibold text-foreground xl:text-lg">{label}</span>
+                          <span className="whitespace-nowrap text-sm font-semibold text-foreground xl:text-lg">
                             {price === 0 ? "Rp 0" : `Rp ${price.toLocaleString("id-ID")}`}
                           </span>
-                          <RadioDot checked={selectedDuration === duration.id} className="ml-3" />
+                          <RadioDot checked={isSelected} />
                         </div>
                       )
                     })}
@@ -627,7 +644,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
               {/* CTA */}
               <div className="shrink-0 border-t border-zinc-100 pt-4 xl:pt-6">
                 <Button size="lg" className="h-12 w-full rounded-xl text-sm font-semibold xl:h-15 xl:text-base" onClick={handleContinueToPayment}>
-                  {t("continueToPayment")}
+                  {t("continueToPayment")} · Rp {totalPrice.toLocaleString("id-ID")}
                 </Button>
               </div>
             </div>

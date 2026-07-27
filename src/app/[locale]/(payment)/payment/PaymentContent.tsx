@@ -160,33 +160,46 @@ export function PaymentContent() {
               </div>
             )}
 
-            {/* Feature add-on rows — height 88px each */}
+            {/* Feature add-on cards */}
             {selectedFeatures.map((key, i) => (
               <div
                 key={key}
-                className="mb-3 flex w-full items-center justify-between rounded-xl border border-indigo-200 bg-indigo-50 px-5"
-                style={{ height: "88px" }}
+                className="mb-3 flex w-full items-center justify-between rounded-2xl border-2 border-indigo-300 bg-indigo-50 px-5 py-4 transition-all"
               >
-                <span className="text-lg font-medium text-zinc-800">{tModal(key as ModalKey)}</span>
-                <span className="text-lg font-medium text-zinc-800">{fmt(featurePrices[i])}</span>
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-200 text-indigo-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m0 0h6m-6 0h-6" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-zinc-900">{tModal(key as ModalKey)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-lg font-semibold text-zinc-900">{fmt(featurePrices[i])}</span>
+                  <div className="h-6 w-6 shrink-0 rounded-full border-2 border-indigo-600 bg-indigo-600" />
+                </div>
               </div>
             ))}
 
             {/* More add-ons button */}
-            <button
-              type="button"
-              className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-indigo-400 bg-white px-5 py-6 transition-all hover:border-indigo-500 hover:bg-indigo-50 active:scale-95"
-            >
-              <div className="mb-1.5 flex items-center justify-center">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600">
-                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
+            {process.env.NEXT_PUBLIC_FEATURE_PAYMENT_ADDONS === "true" && (
+              <button
+                type="button"
+                className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-indigo-400 bg-white px-5 py-6 transition-all hover:border-indigo-500 hover:bg-indigo-50 active:scale-95"
+              >
+                <div className="mb-1.5 flex items-center justify-center">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600">
+                    <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              <span className="text-base font-semibold text-indigo-600">{t("addons")}</span>
-              <span className="mt-0.5 text-xs text-zinc-500">Add Additional Features or Services</span>
-            </button>
+                <span className="text-base font-semibold text-indigo-600">{t("addons")}</span>
+                <span className="mt-0.5 text-xs text-zinc-500">Add Additional Features or Services</span>
+              </button>
+            )}
           </div>
 
           {/* ══ RIGHT: Order Summary + Checkout ══ */}
@@ -257,16 +270,7 @@ export function PaymentContent() {
                 <input
                   type="checkbox"
                   checked={agreedToTerms}
-                  onChange={(e) => {
-                    if (e.target.checked && !agreedToTerms) {
-                      // Checking requires reading the Terms first — the controlled
-                      // `checked={agreedToTerms}` prop keeps the box visually
-                      // unchecked until the modal's Accept button sets it true.
-                      setShowTermsModal(true)
-                    } else {
-                      setAgreedToTerms(false)
-                    }
-                  }}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
                   className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="text-sm text-zinc-600">
@@ -286,7 +290,7 @@ export function PaymentContent() {
 
               {/* Pay Order button */}
               <Button
-                className="w-full rounded-2xl text-lg font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40 active:scale-95 disabled:opacity-70"
+                className="w-full rounded-2xl text-lg font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale disabled:shadow-none"
                 style={{ height: "56px" }}
                 disabled={isPending || !!pendingTransaction || !agreedToTerms}
                 onClick={() => {
