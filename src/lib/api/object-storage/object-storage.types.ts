@@ -4,7 +4,7 @@ export type ObjectCategory =
   | "other"
   | "invitation-template"
   | "add-on"
-  | "invitation-content"
+  | "user-invitation-content"
 
 export type PresignedUploadRequest = {
   category: ObjectCategory

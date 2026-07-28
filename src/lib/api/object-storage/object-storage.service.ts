@@ -42,7 +42,7 @@ async function putToPresignedUrl(presigned: PresignedUploadResponse, file: File)
 // Orchestrator — returns the permanent object URL to store in fieldValues.
 export const uploadImage = async (
   file: File,
-  category: ObjectCategory = "invitation-content"
+  category: ObjectCategory = "user-invitation-content"
 ): Promise<string> => {
   const presigned = await getPresignedUploadUrl({
     category,

@@ -188,7 +188,7 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
     setPendingImage(null)
     setLoading(true)
     try {
-      const url = await uploadImage(croppedFile, "invitation-content")
+      const url = await uploadImage(croppedFile, "user-invitation-content")
       onChange(url)
       toast("Image uploaded successfully", "success")
     } catch (err) {
