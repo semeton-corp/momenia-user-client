@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import Ambient from "@/assets/llandingpage/banner-create-now.svg"
 import { BannerFilterDropdown, type BannerFilterOption } from "./BannerFilterDropdown"
+import { SortFilterDropdown, type SortFilterOption } from "./SortFilterDropdown"
 
 type DashboardBannerProps = {
   search: string
@@ -13,9 +14,12 @@ type DashboardBannerProps = {
   categoryOptions: BannerFilterOption[]
   selectedCategory: string
   onCategoryChange: (value: string) => void
-  sortOptions: BannerFilterOption[]
-  selectedSort: string
-  onSortChange: (value: string) => void
+  sortFieldOptions: SortFilterOption[]
+  selectedSortField: string
+  onSortFieldChange: (value: string) => void
+  sortOrderOptions: SortFilterOption[]
+  selectedSortOrder: string
+  onSortOrderChange: (value: string) => void
 }
 
 export function DashboardBanner({
@@ -24,9 +28,12 @@ export function DashboardBanner({
   categoryOptions,
   selectedCategory,
   onCategoryChange,
-  sortOptions,
-  selectedSort,
-  onSortChange,
+  sortFieldOptions,
+  selectedSortField,
+  onSortFieldChange,
+  sortOrderOptions,
+  selectedSortOrder,
+  onSortOrderChange,
 }: DashboardBannerProps) {
   const t = useTranslations("dashboard.banner")
 
@@ -34,26 +41,32 @@ export function DashboardBanner({
     <BannerFilterDropdown
       icon={<ChevronDown className="hidden h-4 w-4 shrink-0 md:block md:h-5 md:w-5" />}
       label={t("category")}
+      title={t("category")}
       value={selectedCategory}
       options={categoryOptions}
       onChange={onCategoryChange}
-      triggerClassName="h-10 w-[80px] md:h-13 md:w-[150px] xl:h-[66px] xl:w-[176px]"
+      align="left"
+      triggerClassName="h-10 w-[80px] md:h-13 md:w-[150px] xl:h-[66px] xl:w-[224px]"
     />
   )
 
   const sortDropdown = (
-    <BannerFilterDropdown
+    <SortFilterDropdown
       icon={<ArrowDownAZ className="h-4 w-4 shrink-0 md:h-5 md:w-5" />}
       label={t("sort")}
-      value={selectedSort}
-      options={sortOptions}
-      onChange={onSortChange}
-      triggerClassName="h-10 w-[84px] md:h-13 md:w-[150px] xl:h-[66px] xl:w-[176px]"
+      title={t("sortBy")}
+      fieldValue={selectedSortField}
+      fieldOptions={sortFieldOptions}
+      onFieldChange={onSortFieldChange}
+      orderValue={selectedSortOrder}
+      orderOptions={sortOrderOptions}
+      onOrderChange={onSortOrderChange}
+      triggerClassName="h-10 w-[84px] md:h-13 md:w-[150px] xl:h-[66px] xl:w-[224px]"
     />
   )
 
   return (
-    <div className="mx-auto mt-2 mb-6 w-full max-w-345 md:my-0 xl:mt-14 xl:mb-11 xl:w-[1321px] xl:max-w-none">
+    <div className="mx-auto mt-2 mb-6 w-full max-w-345 md:my-0 xl:mt-14 xl:mb-11 xl:w-full xl:max-w-none">
       <div
         className="relative w-full rounded-3xl p-[18px] md:rounded-[36px] md:px-14 md:py-12 xl:flex xl:h-[301px] xl:items-center xl:justify-center xl:px-0 xl:py-0"
         style={{
@@ -86,7 +99,7 @@ export function DashboardBanner({
         </div>
 
         {/* Search + Filters */}
-        <div className="flex w-full max-w-6xl mx-auto items-center gap-2 md:gap-3 xl:gap-4">
+        <div className="flex w-full max-w-6xl mx-auto items-center gap-2 md:gap-3 xl:max-w-[1480px] xl:gap-4">
           {/* Search input — flex-1 supaya memanjang mengisi sisa ruang, jadi jarak ke
               kedua dropdown seragam dan tidak ada ruang kosong di kanan. */}
           <div className="relative flex-1">
@@ -103,8 +116,7 @@ export function DashboardBanner({
               placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="h-10 w-full rounded-xl border bg-[var(--background)] pl-3 pr-10 text-xs text-[#737373] placeholder:text-[#737373] outline-none focus:ring-2 focus:ring-indigo-300 md:h-13 md:pl-4 md:pr-12 md:text-base xl:h-[66px] xl:rounded-2xl xl:bg-indigo-50 xl:pl-8 xl:pr-16 xl:text-base xl:font-normal xl:text-foreground xl:placeholder:text-zinc-400"
-              style={{ borderColor: "var(--background)" }}
+              className="h-10 w-full rounded-xl border border-[var(--background)] bg-[var(--background)] pl-3 pr-10 text-xs text-[#737373] placeholder:text-[#737373] outline-none focus:ring-2 focus:ring-indigo-300 md:h-13 md:pl-4 md:pr-12 md:text-base xl:h-[66px] xl:rounded-2xl xl:border-[var(--border)] xl:pl-8 xl:pr-16 xl:text-base xl:font-normal xl:text-foreground xl:placeholder:text-zinc-400"
             />
             {search && (
               <button
@@ -135,18 +147,24 @@ export function DashboardBanner({
       <BannerFilterDropdown
         icon={<ChevronDown className="h-4 w-4 shrink-0" />}
         label={t("category")}
+        title={t("category")}
         value={selectedCategory}
         options={categoryOptions}
         onChange={onCategoryChange}
+        align="left"
         centerContent
         triggerClassName="h-10"
       />
-      <BannerFilterDropdown
+      <SortFilterDropdown
         icon={<ArrowDownAZ className="h-4 w-4 shrink-0" />}
         label={t("sort")}
-        value={selectedSort}
-        options={sortOptions}
-        onChange={onSortChange}
+        title={t("sortBy")}
+        fieldValue={selectedSortField}
+        fieldOptions={sortFieldOptions}
+        onFieldChange={onSortFieldChange}
+        orderValue={selectedSortOrder}
+        orderOptions={sortOrderOptions}
+        onOrderChange={onSortOrderChange}
         centerContent
         triggerClassName="h-10"
       />

@@ -10,33 +10,37 @@ import type { TransactionRecord, TransactionStatus } from "@/lib/types/transacti
 
 function normalizeStatus(order: Order): TransactionStatus {
   const s = (order.paymentStatus || order.orderStatus || "").toLowerCase()
-  if (["paid", "success", "completed", "settlement", "capture"].includes(s)) return "completed"
-  if (["failed", "cancelled", "canceled", "expired", "deny", "denied"].includes(s)) return "failed"
+  if (["paid", "success", "completed", "settlement", "capture"].includes(s)) return "success"
+  if (["expired"].includes(s)) return "expired"
+  if (["deny", "denied"].includes(s)) return "deny"
+  if (["failed", "cancelled", "canceled"].includes(s)) return "failed"
   return "pending"
 }
 
 // API mengirim timestamp gaya Go, mis. "2026-06-18 22:08:32.861282 +0700 +07"
 // (offset ditulis dua kali) — ambil tanggal/jam + offset pertama saja, sisanya diabaikan.
-function formatOrderTime(raw: string): string {
+function formatOrderTime(raw: string): { time: string; date: string } {
   const match = raw.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})(?:\.\d+)?\s*([+-]\d{2}:?\d{2})?/)
-  if (!match) return raw
+  if (!match) return { time: raw, date: "" }
   const [, datePart, timePart, offsetRaw] = match
   const offset = offsetRaw ? offsetRaw.replace(/^([+-]\d{2})(\d{2})$/, "$1:$2") : "Z"
   const date = new Date(`${datePart}T${timePart}${offset}`)
-  if (Number.isNaN(date.getTime())) return raw
-  return `${date.toLocaleTimeString("en-GB")} · ${date.toLocaleDateString("en-US")}`
+  if (Number.isNaN(date.getTime())) return { time: raw, date: "" }
+  return { time: date.toLocaleTimeString("en-GB"), date: date.toLocaleDateString("en-US") }
 }
 
 function mapOrderToTransaction(order: Order): TransactionRecord {
   const templateItem = order.orderItems.find((i) => i.itemType === "template")
   const title = templateItem?.productName ?? order.orderItems[0]?.productName ?? order.orderNumber
+  const { time, date } = formatOrderTime(order.createdAt)
 
   return {
     id: order.orderNumber,
     title,
     totalPrice: parseFloat(order.totalPrice),
     status: normalizeStatus(order),
-    timeLabel: formatOrderTime(order.createdAt),
+    timeLabel: time,
+    dateLabel: date,
     items:
       order.orderItems.length > 1
         ? order.orderItems.map((item) => ({
@@ -62,7 +66,6 @@ export default function TransactionPage() {
   const { data, isLoading, isError } = useOrders({ pageSize, cursor: currentCursor })
 
   const rows = (data?.data ?? []).map(mapOrderToTransaction)
-  const totalData = data?.totalData ?? 0
   const totalPage = data?.totalPage ?? 1
 
   const handlePageSizeChange = (size: number) => {
@@ -71,9 +74,11 @@ export default function TransactionPage() {
   }
 
   const statusText: Record<TransactionStatus, string> = {
-    completed: t("status.completed"),
     pending: t("status.pending"),
+    success: t("status.success"),
+    expired: t("status.expired"),
     failed: t("status.failed"),
+    deny: t("status.deny"),
   }
 
   return (
@@ -102,6 +107,7 @@ export default function TransactionPage() {
             totalPriceLabel={t("table.totalPrice")}
             statusLabel={t("table.status")}
             timeLabel={t("table.time")}
+            dateLabel={t("table.date")}
             statusText={statusText}
             templateLabel={t("template")}
             durationLabel={t("duration")}
@@ -109,8 +115,8 @@ export default function TransactionPage() {
             itemsIncludedLabel={(count) => t("itemsIncluded", { count })}
             viewDetailsLabel={t("viewDetails")}
             hideDetailsLabel={t("hideDetails")}
-            emptyLabel={t("empty")}
-            selectionLabel={tc("selectedRows", { count: 0, total: totalData })}
+            emptyTitle={t("emptyTitle")}
+            emptySubtitle={t("emptySubtitle")}
             rowsPerPageLabel={tc("rowsPerPage")}
             pageLabel={tc("pageLabel", { current: currentPage, total: totalPage })}
             pageSize={pageSize}
@@ -122,6 +128,7 @@ export default function TransactionPage() {
             onNextPage={() => {
               if (data?.nextCursor) setCursorStack((prev) => [...prev, data.nextCursor])
             }}
+            lastPageUnsupportedLabel={tc("lastPageUnsupported")}
           />
         )}
       </div>
