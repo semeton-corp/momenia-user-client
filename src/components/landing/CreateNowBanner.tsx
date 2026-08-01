@@ -3,6 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
+import { useRouter } from "@/i18n/navigation"
 import Ambient from "@/assets/llandingpage/banner-create-now.svg"
 
 export function CreateNowBanner() {
@@ -12,6 +13,7 @@ export function CreateNowBanner() {
   const scaleWrapperRef           = React.useRef<HTMLDivElement>(null)
 
   const t = useTranslations("landing.createNow")
+  const router = useRouter()
 
   // Detect browser zoom via devicePixelRatio
   React.useEffect(() => {
@@ -66,7 +68,7 @@ export function CreateNowBanner() {
       >
         <div className="mx-auto w-full max-w-[1600px] px-4 md:px-6">
           <div
-            className="relative mx-auto flex w-full items-center justify-center overflow-hidden rounded-[24px] h-32 md:h-40 md:rounded-[32px] lg:h-64 lg:rounded-[40px]"
+            className="relative mx-auto flex w-full items-center justify-center overflow-hidden rounded-[24px] py-8 md:rounded-[32px] md:py-12 lg:rounded-[40px] lg:py-16"
             style={{
               background:
                 "linear-gradient(to top, #4F46E5 0%, #6366F1 44%, #A5B4FC 100%)",
@@ -102,10 +104,16 @@ export function CreateNowBanner() {
               <h3 className="font-semibold text-2xl md:text-4xl lg:text-6xl">{t("title")}</h3>
 
               <p className="mt-1 text-xs font-normal md:mt-2 md:text-sm lg:text-lg">
-                {t("subtitle1")}
+                {t("subtitle")}
               </p>
-              <p className="text-xs font-normal md:text-sm lg:text-lg">{t("subtitle2")}</p>
 
+              <button
+                type="button"
+                onClick={() => router.push("/dashboard")}
+                className="pointer-events-auto mt-4 cursor-pointer rounded-xl bg-white px-6 py-2.5 text-xs font-semibold text-primary shadow-sm transition-colors hover:bg-indigo-50 md:mt-6 md:px-8 md:py-3 md:text-sm lg:mt-8 lg:px-10 lg:py-4 lg:text-base"
+              >
+                {t("cta")}
+              </button>
             </div>
           </div>
         </div>

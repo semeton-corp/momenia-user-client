@@ -68,8 +68,11 @@ export default function ToastProvider({ children }: { children: React.ReactNode 
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
+      {/* Mobile: fixed bottom nav (dashboard & invitation workspace) tingginya
+          90px + safe-area — toast digeser ke atasnya + jarak 16px supaya tidak
+          ketiban. Desktop tidak ada bottom nav, jadi balik ke bottom-5. */}
       <div
-        className="fixed bottom-5 right-5 z-[100] w-[360px] max-w-[calc(100vw-2.5rem)]"
+        className="fixed right-5 bottom-[calc(106px_+_env(safe-area-inset-bottom))] z-[100] w-[360px] max-w-[calc(100vw-2.5rem)] xl:bottom-5"
         onMouseEnter={() => setExpanded(true)}
         onMouseLeave={() => setExpanded(false)}
         style={{ height: 0 }}

@@ -33,7 +33,10 @@ export function DragScrollRow({ className, innerClassName, children }: DragScrol
     setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2)
   }, [])
 
-  React.useEffect(() => {
+  // useLayoutEffect (bukan useEffect) supaya status fade sudah benar SEBELUM
+  // browser sempat paint frame pertama — kalau pakai useEffect biasa, ada satu
+  // frame tanpa fade dulu baru fade "muncul", itu yang kelihatan glitch/kedip.
+  React.useLayoutEffect(() => {
     updateFades()
     const el = scrollRef.current
     if (!el) return
@@ -92,13 +95,20 @@ export function DragScrollRow({ className, innerClassName, children }: DragScrol
         {children}
       </div>
 
-      {/* Fade kiri/kanan — hanya tampil kalau masih ada konten tersembunyi di sisi itu */}
-      {canScrollLeft && (
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-background to-transparent" />
-      )}
-      {canScrollRight && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background to-transparent" />
-      )}
+      {/* Fade kiri/kanan — selalu ter-mount, cuma di-toggle opacity-nya supaya
+          transisinya mulus (fade in/out beneran), bukan muncul/hilang tiba-tiba. */}
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-background to-transparent transition-opacity duration-200",
+          canScrollLeft ? "opacity-100" : "opacity-0",
+        )}
+      />
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background to-transparent transition-opacity duration-200",
+          canScrollRight ? "opacity-100" : "opacity-0",
+        )}
+      />
     </div>
   )
 }

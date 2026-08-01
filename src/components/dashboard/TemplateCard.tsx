@@ -103,12 +103,12 @@ export function TemplateCard({
         <span className="text-xs text-zinc-400 xl:text-sm xl:font-normal xl:leading-5 xl:text-muted-foreground">{category}</span>
 
         <div className="mt-1 flex items-center gap-1.5">
-          <span className="text-sm font-semibold text-primary xl:text-base xl:font-bold xl:leading-6 xl:text-violet-700">
+          <span className="whitespace-nowrap text-sm font-semibold text-primary xl:text-base xl:font-bold xl:leading-6 xl:text-violet-700">
             Rp {price.toLocaleString("id-ID")}
           </span>
 
           {!!originalPrice && (
-            <span className="text-xs text-zinc-400 line-through xl:font-normal xl:leading-4 xl:text-muted-foreground">
+            <span className="whitespace-nowrap text-xs text-zinc-400 line-through xl:font-normal xl:leading-4 xl:text-muted-foreground">
               Rp {originalPrice.toLocaleString("id-ID")}
             </span>
           )}

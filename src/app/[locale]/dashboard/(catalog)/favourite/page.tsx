@@ -1,8 +1,11 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { useTranslations, useLocale } from "next-intl"
 import { cn, formatLabel } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Link } from "@/i18n/navigation"
 import { SortDropdown } from "@/components/dashboard/SortDropdown"
 import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
@@ -11,6 +14,7 @@ import { TemplateDetailModal, type TemplateDetail } from "@/components/dashboard
 import { UnfavouriteConfirmDialog } from "@/components/dashboard/favourite/UnfavouriteConfirmDialog"
 import { useFavouriteTemplates, useInvitationTemplateDetail, useToggleFavourite } from "@/hooks/useInvitationTemplates"
 import { templateCategoryName, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import EmptyFolderIllustration from "@/assets/empty-states/empty-folder.svg"
 
 type ChipKey = "allSaved" | "wedding" | "modern" | "classic" | "recentlyAdded"
 const CHIPS: ChipKey[] = ["allSaved", "wedding", "modern", "classic", "recentlyAdded"]
@@ -110,6 +114,7 @@ export default function FavouritePage() {
       value={sort}
       onChange={(v) => setSort(v as SortKey)}
       options={SORTS.map((s) => ({ value: s, label: t(`sort.${s}`) }))}
+      title={t("sortBy")}
       className={cn("shrink-0", sizeClass)}
     />
   )
@@ -134,7 +139,7 @@ export default function FavouritePage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t("search")}
-          className="h-12 flex-1 rounded-lg border border-[#E5E7EB] bg-white px-4 text-sm text-zinc-700 outline-none placeholder:text-zinc-400 focus:ring-2 focus:ring-indigo-200"
+          className="h-12 min-w-0 flex-1 rounded-lg border border-[#E5E7EB] bg-white px-4 text-sm text-zinc-700 outline-none placeholder:text-zinc-400 focus:ring-2 focus:ring-indigo-200"
         />
         {sortControl("h-12 w-[140px]")}
       </div>
@@ -179,8 +184,15 @@ export default function FavouritePage() {
             <p className="text-base text-zinc-400">{t("loadError")}</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="text-base text-zinc-400">{t("empty")}</p>
+          <div className="mx-auto flex w-full max-w-[448px] flex-col items-center gap-6 py-10 text-center">
+            <Image src={EmptyFolderIllustration} alt="" className="h-[151px] w-[188px] xl:h-auto xl:w-64" priority />
+            <div className="flex flex-col gap-3">
+              <h2 className="text-lg font-semibold text-gray-950 xl:text-2xl">{t("emptyTitle")}</h2>
+              <p className="text-xs font-normal text-muted-foreground xl:text-base">{t("emptySubtitle")}</p>
+            </div>
+            <Button asChild className="h-12 rounded-xl px-6 text-sm font-medium xl:font-semibold">
+              <Link href="/dashboard">{t("browseTemplates")}</Link>
+            </Button>
           </div>
         ) : (
           <div className={gridClass}>

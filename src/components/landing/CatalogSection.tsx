@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
@@ -212,66 +212,81 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
               />
             </div>
 
-            {/* LAYER 2: Sliding Rendered Screens */}
-            {displayTemplates.map((template, index) => {
-              const len = displayTemplates.length
-              const loop = Math.round((activeVirtualIdx - index) / len)
-              const virtualIndex = index + loop * len
-              const offset = virtualIndex - activeVirtualIdx
-              const absOffset = Math.abs(offset)
-              const isActive = offset === 0
-              const maxSide = Math.floor((displayTemplates.length - 1) / 2)
-              const isVisible = absOffset <= Math.min(2, maxSide)
+            {/* LAYER 2: Sliding Rendered Screens — key ikut "loop" supaya kartu yang
+                "wrap" (dari ujung kiri ke ujung kanan atau sebaliknya) di-treat
+                sebagai elemen baru oleh AnimatePresence: yang lama fade-out di
+                posisi lamanya, yang baru fade-in di posisi barunya — bukan
+                meluncur/slide menyeberang panggung (efek "lewat belakang"). */}
+            <AnimatePresence initial={false}>
+              {displayTemplates.map((template, index) => {
+                const len = displayTemplates.length
+                const loop = Math.round((activeVirtualIdx - index) / len)
+                const virtualIndex = index + loop * len
+                const offset = virtualIndex - activeVirtualIdx
+                const absOffset = Math.abs(offset)
+                const isActive = offset === 0
+                const maxSide = Math.floor((displayTemplates.length - 1) / 2)
+                const isVisible = absOffset <= Math.min(2, maxSide)
+                const edgeScale = (isActive ? 1 : absOffset === 1 ? 0.86 : 0.74) * 1.04
+                const targetX = `calc(-50% + ${offset * (absOffset === 1 ? 84 : 76)}%)`
+                // Sedikit lebih jauh dari posisi akhirnya (bukan sama persis, bukan
+                // juga jauh sekali) — supaya kartu wrap tetap kerasa "geser" pas
+                // fade, tapi begitu masuk/keluar sepenuhnya transparan (opacity 0)
+                // duluan sebelum nyampur sama kartu lain yang masih diam di dekatnya.
+                const wrapX = `calc(-50% + ${offset * (absOffset === 1 ? 100 : 92)}%)`
 
-              return (
-                <motion.div
-                  key={template.id}
-                  initial={false}
-                  animate={{
-                    x: `calc(-50% + ${offset * (absOffset === 1 ? 84 : 76)}%)`,
-                    y: "-50%",
-                    scale: (isActive ? 1 : absOffset === 1 ? 0.86 : 0.74) * 1.04,
-                    zIndex: 30 - absOffset * 2,
-                    opacity: isVisible ? 1 : 0,
-                  }}
-                  transition={{ type: "spring", stiffness: 220, damping: 28 }}
-                  className="absolute left-1/2 top-1/2 h-full w-auto pointer-events-none cursor-pointer"
-                  style={{ aspectRatio: "438/798", transformOrigin: "center" }}
-                >
-                  <div
-                    className="absolute overflow-hidden bg-transparent flex flex-col justify-end"
-                    style={{ left: "8.9%", top: "2.5%", width: "82.2%", height: "92.5%", borderRadius: "max(24px, 5%)" }}
+                return (
+                  <motion.div
+                    key={`${template.id}-${loop}`}
+                    initial={{ opacity: 0, x: wrapX, y: "-50%", scale: edgeScale * 0.9, zIndex: 35 }}
+                    animate={{
+                      x: targetX,
+                      y: "-50%",
+                      scale: edgeScale,
+                      zIndex: 30 - absOffset * 2,
+                      opacity: isVisible ? 1 : 0,
+                      transition: { type: "spring", stiffness: 220, damping: 28, delay: 0.06 },
+                    }}
+                    exit={{ opacity: 0, x: wrapX, scale: edgeScale * 0.9, zIndex: 1, transition: { duration: 0.2, ease: "easeIn" } }}
+                    transition={{ type: "spring", stiffness: 220, damping: 28 }}
+                    className="absolute left-1/2 top-1/2 h-full w-auto pointer-events-none cursor-pointer"
+                    style={{ aspectRatio: "438/798", transformOrigin: "center" }}
                   >
-                    <div className="w-full h-[94%]">
-                      <div className="flex h-full w-full flex-col">
-                        <div className="flex-1 p-3 md:p-4">
-                          <div
-                            className={`relative h-full w-full overflow-hidden rounded-[14px] bg-zinc-100 transition-all ${!isActive ? "shadow-lg" : ""}`}
-                            style={{ filter: `blur(${isActive ? 0 : absOffset === 1 ? 1.5 : 2.5}px)` }}
-                          >
-                            <Image src={template.image} alt={template.title} fill className="object-cover" />
-                            {template.badge === "new" && (
-                              <div className="absolute left-0 top-0 rounded-br-2xl bg-orange-500 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-md md:px-4 md:py-2 md:text-xs">
-                                NEW
-                              </div>
-                            )}
-                            {template.badge === "choice" && (
-                              <div className="absolute left-0 top-0 rounded-br-2xl bg-primary px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-md md:px-4 md:py-2 md:text-[10px]">
-                                MOMENIA&apos;S CHOICE
-                              </div>
-                            )}
+                    <div
+                      className="absolute overflow-hidden bg-transparent flex flex-col justify-end"
+                      style={{ left: "8.9%", top: "2.5%", width: "82.2%", height: "92.5%", borderRadius: "max(24px, 5%)" }}
+                    >
+                      <div className="w-full h-[94%]">
+                        <div className="flex h-full w-full flex-col">
+                          <div className="flex-1 p-3 md:p-4">
+                            <div
+                              className={`relative h-full w-full overflow-hidden rounded-[14px] bg-zinc-100 transition-all ${!isActive ? "shadow-lg" : ""}`}
+                              style={{ filter: `blur(${isActive ? 0 : absOffset === 1 ? 1.5 : 2.5}px)` }}
+                            >
+                              <Image src={template.image} alt={template.title} fill className="object-cover" />
+                              {template.badge === "new" && (
+                                <div className="absolute left-0 top-0 rounded-br-2xl bg-orange-500 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-md md:px-4 md:py-2 md:text-xs">
+                                  NEW
+                                </div>
+                              )}
+                              {template.badge === "choice" && (
+                                <div className="absolute left-0 top-0 rounded-br-2xl bg-primary px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-md md:px-4 md:py-2 md:text-[10px]">
+                                  MOMENIA&apos;S CHOICE
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex shrink-0 flex-col items-center justify-center gap-2 px-4 pb-5 md:px-5 md:pb-6 opacity-0">
-                          <h3 className="text-[10px] md:text-sm">{template.title}</h3>
-                          <button className="py-1.5 md:py-2">{t("viewTemplate")}</button>
+                          <div className="flex shrink-0 flex-col items-center justify-center gap-2 px-4 pb-5 md:px-5 md:pb-6 opacity-0">
+                            <h3 className="text-[10px] md:text-sm">{template.title}</h3>
+                            <button className="py-1.5 md:py-2">{t("viewTemplate")}</button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              )
-            })}
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
 
             {/* LAYER 3: Stationary Text & Button */}
             <div

@@ -1,15 +1,20 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Link } from "@/i18n/navigation"
 import { MyInvitationStatCard } from "@/components/dashboard/my-invitation/MyInvitationStatCard"
+import { MyInvitationStatCardSkeleton } from "@/components/dashboard/my-invitation/MyInvitationStatCardSkeleton"
 import { MyInvitationCard } from "@/components/dashboard/my-invitation/MyInvitationCard"
 import { MyInvitationCardSkeleton } from "@/components/dashboard/my-invitation/MyInvitationCardSkeleton"
 import { useUserInvitationOverview, useUserInvitations } from "@/hooks/useUserInvitations"
 import type { UserInvitation } from "@/lib/api/user-invitation/user-invitation.types"
 import type { MyInvitationItem, MyInvitationStatus } from "@/lib/types/invitation-workspace"
+import EmptyFolderIllustration from "@/assets/empty-states/empty-folder.svg"
 
 type Tab = "all" | MyInvitationStatus
 
@@ -70,7 +75,7 @@ export default function MyInvitationPage() {
     return () => clearTimeout(timer)
   }, [search])
 
-  const { data: overview } = useUserInvitationOverview()
+  const { data: overview, isLoading: isOverviewLoading } = useUserInvitationOverview()
   const { data: invitations = [], isLoading, isError } = useUserInvitations(
     tab === "all"
       ? { keyword: debouncedSearch || undefined }
@@ -121,10 +126,16 @@ export default function MyInvitationPage() {
 
       {/* ── Stats ── */}
       <div className="mt-[14px] grid grid-cols-4 gap-2.5 xl:mt-8 xl:gap-4">
-        <MyInvitationStatCard color={DOT.all} value={counts.total} label={t("stat.total")} short={t("stat.totalShort")} desc={t("stat.totalDesc")} />
-        <MyInvitationStatCard color={DOT.published} value={counts.published} label={t("stat.published")} short={t("stat.published")} desc={t("stat.publishedDesc")} />
-        <MyInvitationStatCard color={DOT.draft} value={counts.draft} label={t("stat.draft")} short={t("stat.draft")} desc={t("stat.draftDesc")} />
-        <MyInvitationStatCard color={DOT.expired} value={counts.expired} label={t("stat.expired")} short={t("stat.expired")} desc={t("stat.expiredDesc")} />
+        {isOverviewLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <MyInvitationStatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <MyInvitationStatCard color={DOT.all} value={counts.total} label={t("stat.total")} short={t("stat.totalShort")} desc={t("stat.totalDesc")} />
+            <MyInvitationStatCard color={DOT.published} value={counts.published} label={t("stat.published")} short={t("stat.published")} desc={t("stat.publishedDesc")} />
+            <MyInvitationStatCard color={DOT.draft} value={counts.draft} label={t("stat.draft")} short={t("stat.draft")} desc={t("stat.draftDesc")} />
+            <MyInvitationStatCard color={DOT.expired} value={counts.expired} label={t("stat.expired")} short={t("stat.expired")} desc={t("stat.expiredDesc")} />
+          </>
+        )}
       </div>
 
       {/* ── Tabs + desktop search ── */}
@@ -183,8 +194,15 @@ export default function MyInvitationPage() {
             {t("loadError")}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
-            {t("empty")}
+          <div className="mx-auto flex w-full max-w-[448px] flex-col items-center gap-6 py-10 text-center">
+            <Image src={EmptyFolderIllustration} alt="" className="h-[151px] w-[188px] xl:h-auto xl:w-64" priority />
+            <div className="flex flex-col gap-3">
+              <h2 className="text-lg font-semibold text-gray-950 xl:text-2xl">{t("emptyTitle")}</h2>
+              <p className="text-xs font-normal text-muted-foreground xl:text-base">{t("emptySubtitle")}</p>
+            </div>
+            <Button asChild className="h-12 rounded-xl px-6 text-sm font-medium xl:font-semibold">
+              <Link href="/dashboard">{t("browseTemplates")}</Link>
+            </Button>
           </div>
         ) : (
           items.map((inv) => <MyInvitationCard key={inv.id} inv={inv} />)
