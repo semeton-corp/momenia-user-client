@@ -79,11 +79,12 @@ type PaginationButtonsProps = {
   onFirstPage?: () => void
   onPrevPage?: () => void
   onNextPage?: () => void
+  lastPageUnsupportedLabel?: string
 }
 
 // "Lompat ke halaman terakhir" tidak didukung — API pakai cursor-based
 // pagination (hanya bisa maju berdasarkan nextCursor), bukan nomor halaman.
-function PaginationButtons({ canGoPrev, canGoNext, onFirstPage, onPrevPage, onNextPage }: PaginationButtonsProps) {
+function PaginationButtons({ canGoPrev, canGoNext, onFirstPage, onPrevPage, onNextPage, lastPageUnsupportedLabel = "Belum didukung" }: PaginationButtonsProps) {
   const prevDisabled = onPrevPage ? !canGoPrev : false
   const nextDisabled = onNextPage ? !canGoNext : false
 
@@ -116,7 +117,7 @@ function PaginationButtons({ canGoPrev, canGoNext, onFirstPage, onPrevPage, onNe
       <button
         type="button"
         disabled
-        title="Belum didukung"
+        title={lastPageUnsupportedLabel}
         className="rounded-lg border border-zinc-200 p-1.5 opacity-40 disabled:cursor-not-allowed"
       >
         <ChevronsRight className="h-3.5 w-3.5" />
@@ -126,7 +127,8 @@ function PaginationButtons({ canGoPrev, canGoNext, onFirstPage, onPrevPage, onNe
 }
 
 type WorkspaceTableFooterProps = {
-  selectionLabel: string
+  /** Opsional — kalau tabelnya tidak punya fitur pilih-baris, jangan diisi. */
+  selectionLabel?: string
   rowsPerPageLabel: string
   pageLabel: string
   bordered?: boolean
@@ -138,6 +140,7 @@ type WorkspaceTableFooterProps = {
   onFirstPage?: () => void
   onPrevPage?: () => void
   onNextPage?: () => void
+  lastPageUnsupportedLabel?: string
 }
 
 export function WorkspaceTableFooter({
@@ -152,8 +155,9 @@ export function WorkspaceTableFooter({
   onFirstPage,
   onPrevPage,
   onNextPage,
+  lastPageUnsupportedLabel,
 }: WorkspaceTableFooterProps) {
-  const paginationProps = { canGoPrev, canGoNext, onFirstPage, onPrevPage, onNextPage }
+  const paginationProps = { canGoPrev, canGoNext, onFirstPage, onPrevPage, onNextPage, lastPageUnsupportedLabel }
 
   return (
     <div className={cn("px-4 py-4 text-xs text-zinc-500 sm:px-6", bordered && "border-t border-zinc-100")}>
@@ -172,6 +176,8 @@ export function WorkspaceTableFooter({
 
       {/* Desktop: single-row layout */}
       <div className="hidden lg:flex lg:items-center lg:justify-between">
+        {/* Span kosong tetap dirender kalau tidak ada selectionLabel supaya
+            kontrol di kanan tetap didorong ke ujung (justify-between). */}
         <span className="text-sm font-normal text-muted-foreground">{selectionLabel}</span>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">

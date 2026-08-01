@@ -56,10 +56,9 @@
       "nextAria": "Template berikutnya"
     },
     "createNow": {
-      "title": "Mulai Sekarang!",
-      "subtitle1": "Mulai desain undangan digitalmu dalam hitungan menit",
-      "subtitle2": "tanpa coding, tanpa ribet.",
-      "cta": "Mulai"
+      "title": "Siap untuk Membuat?",
+      "subtitle": "Buat undanganmu dengan mudah dan bagikan secara instan.",
+      "cta": "Buat sekarang!"
     },
     "faq": {
       "titlePrefix": "FAQ",
@@ -134,6 +133,7 @@
       "subtitle": "Kumpulan template yang sudah kamu simpan. Bandingkan gaya, lanjutkan eksplorasi, atau langsung gunakan template favoritmu.",
       "subtitleShort": "Template yang kamu simpan untuk dipilih dan digunakan nanti.",
       "search": "Cari template favorit...",
+      "sortBy": "Urutkan berdasarkan",
       "sort": {
         "recent": "Terbaru",
         "priceLow": "Harga: Termurah",
@@ -147,6 +147,9 @@
         "recentlyAdded": "Terbaru ditambahkan"
       },
       "empty": "Belum ada template favorit.",
+      "emptyTitle": "Daftar favoritmu masih kosong",
+      "emptySubtitle": "Kamu belum menambahkan template favorit. Jelajahi koleksi kami dan simpan desain yang kamu suka.",
+      "browseTemplates": "Jelajahi koleksi template",
       "loadError": "Gagal memuat favorit. Periksa koneksi kamu.",
       "addedToast": "Ditambahkan ke favorit",
       "removedToast": "Dihapus dari favorit",
@@ -166,12 +169,15 @@
         "item": "Item",
         "totalPrice": "Total Harga",
         "status": "Status",
-        "time": "Waktu"
+        "time": "Waktu",
+        "date": "Tanggal"
       },
       "status": {
-        "completed": "Selesai",
         "pending": "Menunggu",
-        "failed": "Gagal"
+        "success": "Berhasil",
+        "expired": "Kedaluwarsa",
+        "failed": "Gagal",
+        "deny": "Ditolak"
       },
       "template": "Template",
       "duration": "Durasi",
@@ -180,6 +186,8 @@
       "viewDetails": "Lihat detail",
       "hideDetails": "Sembunyikan detail",
       "empty": "Belum ada transaksi.",
+      "emptyTitle": "Belum ada transaksi",
+      "emptySubtitle": "Kamu belum melakukan pembelian apa pun. Riwayat transaksimu akan muncul di sini setelah kamu membeli template atau add-ons.",
       "loadError": "Gagal memuat transaksi. Periksa koneksi kamu."
     },
     "sidebar": {
@@ -194,6 +202,7 @@
       "searchPlaceholder": "Cari template...",
       "category": "Kategori",
       "sort": "Urutan",
+      "sortBy": "Sortir berdasarkan",
       "allCategories": "Semua kategori",
       "sortOptions": {
         "newest": "Terbaru",
@@ -201,6 +210,14 @@
         "priceLow": "Harga: Termurah",
         "priceHigh": "Harga: Termahal",
         "rating": "Rating tertinggi"
+      },
+      "sortFieldOptions": {
+        "time": "Waktu",
+        "price": "Harga"
+      },
+      "sortOrderOptions": {
+        "ascending": "Ascending",
+        "descending": "Descending"
       }
     },
     "tags": {
@@ -215,7 +232,9 @@
       "retro": "Retro",
       "cute": "Lucu",
       "softColor": "Warna lembut",
-      "empty": "Template tidak ditemukan."
+      "empty": "Template tidak ditemukan.",
+      "emptyTitle": "Belum ada template tersedia",
+      "emptySubtitle": "Desainer kami sedang menyiapkan template undangan yang indah khusus untukmu. Cek lagi nanti, atau jadi yang pertama tahu saat desain baru dirilis."
     },
     "authGate": {
       "title": "Login terlebih dahulu",
@@ -471,9 +490,10 @@
         "attending": "Hadir",
         "declined": "Tidak Hadir",
         "pending": "Belum Konfirmasi",
-        "rowsPerPage": "Rows per page",
-        "pageLabel": "Page {current} of {total}",
-        "selectedRows": "{count} of {total} row(s) selected.",
+        "rowsPerPage": "Baris per halaman",
+        "pageLabel": "Halaman {current} dari {total}",
+        "selectedRows": "{count} dari {total} baris dipilih.",
+        "lastPageUnsupported": "Belum didukung",
         "searchGuests": "Cari nama tamu...",
         "sort": "Urutkan",
         "save": "Simpan",
@@ -528,6 +548,9 @@
         "draftHint": "Lengkapi setup untuk publish",
         "lastUpdated": "Terakhir diperbarui {date}",
         "empty": "Tidak ada undangan ditemukan.",
+        "emptyTitle": "Kamu belum membuat undangan apapun",
+        "emptySubtitle": "Buat undangan pertamamu untuk memulai. Semua project akan muncul di sini supaya mudah kamu kelola.",
+        "browseTemplates": "Jelajahi Template",
         "loadError": "Gagal memuat undangan. Periksa koneksi kamu."
       },
       "overview": {
