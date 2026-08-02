@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Heart, Smartphone, Monitor, Eye, X, ArrowLeft, Clock } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 import { useTranslations, useLocale } from "next-intl"
+import ReactMarkdown, { type Components } from "react-markdown"
 
 import { Button } from "@/components/ui/button"
 import { RadioDot } from "@/components/ui/radio-dot"
@@ -13,6 +14,20 @@ import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
 import MobileFrame from "@/assets/dashboard/mobile.svg"
 import { useInvitationDurations } from "@/hooks/useInvitationDurations"
+
+// Styling tiap elemen markdown supaya deskripsi template (bold/heading/list)
+// tampil rapi, bukan cuma teks mentah dengan tanda ** dan ### kelihatan.
+const descriptionMarkdownComponents: Components = {
+  p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+  em: ({ children }) => <em className="italic">{children}</em>,
+  h1: ({ children }) => <h3 className="mb-2 mt-4 text-base font-semibold text-foreground first:mt-0">{children}</h3>,
+  h2: ({ children }) => <h3 className="mb-2 mt-4 text-base font-semibold text-foreground first:mt-0">{children}</h3>,
+  h3: ({ children }) => <h3 className="mb-2 mt-4 text-base font-semibold text-foreground first:mt-0">{children}</h3>,
+  ul: ({ children }) => <ul className="mb-3 list-disc space-y-1 pl-5 last:mb-0">{children}</ul>,
+  ol: ({ children }) => <ol className="mb-3 list-decimal space-y-1 pl-5 last:mb-0">{children}</ol>,
+  li: ({ children }) => <li>{children}</li>,
+}
 
 export type TemplateDetail = {
   id: string | number
@@ -350,7 +365,9 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                     scrollbarGutter: "stable",
                   }}
                 >
-                  <p className="whitespace-pre-wrap pr-2">{template.description}</p>
+                  <div className="pr-2">
+                    <ReactMarkdown components={descriptionMarkdownComponents}>{template.description}</ReactMarkdown>
+                  </div>
                 </div>
 
                 {/* CTA */}
@@ -553,7 +570,9 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   className="mt-4 min-h-0 flex-1 overflow-y-auto rounded-xl border border-zinc-200 text-sm leading-relaxed text-foreground"
                   style={{ padding: "16px", scrollbarGutter: "stable" }}
                 >
-                  <p className="whitespace-pre-wrap pr-1">{template.description}</p>
+                  <div className="pr-1">
+                    <ReactMarkdown components={descriptionMarkdownComponents}>{template.description}</ReactMarkdown>
+                  </div>
                 </div>
               </div>
 
