@@ -11,6 +11,7 @@ import FrontEnvelope from "@/assets/llandingpage/front-envelope.svg"
 import PromoFrontEnvelope from "@/assets/llandingpage/promotion-front-envelope.svg"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 
 type PromoContent = {
   readonly badge: string
@@ -33,6 +34,8 @@ export function HeroSection({ promoContent }: HeroSectionProps = {}) {
 
   const t = useTranslations("landing.hero")
   const reduceMotion = useReducedMotion()
+  const { isLoggedIn } = useCurrentUser()
+  const ctaHref = isLoggedIn ? "/dashboard" : "/login"
 
   const frontEnvelopeClipPath = promoContent
     ? "polygon(0 0%, 48.8% 56.8%, 51.2% 56.8%, 100% 0%, 100% 100%, 0 100%)"
@@ -251,7 +254,7 @@ export function HeroSection({ promoContent }: HeroSectionProps = {}) {
                 variant="secondary"
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 h-12 w-full max-w-[90vw] rounded-[25px] text-base font-semibold shadow-sm md:h-20 md:w-115 md:text-2xl"
               >
-                <Link href="/login">{t("cta")}</Link>
+                <Link href={ctaHref}>{t("cta")}</Link>
               </Button>
             </motion.div>
 
@@ -266,7 +269,7 @@ export function HeroSection({ promoContent }: HeroSectionProps = {}) {
                 variant="secondary"
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 flex h-12 w-full max-w-70 rounded-[25px] text-base font-semibold shadow-sm"
               >
-                <Link href="/login">{t("cta")}</Link>
+                <Link href={ctaHref}>{t("cta")}</Link>
               </Button>
             </motion.div>
           </>
