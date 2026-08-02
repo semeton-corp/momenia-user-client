@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { useTranslations, useLocale } from "next-intl"
 import { DashboardBanner } from "@/components/dashboard/DashboardBanner"
 import { DragScrollRow } from "@/components/dashboard/DragScrollRow"
@@ -12,19 +13,21 @@ import { templateCategoryName, type GetTemplatesParams, type TemplateDetailRespo
 import { useAuthGate } from "@/components/dashboard/DashboardAuthGate"
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { formatLabel } from "@/lib/utils"
+import EmptyFolderIllustration from "@/assets/empty-states/empty-folder.svg"
 
 const ALL_STYLES_ID = "all"
 const ALL_CATEGORIES = ""
 
-// value = "sortField:sortOrder" (dipisah saat dikirim ke API)
-const SORT_OPTIONS: { value: string; key: string }[] = [
-  { value: "createdAt:desc", key: "newest" },
-  { value: "createdAt:asc", key: "oldest" },
-  { value: "price:asc", key: "priceLow" },
-  { value: "price:desc", key: "priceHigh" },
-  { value: "rating:desc", key: "rating" },
+const SORT_FIELD_OPTIONS: { value: NonNullable<GetTemplatesParams["sortField"]>; key: string }[] = [
+  { value: "createdAt", key: "time" },
+  { value: "price", key: "price" },
 ]
-const DEFAULT_SORT = "createdAt:desc"
+const SORT_ORDER_OPTIONS: { value: NonNullable<GetTemplatesParams["sortOrder"]>; key: string }[] = [
+  { value: "asc", key: "ascending" },
+  { value: "desc", key: "descending" },
+]
+const DEFAULT_SORT_FIELD: NonNullable<GetTemplatesParams["sortField"]> = "createdAt"
+const DEFAULT_SORT_ORDER: NonNullable<GetTemplatesParams["sortOrder"]> = "desc"
 
 function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): TemplateDetail {
   return {
@@ -47,7 +50,8 @@ export default function DashboardPage() {
   // Kosong = "All styles". Bisa pilih lebih dari satu tag sekaligus (mis. mantap + jos).
   const [selectedTagIds, setSelectedTagIds] = React.useState<number[]>([])
   const [selectedCategory, setSelectedCategory] = React.useState<string>(ALL_CATEGORIES)
-  const [sort, setSort] = React.useState<string>(DEFAULT_SORT)
+  const [sortField, setSortField] = React.useState<NonNullable<GetTemplatesParams["sortField"]>>(DEFAULT_SORT_FIELD)
+  const [sortOrder, setSortOrder] = React.useState<NonNullable<GetTemplatesParams["sortOrder"]>>(DEFAULT_SORT_ORDER)
   const [search, setSearch] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
@@ -57,11 +61,6 @@ export default function DashboardPage() {
     const timer = setTimeout(() => setDebouncedSearch(search), 400)
     return () => clearTimeout(timer)
   }, [search])
-
-  const [sortField, sortOrder] = sort.split(":") as [
-    NonNullable<GetTemplatesParams["sortField"]>,
-    NonNullable<GetTemplatesParams["sortOrder"]>,
-  ]
 
   // Toggle satu tag: kalau sudah aktif dilepas, kalau belum ditambahkan. Array kosong
   // otomatis berarti kembali ke "All styles".
@@ -78,7 +77,8 @@ export default function DashboardPage() {
     { value: ALL_CATEGORIES, label: tBanner("allCategories") },
     ...templateCategories.map((c) => ({ value: String(c.id), label: formatLabel(c.name) })),
   ]
-  const sortOptions = SORT_OPTIONS.map((o) => ({ value: o.value, label: tBanner(`sortOptions.${o.key}`) }))
+  const sortFieldOptions = SORT_FIELD_OPTIONS.map((o) => ({ value: o.value, label: tBanner(`sortFieldOptions.${o.key}`) }))
+  const sortOrderOptions = SORT_ORDER_OPTIONS.map((o) => ({ value: o.value, label: tBanner(`sortOrderOptions.${o.key}`) }))
 
   const { data: templatesData, isLoading, isError } = useInvitationTemplates({
     pageSize: 20,
@@ -145,13 +145,16 @@ export default function DashboardPage() {
         categoryOptions={categoryOptions}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
-        sortOptions={sortOptions}
-        selectedSort={sort}
-        onSortChange={setSort}
+        sortFieldOptions={sortFieldOptions}
+        selectedSortField={sortField}
+        onSortFieldChange={(v) => setSortField(v as NonNullable<GetTemplatesParams["sortField"]>)}
+        sortOrderOptions={sortOrderOptions}
+        selectedSortOrder={sortOrder}
+        onSortOrderChange={(v) => setSortOrder(v as NonNullable<GetTemplatesParams["sortOrder"]>)}
       />
 
         {/* Style Tags */}
-        <DragScrollRow className="mt-6 mb-0 -mx-5 md:-mx-8 md:mt-10 md:mb-[44px] xl:mx-0" innerClassName="pb-1">
+        <DragScrollRow className="mt-6 mb-0 -mx-5 md:-mx-8 md:mt-10 md:mb-[44px] xl:mx-auto xl:max-w-[1321px]" innerClassName="pb-1">
           <div className="flex w-max items-center gap-[14px] px-5 md:px-8 xl:mx-auto xl:px-0">
             {isTagsLoading ? (
               Array.from({ length: 8 }).map((_, i) => (
@@ -187,8 +190,12 @@ export default function DashboardPage() {
           <p className="text-sm text-zinc-400">Gagal memuat template. Periksa koneksi atau konfigurasi API.</p>
         </div>
       ) : !isLoading && !hasTemplates ? (
-        <div className="mt-8 flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-sm text-zinc-400">{t("empty")}</p>
+        <div className="mx-auto mt-8 flex w-full max-w-[448px] flex-col items-center gap-6 py-10 text-center">
+          <Image src={EmptyFolderIllustration} alt="" className="h-[151px] w-[188px] xl:h-auto xl:w-64" priority />
+          <div className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold text-gray-950 xl:text-2xl">{t("emptyTitle")}</h2>
+            <p className="text-xs font-normal text-muted-foreground xl:text-base">{t("emptySubtitle")}</p>
+          </div>
         </div>
       ) : (
         <div

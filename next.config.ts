@@ -25,6 +25,11 @@ const nextConfig: NextConfig = {
     ]
   },
   images: {
+    // Next.js default-nya "attachment" (buat jaga-jaga karena /_next/image bisa
+    // proxy dari domain manapun yang di-allow) — bikin download manager (mis. IDM)
+    // salah kira gambar biasa sebagai file yang harus di-download. Domain di
+    // remotePatterns sudah kita percaya, jadi aman diset "inline".
+    contentDispositionType: "inline",
     remotePatterns: [
       {
         protocol: "https",
@@ -38,6 +43,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "*.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ui-avatars.com",
       },
     ],
   },

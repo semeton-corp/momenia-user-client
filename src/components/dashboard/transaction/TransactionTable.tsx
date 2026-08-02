@@ -1,22 +1,28 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, ChevronRight, Clock, XCircle } from "lucide-react"
+import Image from "next/image"
+import { Ban, CheckCircle2, ChevronRight, Clock, Timer, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { TransactionRecord, TransactionStatus } from "@/lib/types/transaction"
 import { WorkspaceBadge } from "@/components/dashboard/invitation/WorkspaceBadge"
 import { WorkspaceTableFooter } from "@/components/dashboard/invitation/WorkspaceTableFooter"
+import EmptyTransactionIllustration from "@/assets/empty-states/empty-transaction.svg"
 
-const STATUS_TONE: Record<TransactionStatus, "green" | "amber" | "red"> = {
-  completed: "green",
+const STATUS_TONE: Record<TransactionStatus, "green" | "amber" | "red" | "neutral"> = {
   pending: "amber",
+  success: "green",
+  expired: "neutral",
   failed: "red",
+  deny: "red",
 }
 
 const STATUS_ICON: Record<TransactionStatus, React.ComponentType<{ className?: string }>> = {
-  completed: CheckCircle2,
   pending: Clock,
+  success: CheckCircle2,
+  expired: Timer,
   failed: XCircle,
+  deny: Ban,
 }
 
 function formatIDR(value: number) {
@@ -30,6 +36,7 @@ type TransactionTableProps = {
   totalPriceLabel: string
   statusLabel: string
   timeLabel: string
+  dateLabel: string
   statusText: Record<TransactionStatus, string>
   templateLabel: string
   durationLabel: string
@@ -37,8 +44,8 @@ type TransactionTableProps = {
   itemsIncludedLabel: (count: number) => string
   viewDetailsLabel: string
   hideDetailsLabel: string
-  emptyLabel: string
-  selectionLabel: string
+  emptyTitle: string
+  emptySubtitle: string
   rowsPerPageLabel: string
   pageLabel: string
   pageSize?: number
@@ -48,6 +55,7 @@ type TransactionTableProps = {
   onFirstPage?: () => void
   onPrevPage?: () => void
   onNextPage?: () => void
+  lastPageUnsupportedLabel?: string
 }
 
 export function TransactionTable({
@@ -57,6 +65,7 @@ export function TransactionTable({
   totalPriceLabel,
   statusLabel,
   timeLabel,
+  dateLabel,
   statusText,
   templateLabel,
   durationLabel,
@@ -64,8 +73,8 @@ export function TransactionTable({
   itemsIncludedLabel,
   viewDetailsLabel,
   hideDetailsLabel,
-  emptyLabel,
-  selectionLabel,
+  emptyTitle,
+  emptySubtitle,
   rowsPerPageLabel,
   pageLabel,
   pageSize,
@@ -75,6 +84,7 @@ export function TransactionTable({
   onFirstPage,
   onPrevPage,
   onNextPage,
+  lastPageUnsupportedLabel,
 }: TransactionTableProps) {
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set())
 
@@ -118,37 +128,48 @@ export function TransactionTable({
     </div>
   )
 
-  if (rows.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 py-20 text-center">
-        <p className="text-base text-zinc-400">{emptyLabel}</p>
-      </div>
-    )
-  }
-
   return (
     <>
       {/* ── Table (bisa digeser horizontal di layar sempit) ── */}
       <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[780px] border-separate border-spacing-0 text-left text-sm">
+          <table className={cn("w-full border-separate border-spacing-0 text-left text-sm", rows.length > 0 && "min-w-[780px]")}>
             <thead>
               <tr className="bg-indigo-50 text-sm font-medium text-foreground">
                 <th className="px-6 py-3">{idLabel}</th>
-                <th className="w-1/2 px-4 py-3">{itemLabel}</th>
-                <th className="px-4 py-3 whitespace-nowrap">{totalPriceLabel}</th>
-                <th className="px-4 py-3 whitespace-nowrap">{statusLabel}</th>
-                <th className="px-4 py-3 whitespace-nowrap">{timeLabel}</th>
+                <th className="px-4 py-3">{itemLabel}</th>
+                <th className="px-6 py-3 whitespace-nowrap">{totalPriceLabel}</th>
+                <th className="px-6 py-3 whitespace-nowrap">{statusLabel}</th>
+                <th className="px-6 py-3 whitespace-nowrap">{timeLabel}</th>
+                <th className="px-6 py-3 whitespace-nowrap">{dateLabel}</th>
               </tr>
             </thead>
             <tbody>
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-10">
+                    <div className="mx-auto flex w-full max-w-[448px] flex-col items-center gap-6 text-center">
+                      <Image
+                        src={EmptyTransactionIllustration}
+                        alt=""
+                        className="h-[151px] w-[188px] xl:h-auto xl:w-64"
+                        priority
+                      />
+                      <div className="flex flex-col gap-3">
+                        <h2 className="text-lg font-semibold text-gray-950 xl:text-2xl">{emptyTitle}</h2>
+                        <p className="text-xs font-normal text-muted-foreground xl:text-base">{emptySubtitle}</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
               {rows.map((row) => {
                 const canExpand = row.items.length > 0
                 const isOpen = expanded.has(row.id)
                 return (
                   <React.Fragment key={row.id}>
                     <tr className="transition-colors hover:bg-zinc-50/60">
-                      <td className="border-b border-zinc-100 px-6 py-4">
+                      <td className={cn("border-zinc-100 px-6 py-4", !isOpen && "border-b")}>
                         <div className="flex items-center gap-2">
                           {canExpand ? (
                             <button
@@ -165,26 +186,35 @@ export function TransactionTable({
                           <span className="whitespace-nowrap text-sm font-medium text-foreground">{row.id}</span>
                         </div>
                       </td>
-                      <td className="border-b border-zinc-100 px-4 py-4">
+                      <td className={cn("border-zinc-100 px-4 py-4", !isOpen && "border-b")}>
                         <p className="text-sm font-medium text-zinc-900">{row.title}</p>
                         <p className="mt-0.5 text-xs text-zinc-400">{subtitleOf(row)}</p>
                       </td>
-                      <td className="border-b border-zinc-100 px-4 py-4 whitespace-nowrap text-sm font-normal text-foreground">
+                      <td className={cn("border-zinc-100 px-6 py-4 whitespace-nowrap text-sm font-normal text-foreground", !isOpen && "border-b")}>
                         {formatIDR(row.totalPrice)}
                       </td>
-                      <td className="border-b border-zinc-100 px-4 py-4">
+                      <td className={cn("border-zinc-100 px-6 py-4", !isOpen && "border-b")}>
                         <StatusBadge status={row.status} />
                       </td>
-                      <td className="border-b border-zinc-100 px-4 py-4 whitespace-nowrap text-sm font-normal text-zinc-500">
+                      <td className={cn("border-zinc-100 px-6 py-4 whitespace-nowrap text-sm font-normal text-zinc-500", !isOpen && "border-b")}>
                         {row.timeLabel}
+                      </td>
+                      <td className={cn("border-zinc-100 px-6 py-4 whitespace-nowrap text-sm font-normal text-zinc-500", !isOpen && "border-b")}>
+                        {row.dateLabel}
                       </td>
                     </tr>
 
                     {canExpand && isOpen && (
                       <tr>
                         <td className="border-b border-zinc-100" />
-                        <td className="border-b border-zinc-100 px-4 pb-4" colSpan={4}>
-                          <LineItems row={row} />
+                        <td className="border-b border-zinc-100 px-4 py-4" colSpan={5}>
+                          {/* border-l di div (bukan di td) supaya tingginya ngikutin
+                              konten aslinya (tidak nyentuh sampai bawah td), dan
+                              px-4 di td ini sejajar dengan px-4 header "Item" di
+                              atasnya, jadi garisnya sejajar sama huruf "I". */}
+                          <div className="border-l border-zinc-200 pl-4">
+                            <LineItems row={row} />
+                          </div>
                         </td>
                       </tr>
                     )}
@@ -196,11 +226,11 @@ export function TransactionTable({
         </div>
       </div>
 
-      {/* ── Footer di luar container tabel ── */}
+      {/* ── Footer di luar container tabel — cuma tampil kalau ada data ── */}
+      {rows.length > 0 && (
       <div className="mt-3">
         <WorkspaceTableFooter
           bordered={false}
-          selectionLabel={selectionLabel}
           rowsPerPageLabel={rowsPerPageLabel}
           pageLabel={pageLabel}
           pageSize={pageSize}
@@ -210,8 +240,10 @@ export function TransactionTable({
           onFirstPage={onFirstPage}
           onPrevPage={onPrevPage}
           onNextPage={onNextPage}
+          lastPageUnsupportedLabel={lastPageUnsupportedLabel}
         />
       </div>
+      )}
     </>
   )
 }

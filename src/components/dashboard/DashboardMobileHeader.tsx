@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
 import LogoMemoria from "@/assets/logo/logo-memoria.png"
@@ -9,6 +10,14 @@ import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 export function DashboardMobileHeader() {
   const tNavbar = useTranslations("navbar")
   const { user, isLoggedIn, isLoading } = useCurrentUser()
+  // Kalau foto profil gagal dimuat (URL rusak/domain diblokir jaringan), browser
+  // suka nampilin ikon patah + teks alt yang bocor keluar dari box bulat 36px —
+  // bikin header kelihatan "offside". Fallback ke inisial supaya tidak pernah
+  // bocor, apa pun penyebab gagalnya.
+  const [imgError, setImgError] = React.useState(false)
+  React.useEffect(() => {
+    setImgError(false)
+  }, [user?.profilePicture])
 
   return (
     <header className="flex items-center justify-between px-5 py-4 xl:hidden">
@@ -24,7 +33,7 @@ export function DashboardMobileHeader() {
           className="h-9 w-9 overflow-hidden rounded-full ring-2 ring-white transition-all hover:ring-indigo-200"
           title={user.name}
         >
-          {user.profilePicture ? (
+          {user.profilePicture && !imgError ? (
             <Image
               src={user.profilePicture}
               alt={user.name}
@@ -32,6 +41,7 @@ export function DashboardMobileHeader() {
               height={36}
               unoptimized
               className="h-full w-full object-cover"
+              onError={() => setImgError(true)}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-xs font-semibold text-indigo-700">

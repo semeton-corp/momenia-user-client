@@ -41,12 +41,12 @@ export async function getInvitationTemplateById(id: string): Promise<TemplateDet
 }
 
 export async function getInvitationTemplateTags(keyword?: string): Promise<InvitationTemplateTag[]> {
-  const qs = buildQuery({ keyword })
+  const qs = buildQuery({ keyword, type: "own" })
   return http(`${BASE_FAV}/tags${qs}`, { headers: authHeader() })
 }
 
 export async function getInvitationTemplateCategories(keyword?: string): Promise<InvitationTemplateCategory[]> {
-  const qs = buildQuery({ keyword })
+  const qs = buildQuery({ keyword, type: "own" })
   return http(`${BASE_FAV}/categories${qs}`, { headers: authHeader() })
 }
 

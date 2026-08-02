@@ -56,10 +56,9 @@
       "nextAria": "Next template"
     },
     "createNow": {
-      "title": "Create Now!",
-      "subtitle1": "Start designing your digital invitation in minutes",
-      "subtitle2": "no coding, no hassle.",
-      "cta": "Get Started"
+      "title": "Ready to Create?",
+      "subtitle": "Build your invitation effortlessly and share it instantly.",
+      "cta": "Create now!"
     },
     "faq": {
       "titlePrefix": "FAQ",
@@ -131,9 +130,10 @@
   "dashboard": {
     "favourite": {
       "title": "Favorite Templates",
-      "subtitle": "Kumpulan template yang sudah kamu simpan. Bandingkan gaya, lanjutkan eksplorasi, atau langsung gunakan template favoritmu.",
-      "subtitleShort": "Template yang kamu simpan untuk dipilih dan digunakan nanti.",
+      "subtitle": "A collection of templates you've saved. Compare styles, keep exploring, or use your favorite templates right away.",
+      "subtitleShort": "Templates you've saved to pick and use later.",
       "search": "Search favorite templates...",
+      "sortBy": "Sort by",
       "sort": {
         "recent": "Most recent",
         "priceLow": "Price: Low to High",
@@ -147,6 +147,9 @@
         "recentlyAdded": "Recently added"
       },
       "empty": "No favourite templates found.",
+      "emptyTitle": "Your favorites list is empty",
+      "emptySubtitle": "You haven't added any favorite templates yet. Explore our collection and save the designs you love.",
+      "browseTemplates": "Explore template collection",
       "loadError": "Failed to load favourites. Please check your connection.",
       "addedToast": "Added to favorites",
       "removedToast": "Removed from favorites",
@@ -166,12 +169,15 @@
         "item": "Item",
         "totalPrice": "Total Price",
         "status": "Status",
-        "time": "Time"
+        "time": "Time",
+        "date": "Date"
       },
       "status": {
-        "completed": "Completed",
         "pending": "Pending",
-        "failed": "Failed"
+        "success": "Success",
+        "expired": "Expired",
+        "failed": "Failed",
+        "deny": "Denied"
       },
       "template": "Template",
       "duration": "Duration",
@@ -180,6 +186,8 @@
       "viewDetails": "View details",
       "hideDetails": "Hide details",
       "empty": "No transactions found.",
+      "emptyTitle": "No transaction yet",
+      "emptySubtitle": "You haven't made any purchases yet. Your transaction history will appear here once you purchase templates or add-ons.",
       "loadError": "Failed to load transactions. Please check your connection."
     },
     "sidebar": {
@@ -194,6 +202,7 @@
       "searchPlaceholder": "Search templates...",
       "category": "Category",
       "sort": "Sort",
+      "sortBy": "Sort by",
       "allCategories": "All categories",
       "sortOptions": {
         "newest": "Newest",
@@ -201,6 +210,14 @@
         "priceLow": "Price: Low to High",
         "priceHigh": "Price: High to Low",
         "rating": "Top rated"
+      },
+      "sortFieldOptions": {
+        "time": "Time",
+        "price": "Price"
+      },
+      "sortOrderOptions": {
+        "ascending": "Ascending",
+        "descending": "Descending"
       }
     },
     "tags": {
@@ -215,7 +232,9 @@
       "retro": "Retro",
       "cute": "Cute",
       "softColor": "Soft color",
-      "empty": "No templates found."
+      "empty": "No templates found.",
+      "emptyTitle": "No templates available",
+      "emptySubtitle": "Our designers are crafting beautiful invitation templates just for you. Check back soon or be the first to know when new designs drop."
     },
     "authGate": {
       "title": "Login required",
@@ -474,6 +493,7 @@
         "rowsPerPage": "Rows per page",
         "pageLabel": "Page {current} of {total}",
         "selectedRows": "{count} of {total} row(s) selected.",
+        "lastPageUnsupported": "Not supported yet",
         "searchGuests": "Search guest name...",
         "sort": "Sort",
         "save": "Save",
@@ -492,19 +512,19 @@
       },
       "myInvitations": {
         "title": "My Invitations",
-        "subtitle": "Kelola semua invitation yang pernah dibuat, lanjutkan draft, pantau status publish, dan buka dashboard project dari satu tempat.",
-        "subtitleShort": "Project yang sudah dibuat, draft, dan publish.",
+        "subtitle": "Manage every invitation you've created, pick up drafts, track publish status, and open a project's dashboard — all from one place.",
+        "subtitleShort": "Projects you've created, drafted, and published.",
         "search": "Search invitations...",
         "stat": {
           "total": "Total invitations",
           "totalShort": "Total",
-          "totalDesc": "Semua project yang pernah dibuat",
+          "totalDesc": "All projects you've ever created",
           "published": "Published",
-          "publishedDesc": "Invitation aktif dan bisa dibagikan",
+          "publishedDesc": "Active invitations ready to share",
           "draft": "Draft",
-          "draftDesc": "Belum dipublish, lanjutkan editing",
+          "draftDesc": "Not published yet, continue editing",
           "expired": "Expired",
-          "expiredDesc": "Butuh perpanjangan paket"
+          "expiredDesc": "Needs a package renewal"
         },
         "tab": {
           "all": "All",
@@ -528,6 +548,9 @@
         "draftHint": "Complete setup to publish",
         "lastUpdated": "Last updated {date}",
         "empty": "No invitations found.",
+        "emptyTitle": "You haven't created any invitation yet",
+        "emptySubtitle": "Create your first invitation to get started. All your projects will appear here so you can manage them easily.",
+        "browseTemplates": "Browse Templates",
         "loadError": "Failed to load invitations. Please check your connection."
       },
       "overview": {
