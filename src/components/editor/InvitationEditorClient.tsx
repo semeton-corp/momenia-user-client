@@ -37,6 +37,17 @@ type HistoryState = {
 type SectionType = UserInvitationDetail["template"]["sectionTypes"][string]
 type ThemeDefaults = UserInvitationDetail["template"]["theme_defaults"]
 
+// Values are interpolated into an HTML string that the iframe re-parses from srcdoc,
+// so they need escaping — otherwise a `&` in an image query string gets mangled and a
+// stray `"` or `<` closes the attribute/tag early and corrupts the rest of the markup.
+function escapeAttr(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+}
+
 function buildHtml(
   detail: UserInvitationDetail,
   userData: Record<string, string>,
@@ -53,14 +64,22 @@ function buildHtml(
     if (!sec) return ""
     const stype: SectionType = template.sectionTypes[sec.section_type_id]
     if (!stype) return ""
-    let html = stype.html
-    const imageFields = new Set(template.schema.fields.filter(f => f.type === "image").map(f => f.key))
-    html = html.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+    const source = stype.html
+    let html = source.replace(/\{\{([^}]+)\}\}/g, (match, key: string, offset: number) => {
       const value = userData[key] || ""
-      if (imageFields.has(key)) {
-        return `<img data-field-img="${key}" src="${value}" style="width:100%;height:auto;" />`
-      }
-      return `<span data-field="${key}">${value}</span>`
+
+      // A placeholder can sit either in an element's body (`<h1>{{headline}}</h1>`) or
+      // inside an attribute (`src="{{photo}}"`, `alt="{{bride_name}}"`). Emitting a tag
+      // into the attribute case nests a tag inside an attribute and breaks the parser —
+      // that's what leaked `" alt="">` / `<span data-field="` onto the page. Scan back to
+      // the nearest angle bracket: an unclosed `<` means we're still inside a tag.
+      const before = source.slice(0, offset)
+      const insideTag = before.lastIndexOf("<") > before.lastIndexOf(">")
+      if (insideTag) return escapeAttr(value)
+
+      // Body context: wrap so `memoriaUpdate` can retarget it as the user types. The
+      // template supplies data-field-img on its own <img>, so images never need this.
+      return `<span data-field="${key}">${escapeHtml(value)}</span>`
     })
     return `<div data-section-id="${sec.id}">${html}</div>`
   }
@@ -333,8 +352,10 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
     resetIframeScroll(iframeRef.current)
   }, [activePage])
 
-  const FRAME_W = 340
-  const scale = (FRAME_W * zoom) / VIEWPORT_W
+  // scale = zoom directly, so 100% zoom renders the iframe at its true native
+  // 375px width — matching the admin client's (unscaled) live preview 1:1.
+  const scale = zoom
+  const border = 12 * zoom
 
   useImperativeHandle(ref, () => ({
     scrollToSection(sectionId: string) {
@@ -348,10 +369,13 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
     <div
       className="relative shrink-0 overflow-hidden bg-black shadow-2xl"
       style={{
-        width: FRAME_W * zoom,
-        height: VIEWPORT_H * scale,
+        // box-sizing: border-box subtracts the border from `width`/`height`, so the
+        // border is added on top of the scaled content size here — otherwise the
+        // border eats into the visible area and clips the phone's edges.
+        width: VIEWPORT_W * scale + border * 2,
+        height: VIEWPORT_H * scale + border * 2,
         borderRadius: 48 * zoom,
-        border: `${12 * zoom}px solid #000`,
+        border: `${border}px solid #000`,
       }}
     >
       <iframe

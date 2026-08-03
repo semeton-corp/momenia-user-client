@@ -73,7 +73,7 @@ export const logout = async (): Promise<LogoutResponse> => {
 }
 
 export const getMe = async (): Promise<UserProfile> => {
-    return http(`${BASE_USERS}/me`, {
+    return http(`${BASE_ACCOUNTS}/me`, {
         method: "GET",
         headers: authHeader(),
     })
