@@ -134,6 +134,10 @@ window.__memoriaGoTo = function(pageId) {
   document.querySelectorAll('[data-page]').forEach(function(el){
     el.style.display = el.dataset.page === pageId ? '' : 'none';
   });
+  // The invitation's own buttons (e.g. "Let's Party") call this directly, so the
+  // editor has to be told which page is showing — otherwise its page indicator,
+  // content list and field groups stay stuck on the previous page.
+  window.parent.postMessage({type:'memoriaPageChange',pageId:pageId},'*');
   window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
 };
 window.addEventListener('message', function(e) {
