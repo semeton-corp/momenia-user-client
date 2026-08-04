@@ -94,7 +94,7 @@ export function FaqSection({ faqs: apiFaqs, locale = "en" }: FaqSectionProps) {
             <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl lg:text-5xl">
               {t("titlePrefix")} <span className="text-primary">{tCommon("siteName")}</span>
             </h2>
-            <p className="mt-3 text-sm font-normal text-muted-foreground md:mt-4 md:text-base lg:text-lg">
+            <p className="mt-3 text-sm font-normal text-secondary-foreground md:mt-4 md:text-base lg:text-lg">
               {t("subtitle")}
             </p>
           </motion.div>

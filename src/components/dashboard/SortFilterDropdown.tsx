@@ -11,7 +11,6 @@ export type SortFilterOption = {
 }
 
 type SortFilterDropdownProps = {
-  icon: React.ReactNode
   /** Label statis pada tombol (mis. "Sort"), dipakai juga sebagai judul panel default. */
   label: string
   /** Judul di dalam panel dropdown, mis. "Sortir berdasarkan". Default ke `label`. */
@@ -27,7 +26,6 @@ type SortFilterDropdownProps = {
 }
 
 export function SortFilterDropdown({
-  icon,
   label,
   title,
   fieldValue,
@@ -66,7 +64,13 @@ export function SortFilterDropdown({
         )}
         style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
       >
-        <span className="flex shrink-0 items-center">{icon}</span>
+        <span className="flex shrink-0 items-center">
+          {orderValue === "asc" ? (
+            <ArrowUp className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
+          ) : (
+            <ArrowDown className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
+          )}
+        </span>
         <span className={cn("truncate", centerContent ? "flex-none" : "min-w-0 flex-1 text-left")}>
           {displayLabel}
         </span>

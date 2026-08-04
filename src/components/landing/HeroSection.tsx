@@ -264,7 +264,7 @@ export function HeroSection({ promoContent }: HeroSectionProps = {}) {
               <Button
                 asChild
                 variant="secondary"
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 flex h-12 w-full max-w-70 rounded-[25px] text-base font-semibold shadow-sm"
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 flex h-12 w-full max-w-70 rounded-[15px] text-base font-semibold shadow-sm"
               >
                 <Link href="/login">{t("cta")}</Link>
               </Button>

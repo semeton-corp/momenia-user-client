@@ -113,8 +113,7 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/35" />
-  <div className="absolute inset-0 bg-linear-to-r from-black/35 via-transparent to-black/35" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#3730a3_0%,#818cf8_25%,#818cf8_75%,#3730a3_100%)] opacity-[0.52]" />
       </div>
 
       {/* Kontainer Utama */}
@@ -157,7 +156,10 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
               let opacity = 1
               const zIndex = 10 - absOffset
 
-              const mobileStackExtraInset = isMobileStack ? 18 : 0
+              // Ukuran kartu "tumpukan" di belakang kartu aktif (mobile) — sesuai spec Figma.
+              const stackWidth = 219.36
+              const stackHeight = 225
+              const stackPeek = 16 // seberapa jauh tumpukan mengintip di sisi luar kartu aktif
 
               const gap = isDesktop ? 24 : 16
               let xOffset = 0
@@ -168,8 +170,7 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
                 } else if (isTablet) {
                   xOffset = sign * (expandedWidth / 2 + gap + pillWidth / 2)
                 } else {
-                  const peekAmount = 2
-                  xOffset = sign * (expandedWidth / 2 + peekAmount - mobileStackExtraInset)
+                  xOffset = sign * (expandedWidth / 2 - stackWidth / 2 + stackPeek)
                 }
               } else if (absOffset >= 2) {
                 if (isDesktop) {
@@ -181,10 +182,9 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
                   const stackIndex = absOffset - 2
                   xOffset = sign * (base + stackIndex * 24)
                 } else {
-                  const base = expandedWidth / 2 + 6
                   const stackIndex = absOffset - 2
-                  xOffset = sign * (base + stackIndex * 6 - mobileStackExtraInset)
-                  if (isMobile) opacity = 0.18
+                  xOffset = sign * (expandedWidth / 2 - stackWidth / 2 + stackPeek + stackIndex * 8)
+                  if (isMobile) opacity = 0.5
                 }
               }
 
@@ -194,30 +194,23 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
                   initial={false}
                   animate={{
                     x: xOffset,
-                    y: "-50%",
+                    y: isMobileStack ? "calc(-50% - 12px)" : "-50%",
                     scale: 1,
                     opacity,
                     filter: "none",
-                    width: isExpanded ? expandedWidth : pillWidth,
                   }}
                   transition={{
                     x: { type: "spring", stiffness: 240, damping: 30 },
                     y: { type: "spring", stiffness: 240, damping: 30 },
                     opacity: { duration: 0.2 },
-                    width: { type: "spring", stiffness: 240, damping: 30 },
                   }}
-                  className={[
-                    "absolute left-1/2 top-1/2 flex justify-center -translate-x-1/2",
-                    !isMobileStack && "overflow-hidden",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
+                  className="absolute left-1/2 top-1/2 flex justify-center -translate-x-1/2"
                   style={{ transformOrigin: "center", zIndex }}
                 >
                   {isMobileStack ? (
                     <div
-                      className="pointer-events-none rounded-3xl bg-white"
-                      style={{ width: 210, height: 300, boxShadow: "none" }}
+                      className="pointer-events-none rounded-3xl bg-white shadow-[4px_4px_12.5px_rgba(0,0,0,0.1),_-1px_-1px_3.8px_rgba(0,0,0,0.04)]"
+                      style={{ width: stackWidth, height: stackHeight }}
                     />
                   ) : (
                     <TestimonialCard
