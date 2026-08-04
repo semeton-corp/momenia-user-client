@@ -887,10 +887,23 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 export default function InvitationEditorClient({ invitationId }: { invitationId: string }) {
+  const router = useRouter()
   const { data, isLoading, error } = useUserInvitationDetail(invitationId)
+  const status = (error as (Error & { status?: number }) | null)?.status
+
+  useEffect(() => {
+    // Invitation doesn't exist, or doesn't belong to this user — bounce back to the list
+    // instead of leaving them stuck on a dead edit page.
+    if (status === 404) {
+      router.replace("/dashboard/my-invitation")
+    }
+  }, [status, router])
 
   if (isLoading) {
     return <div className="flex h-96 items-center justify-center text-sm text-zinc-400">Loading editor...</div>
+  }
+  if (status === 404) {
+    return null
   }
   if (error || !data) {
     return <div className="flex h-96 items-center justify-center gap-2 text-sm text-red-400"><CheckCircle2 className="h-4 w-4" />Failed to load invitation.</div>
