@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server"
-import { Input } from "@/components/ui/input"
-import { GuestMessageCard } from "@/components/dashboard/invitation/GuestMessageCard"
 import { InvitationWorkspaceHeader } from "@/components/dashboard/invitation/InvitationWorkspaceHeader"
+import { MessagesWorkspaceClient } from "@/components/dashboard/invitation/MessagesWorkspaceClient"
 import { getInvitationWorkspaceData } from "@/lib/mocks/invitation-workspace"
 
 type Props = {
@@ -19,24 +18,7 @@ export default async function MessagesPage({ params }: Props) {
         <InvitationWorkspaceHeader title={t("messages.title")} subtitle={data.title} />
       </div>
 
-      <Input
-        aria-label={t("messages.searchPlaceholder")}
-        placeholder={t("messages.searchPlaceholder")}
-        className="h-12 border-zinc-200"
-      />
-
-      <div className="xl:columns-2 xl:gap-4 space-y-4 xl:space-y-0">
-        {data.messages.map((message) => (
-          <div key={message.id} className="break-inside-avoid mb-4">
-            <GuestMessageCard
-              message={message}
-              voiceLabel={t("messages.voiceNote", { name: message.senderName })}
-              hideLabel={t("common.hide")}
-              deleteLabel={t("common.delete")}
-            />
-          </div>
-        ))}
-      </div>
+      <MessagesWorkspaceClient invitationId={invitationId} />
     </div>
   )
 }

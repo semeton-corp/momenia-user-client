@@ -139,7 +139,7 @@ export function FeatureSection({ features: apiFeatures, promoTitle }: FeatureSec
               <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl lg:text-5xl">
                 <span className="text-primary">{tCommon("siteName")}</span> {t("titleSuffix")}
               </h2>
-              <p className="mt-4 max-w-2xl text-base font-normal text-muted-foreground md:text-lg">
+              <p className="mt-4 max-w-2xl text-base font-normal text-secondary-foreground md:text-lg">
                 {t("subtitle")}
               </p>
             </>

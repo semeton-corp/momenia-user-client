@@ -312,7 +312,7 @@ export function Navbar() {
                               setIsOpen(false)
                             }}
                           >
-                            {localeLabels[loc]}
+                            {localeNames[loc]}
                           </Link>
                         ))}
                       </motion.div>

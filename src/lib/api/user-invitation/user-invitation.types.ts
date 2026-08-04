@@ -34,12 +34,9 @@ export type UpdateUserInvitationRequest = {
 export type UserInvitationDetail = {
     id: string
     name: string
-    eventDate: string
-    pathUrl: string
+    slug: string
     status: "published" | "draft" | "expired"
     invitationDurationPackage: string
-    address: string
-    googleMapsUrl: string
     expiredAt: string
     lastUpdatedAt: string
     fieldValues: Record<string, string>
@@ -82,20 +79,12 @@ export type UserInvitationDetail = {
     }
 }
 
-export type UserInvitationDashboard = {
-    id: string
-    name: string
-    pathUrl: string
-    status: "published" | "draft" | "expired"
-    eventDate: string
-    invitationTemplateThumbnail: string
-    invitationTemplateCategory: string
-    planName: string
-    activeUntil: string
-    totalGuest: number
-    totalRsvp: number
-    attendingCount: number
-    declinedCount: number
-    pendingCount: number
-    messageTemplate: string
+// Endpoint-nya bernama ".../path-url", tapi backend-nya sendiri memvalidasi
+// body dengan field "slug" (bukan "pathUrl" seperti di contoh dokumentasi Postman).
+export type CheckPathUrlRequest = {
+    slug: string
+}
+
+export type CheckPathUrlResponse = {
+    isAvailable: boolean
 }

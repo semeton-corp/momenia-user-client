@@ -24,6 +24,7 @@ type RsvpGuestTableProps = {
   selectionLabel: string
   rowsPerPageLabel: string
   pageLabel: string
+  emptyLabel: string
   guests: RsvpListItem[]
   searchValue?: string
   onSearchChange?: (value: string) => void
@@ -59,6 +60,7 @@ export function RsvpGuestTable({
   selectionLabel,
   rowsPerPageLabel,
   pageLabel,
+  emptyLabel,
   guests,
   searchValue,
   onSearchChange,
@@ -136,32 +138,40 @@ export function RsvpGuestTable({
               </tr>
             </thead>
             <tbody>
-              {guests.map((guest) => (
-                <tr key={guest.id} className="hover:bg-zinc-50/60 transition-colors">
-                  <td className="border-b border-zinc-100 px-4 py-3 text-sm font-medium text-foreground">
-                    {guest.name}
-                  </td>
-                  <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
-                    {guest.whatsAppNumber}
-                  </td>
-                  <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
-                    {guest.email}
-                  </td>
-                  <td className="border-b border-zinc-100 px-4 py-3">
-                    <span className="inline-flex items-center rounded-md border border-zinc-300 bg-white px-2.5 py-0.5 text-xs font-medium text-popover-foreground">
-                      {guest.guestInvitationCategory}
-                    </span>
-                  </td>
-                  <td className="border-b border-zinc-100 px-4 py-3">
-                    <WorkspaceBadge tone={resolveStatusTone(guest.status)} className="text-popover-foreground">
-                      {statusLabel(guest.status)}
-                    </WorkspaceBadge>
-                  </td>
-                  <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
-                    {guest.totalAttendee} orang
+              {guests.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="border-b border-zinc-100 px-4 py-10 text-center text-sm text-zinc-400">
+                    {emptyLabel}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                guests.map((guest) => (
+                  <tr key={guest.id} className="hover:bg-zinc-50/60 transition-colors">
+                    <td className="border-b border-zinc-100 px-4 py-3 text-sm font-medium text-foreground">
+                      {guest.name}
+                    </td>
+                    <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
+                      {guest.whatsAppNumber}
+                    </td>
+                    <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
+                      {guest.email}
+                    </td>
+                    <td className="border-b border-zinc-100 px-4 py-3">
+                      <span className="inline-flex items-center rounded-md border border-zinc-300 bg-white px-2.5 py-0.5 text-xs font-medium text-popover-foreground">
+                        {guest.guestInvitationCategory}
+                      </span>
+                    </td>
+                    <td className="border-b border-zinc-100 px-4 py-3">
+                      <WorkspaceBadge tone={resolveStatusTone(guest.status)} className="text-popover-foreground">
+                        {statusLabel(guest.status)}
+                      </WorkspaceBadge>
+                    </td>
+                    <td className="border-b border-zinc-100 px-4 py-3 text-sm font-normal text-foreground">
+                      {guest.totalAttendee} orang
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
