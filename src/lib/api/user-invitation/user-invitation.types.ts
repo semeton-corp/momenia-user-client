@@ -79,6 +79,18 @@ export type UserInvitationDetail = {
     }
 }
 
+export type InvitationTemplate = UserInvitationDetail["template"]
+
+// GET /api/v1/user-invitations/content/:path_url — versi publik yang dipakai
+// halaman undangan (/invitation/[slug]). Endpoint ini TIDAK butuh bearer token,
+// cuma x-api-key, dan hanya mengembalikan yang perlu untuk merender undangan.
+export type UserInvitationContent = {
+    id: string
+    pathUrl: string
+    fieldValues: Record<string, string>
+    template: InvitationTemplate
+}
+
 // Endpoint-nya bernama ".../path-url", tapi backend-nya sendiri memvalidasi
 // body dengan field "slug" (bukan "pathUrl" seperti di contoh dokumentasi Postman).
 export type CheckPathUrlRequest = {

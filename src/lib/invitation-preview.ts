@@ -27,13 +27,15 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
+// Only the template is needed, so this also accepts the lighter public payload from
+// /user-invitations/content/:path_url — not just the full editor detail.
 export function buildInvitationHtml(
-  detail: UserInvitationDetail,
+  invitation: Pick<UserInvitationDetail, "template">,
   userData: Record<string, string>,
   theme: ThemeDefaults,
   sectionOrder: string[]
 ): string {
-  const { template } = detail
+  const { template } = invitation
   const allCss = Object.values(template.sectionTypes).map((s) => s.css).join("\n")
   const mainPage = template.pages.find((p) => p.id === "main")
   const coverPage = template.pages.find((p) => p.id === "cover")
