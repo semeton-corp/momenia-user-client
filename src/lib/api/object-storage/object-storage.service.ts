@@ -39,6 +39,14 @@ async function putToPresignedUrl(presigned: PresignedUploadResponse, file: File)
   }
 }
 
+// The API returns a presigned PUT url but no public url. Objects are uploaded with
+// `public-read`, so the permanent url is that same url minus the signature query
+// string. Deriving it this way keeps the bucket right across environments (staging
+// uploads to `.../temp/...`, production to `.../momenia/...`) instead of hardcoding one.
+function publicUrlFrom(presigned: PresignedUploadResponse): string {
+  return presigned.presignedUrl.split("?")[0]
+}
+
 // Orchestrator — returns the permanent object URL to store in fieldValues.
 export const uploadImage = async (
   file: File,
@@ -54,7 +62,9 @@ export const uploadImage = async (
     },
   })
 
+  // Only reached if the PUT succeeded — putToPresignedUrl throws on a non-2xx, so a
+  // failed upload never returns a url that would get saved onto the invitation.
   await putToPresignedUrl(presigned, file)
 
-  return presigned.publicUrl
+  return publicUrlFrom(presigned)
 }

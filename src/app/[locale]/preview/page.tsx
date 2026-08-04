@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react"
-
-const PREVIEW_STORAGE_KEY = "momenia_preview"
+import { PREVIEW_STORAGE_KEY, type PreviewSnapshot } from "@/lib/invitation-preview"
 
 // Phone-width viewport for the invitation. This has to stay under the template's
 // 768px desktop breakpoint: CSS media queries measure the iframe's own viewport, so
@@ -10,13 +9,6 @@ const PREVIEW_STORAGE_KEY = "momenia_preview"
 // side) and then get clipped by the column. The editor's preview is 375px for the same
 // reason — keeping this narrow is what makes both previews agree.
 const PHONE_W = 420
-
-type PreviewState = {
-  html: string
-  userData: Record<string, string>
-  theme: Record<string, string>
-  activePage: string
-}
 
 function subscribe() {
   return () => {}
@@ -36,10 +28,10 @@ export default function PreviewPage() {
   const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  const state = useMemo<PreviewState | null>(() => {
+  const state = useMemo<PreviewSnapshot | null>(() => {
     if (!raw) return null
     try {
-      return JSON.parse(raw) as PreviewState
+      return JSON.parse(raw) as PreviewSnapshot
     } catch {
       return null
     }
