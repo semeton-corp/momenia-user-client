@@ -140,13 +140,28 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
   theme: ThemeDefaults
   activePage: string
   zoom: number
-}>(function PreviewFrame({ html, userData, theme, activePage, zoom }, ref) {
+  onPageChange?: (pageId: string) => void
+}>(function PreviewFrame({ html, userData, theme, activePage, zoom, onPageChange }, ref) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const loadedRef = useRef(false)
   const loadedFontsRef = useRef<Set<string>>(new Set())
   const userDataRef = useRef(userData); userDataRef.current = userData
   const themeRef = useRef(theme); themeRef.current = theme
   const activePageRef = useRef(activePage); activePageRef.current = activePage
+  const onPageChangeRef = useRef(onPageChange); onPageChangeRef.current = onPageChange
+
+  // The invitation can navigate itself (its own in-page buttons), so mirror that back
+  // to the editor. Read through a ref so the listener is attached exactly once.
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.source !== iframeRef.current?.contentWindow) return
+      if (e.data?.type === "memoriaPageChange" && typeof e.data.pageId === "string") {
+        onPageChangeRef.current?.(e.data.pageId)
+      }
+    }
+    window.addEventListener("message", handler)
+    return () => window.removeEventListener("message", handler)
+  }, [])
 
   // Makes the iframe's own <body> scroll internally instead of the document growing to fit
   // content — the html element clips at the fixed viewport, body carries the scrollbar.
@@ -494,6 +509,13 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
       .replace(/\b\w/g, (c) => c.toUpperCase())
   }, [template.pages])
 
+  // the invitation navigated itself (e.g. its "Let's Party" button) — follow along so
+  // the page indicator, content list and field groups all show that page
+  const handlePreviewPageChange = useCallback((pageId: string) => {
+    const idx = template.pages.findIndex((p) => p.id === pageId)
+    if (idx >= 0) setActivePageIdx(idx)
+  }, [template.pages])
+
   // when a Content field-group is expanded, scroll the mockup to the matching section
   const handleSectionOpen = useCallback((sectionTypeId: string) => {
     const instance = template.pages[activePageIdx]?.sections.find((s) => s.section_type_id === sectionTypeId)
@@ -798,7 +820,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
           {/* phone */}
           <div ref={previewScrollRef} className="flex flex-1 items-center justify-center overflow-auto p-6">
-            <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} />
+            <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} onPageChange={handlePreviewPageChange} />
           </div>
 
           {/* zoom */}
