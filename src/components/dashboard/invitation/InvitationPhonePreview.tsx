@@ -1,12 +1,14 @@
 import Image from "next/image"
-import { PencilLine, Users } from "lucide-react"
+import { ImageOff, PencilLine, Users } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { typography } from "@/lib/typography"
 
 type InvitationPhonePreviewProps = {
-  imageUrl: string
+  imageUrl?: string
+  /** HTML hasil render section "cover" template — kalau ada, dipakai menggantikan imageUrl. */
+  coverHtml?: string | null
   title: string
   planName: string
   activeUntilLabel: string
@@ -14,6 +16,7 @@ type InvitationPhonePreviewProps = {
   publishedLabel: string
   notActiveWarning: string
   isPublished: boolean
+  isPublishing?: boolean
   onPublish: () => void
   editLabel: string
   guestsLabel: string
@@ -23,6 +26,7 @@ type InvitationPhonePreviewProps = {
 
 export function InvitationPhonePreview({
   imageUrl,
+  coverHtml,
   title,
   planName,
   activeUntilLabel,
@@ -30,6 +34,7 @@ export function InvitationPhonePreview({
   publishedLabel,
   notActiveWarning,
   isPublished,
+  isPublishing,
   onPublish,
   editLabel,
   guestsLabel,
@@ -45,7 +50,22 @@ export function InvitationPhonePreview({
           className="relative w-full overflow-hidden"
           style={{ aspectRatio: "396 / 846", borderRadius: "14px" }}
         >
-          <Image src={imageUrl} alt={title} fill className="object-cover" sizes="312px" />
+          {coverHtml ? (
+            <div className="pointer-events-none absolute left-0 top-0 h-[846px] w-[396px] origin-top-left scale-[0.6667] sm:scale-[0.8081] xl:scale-[0.7879]">
+              <iframe
+                srcDoc={coverHtml}
+                title={title}
+                sandbox=""
+                className="h-full w-full border-0"
+              />
+            </div>
+          ) : imageUrl ? (
+            <Image src={imageUrl} alt={title} fill className="object-cover" sizes="312px" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-zinc-300">
+              <ImageOff className="h-10 w-10" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -55,7 +75,7 @@ export function InvitationPhonePreview({
       <div className="mx-auto mt-4 w-[264px] sm:w-80 xl:mx-0 xl:mt-6 xl:w-[312px]">
         <Button
           type="button"
-          disabled={isPublished}
+          disabled={isPublished || isPublishing}
           onClick={onPublish}
           className={cn(
             `h-[54px] w-full rounded-[10px] ${typography.xl.semibold} xl:rounded-xl`,

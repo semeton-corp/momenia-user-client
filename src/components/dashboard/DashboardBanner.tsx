@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Search, ArrowDownAZ, ChevronDown, X } from "lucide-react"
+import { Search, ChevronDown, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import Ambient from "@/assets/llandingpage/banner-create-now.svg"
@@ -52,7 +52,6 @@ export function DashboardBanner({
 
   const sortDropdown = (
     <SortFilterDropdown
-      icon={<ArrowDownAZ className="h-4 w-4 shrink-0 md:h-5 md:w-5" />}
       label={t("sort")}
       title={t("sortBy")}
       fieldValue={selectedSortField}
@@ -68,7 +67,7 @@ export function DashboardBanner({
   return (
     <div className="mx-auto mt-2 mb-6 w-full max-w-345 md:my-0 xl:mt-14 xl:mb-11 xl:w-full xl:max-w-none">
       <div
-        className="relative w-full rounded-3xl p-[18px] md:rounded-[36px] md:px-14 md:py-12 xl:flex xl:h-[301px] xl:items-center xl:justify-center xl:px-0 xl:py-0"
+        className="relative w-full rounded-3xl p-[18px] md:rounded-[36px] md:px-14 md:py-12 xl:flex xl:h-[301px] xl:items-center xl:justify-center xl:px-10 xl:py-0"
         style={{
           background:
             "linear-gradient(to top, #4F46E5 0%, #6366F1 44%, #A5B4FC 100%)",
@@ -102,7 +101,7 @@ export function DashboardBanner({
         <div className="flex w-full max-w-6xl mx-auto items-center gap-2 md:gap-3 xl:max-w-[1480px] xl:gap-4">
           {/* Search input — flex-1 supaya memanjang mengisi sisa ruang, jadi jarak ke
               kedua dropdown seragam dan tidak ada ruang kosong di kanan. */}
-          <div className="relative flex-1">
+          <div className="relative min-w-0 flex-1">
             {/* Ikon cari selalu di kanan — sembunyikan saat ada input supaya
                 tidak bentrok dengan tombol silang. */}
             <Search
@@ -156,7 +155,6 @@ export function DashboardBanner({
         triggerClassName="h-10"
       />
       <SortFilterDropdown
-        icon={<ArrowDownAZ className="h-4 w-4 shrink-0" />}
         label={t("sort")}
         title={t("sortBy")}
         fieldValue={selectedSortField}

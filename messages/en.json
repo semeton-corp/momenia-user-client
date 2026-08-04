@@ -40,7 +40,7 @@
       "p1Part1": "MOMENIA is an all in one web based invitation platform designed to help people ",
       "p1Highlight": "create, manage, and share meaningful moments effortlessly.",
       "p1Part2": " We believe that every special occasion deserves more than just an ordinary invitation, it should be interactive, personal, and easy to manage without requiring technical skills or relying on developers. That's why MOMENIA empowers you to take full control of your invitations, from designing and editing content to publishing and managing guests, all within one seamless platform.",
-      "p2": "With MOMENIA, you can create beautiful digital invitations in minutes, customize details anytime, and share them instantly. The platform also enables RSVP tracking and allows guests to send messages and digital gifts, creating a more engaging experience. At MOMENIA, we are not just building a tool, we are creating a smarter, simpler, and more memorable way to celebrate life's most important moments."
+      "p2": "With MOMENIA, you can create beautiful digital invitations in minutes, customize details anytime, and share them instantly. The platform also enables RSVP tracking and allows guests to send messages, creating a more engaging experience. At MOMENIA, we are not just building a tool, we are creating a smarter, simpler, and more memorable way to celebrate life's most important moments."
     },
     "features": {
       "titleSuffix": "Features",
@@ -501,6 +501,7 @@
         "copy": "Copy",
         "editLink": "Edit Link",
         "hide": "Hide",
+        "show": "Show",
         "delete": "Delete"
       },
       "launcher": {
@@ -564,6 +565,16 @@
         "manageGuestsSubtitle": "Manage guest list and invitations",
         "guestStatsTitle": "Guest Statistics",
         "invitationLink": "Invitation Link",
+        "loadError": "Failed to load this invitation. Please check your connection.",
+        "actionError": "Something went wrong. Please try again.",
+        "publishedToast": "Invitation published successfully",
+        "activeUntilLabel": "Active until {date}",
+        "slugRequired": "Invitation link is required",
+        "slugInvalid": "Only lowercase letters, numbers, and hyphens are allowed",
+        "slugTaken": "This link is already taken, please choose another one",
+        "slugAvailable": "This link is available",
+        "linkUpdatedToast": "Invitation link updated successfully",
+        "linkCopiedToast": "Link copied to clipboard",
         "countdownUnits": {
           "days": "Days",
           "hours": "Hours",
@@ -575,15 +586,27 @@
         "title": "Manage Guests",
         "listTitle": "Guest List",
         "addTitle": "Add Guest",
+        "editTitle": "Edit Guest",
         "totalGuests": "Total Guests: {count}",
         "deleteRows": "Delete Rows",
+        "loadError": "Failed to load guests. Please check your connection.",
+        "empty": "No guests yet.",
+        "noResults": "No guests match your search.",
+        "actionError": "Something went wrong. Please try again.",
+        "addedToast": "Guest added successfully",
+        "updatedToast": "Guest updated successfully",
+        "deletedToast": "Guest deleted successfully",
+        "categoryAddedToast": "Category added successfully",
+        "categoryUpdatedToast": "Category updated successfully",
+        "categoryDeletedToast": "Category deleted successfully",
         "table": {
           "name": "Name",
           "whatsApp": "WhatsApp",
           "email": "Email",
           "category": "Category",
           "actions": "Actions",
-          "delivered": "Delivered?"
+          "delivered": "Delivered?",
+          "allCategories": "All Categories"
         },
         "form": {
           "name": "Full Name",
@@ -591,19 +614,36 @@
           "email": "Email",
           "category": "Category",
           "chooseCategory": "Choose Category",
-          "categoryHint": "Adjust the guest category as needed."
+          "categoryHint": "Adjust the guest category as needed.",
+          "noCategoryOptions": "No categories yet — add one below.",
+          "addCategory": "Add Category",
+          "newCategoryPlaceholder": "New category name",
+          "nameRequired": "Full name is required",
+          "whatsAppRequired": "WhatsApp number is required",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Enter a valid email address",
+          "categoryRequired": "Please choose a category"
         },
         "messageTemplate": {
           "title": "Guest Message Template",
-          "defaultBody": "With great joy, we invite {{guestName}} to attend the wedding ceremony:\n{{eventName}}\n\nPlease see the full event details via the link below:\n{{link}}\n\nIt would be an honor for us if you could attend.\nThank you 🙏",
-          "helperText": "Click a variable to insert it into the message template.",
+          "defaultBody": "With great joy, we invite '{{guestName}}' to attend our wedding celebration. Please see the full event details on this invitation page.\n\nIt would be an honor for us if you could attend.\nThank you 🙏",
+          "helperText": "Click the variable to insert it into the message template.",
           "save": "Save",
           "savedToast": "Message template saved successfully",
+          "loadError": "Failed to load message template.",
           "variables": {
-            "guestName": "Guest Name",
-            "eventName": "Event Name",
-            "link": "Link"
+            "guestName": "Guest Name"
           }
+        },
+        "deleteDialog": {
+          "title": "Delete Guest",
+          "description": "Are you sure you want to delete this guest?",
+          "descriptionMultiple": "Are you sure you want to delete {count} guests?"
+        },
+        "deleteCategoryDialog": {
+          "title": "Delete Category",
+          "description": "Are you sure you want to delete this category?",
+          "descriptionNamed": "Are you sure you want to delete the \"{name}\" category?"
         }
       },
       "rsvp": {
@@ -619,7 +659,19 @@
       "messages": {
         "title": "Messages from Guests",
         "searchPlaceholder": "Search guest name...",
-        "voiceNote": "Voice Note from {name}"
+        "voiceNote": "Voice Note from {name}",
+        "empty": "No messages yet.",
+        "loadError": "Failed to load messages. Please check your connection.",
+        "hiddenBadge": "Hidden",
+        "hiddenToast": "Message hidden",
+        "shownToast": "Message shown",
+        "deletedToast": "Message deleted",
+        "actionError": "Something went wrong. Please try again.",
+        "deleteDialog": {
+          "title": "Delete Message",
+          "description": "Are you sure you want to delete this message?",
+          "descriptionNamed": "Are you sure you want to delete the message from \"{name}\"?"
+        }
       },
       "notes": {
         "title": "After Party Notes",
@@ -627,12 +679,16 @@
         "stepTwo": "Step 2: Pick Guests and Send",
         "formTitle": "Create Notes",
         "formSubtitle": "Create after party notes to share with your invited guests.",
-        "galleryLink": "Photo Gallery Link",
         "souvenirLabel": "Online Souvenir",
+        "souvenirPlaceholder": "https://...",
         "messageLabel": "Message",
+        "messagePlaceholder": "Type your message here.",
         "messageHint": "Adjust the after party note before sharing it with guests.",
         "recipientTitle": "Pick Guests and Send",
-        "recipientSubtitle": "Select invitation guests and distribute your after party notes."
+        "recipientSubtitle": "Select invitation guests and distribute your after party notes.",
+        "recipientsLoadError": "Failed to load guests. Please check your connection.",
+        "savedToast": "After party note saved successfully",
+        "actionError": "Something went wrong. Please try again."
       },
       "edit": {
         "title": "Edit Template",

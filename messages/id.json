@@ -40,7 +40,7 @@
       "p1Part1": "MOMENIA adalah platform undangan berbasis web all-in-one yang dirancang untuk membantu orang ",
       "p1Highlight": "membuat, mengelola, dan membagikan momen bermakna dengan mudah.",
       "p1Part2": " Kami percaya bahwa setiap momen spesial layak mendapatkan lebih dari sekadar undangan biasa—undangan harus interaktif, personal, dan mudah dikelola tanpa membutuhkan keahlian teknis atau bantuan developer. Karena itu, MOMENIA memberdayakan kamu untuk mengontrol penuh undanganmu, mulai dari mendesain dan mengedit konten hingga mempublikasikan dan mengelola tamu, semuanya dalam satu platform yang mulus.",
-      "p2": "Dengan MOMENIA, kamu bisa membuat undangan digital yang indah dalam hitungan menit, mengubah detail kapan saja, dan membagikannya secara instan. Platform ini juga mendukung pelacakan RSVP serta memungkinkan tamu mengirim pesan dan hadiah digital, sehingga pengalaman jadi lebih interaktif. Di MOMENIA, kami bukan hanya membangun sebuah alat—kami menciptakan cara yang lebih cerdas, lebih sederhana, dan lebih berkesan untuk merayakan momen-momen terpenting dalam hidup."
+      "p2": "Dengan MOMENIA, kamu bisa membuat undangan digital yang indah dalam hitungan menit, mengubah detail kapan saja, dan membagikannya secara instan. Platform ini juga mendukung pelacakan RSVP serta memungkinkan tamu mengirim pesan, sehingga pengalaman jadi lebih interaktif. Di MOMENIA, kami bukan hanya membangun sebuah alat—kami menciptakan cara yang lebih cerdas, lebih sederhana, dan lebih berkesan untuk merayakan momen-momen terpenting dalam hidup."
     },
     "features": {
       "titleSuffix": "Fitur",
@@ -501,6 +501,7 @@
         "copy": "Copy",
         "editLink": "Edit Link",
         "hide": "Sembunyikan",
+        "show": "Tampilkan",
         "delete": "Hapus"
       },
       "launcher": {
@@ -564,6 +565,16 @@
         "manageGuestsSubtitle": "Atur daftar hadir dan undangan",
         "guestStatsTitle": "Statistik Tamu",
         "invitationLink": "Link Undangan",
+        "loadError": "Gagal memuat undangan ini. Periksa koneksi kamu.",
+        "actionError": "Terjadi kesalahan. Coba lagi.",
+        "publishedToast": "Undangan berhasil dipublish",
+        "activeUntilLabel": "Aktif s/d {date}",
+        "slugRequired": "Link undangan wajib diisi",
+        "slugInvalid": "Hanya boleh huruf kecil, angka, dan tanda hubung",
+        "slugTaken": "Link ini sudah dipakai, silakan pilih yang lain",
+        "slugAvailable": "Link ini tersedia",
+        "linkUpdatedToast": "Link undangan berhasil diperbarui",
+        "linkCopiedToast": "Link berhasil disalin",
         "countdownUnits": {
           "days": "Hari",
           "hours": "Jam",
@@ -575,15 +586,27 @@
         "title": "Kelola Tamu",
         "listTitle": "List Tamu",
         "addTitle": "Tambah Tamu",
+        "editTitle": "Edit Tamu",
         "totalGuests": "Total Tamu: {count}",
         "deleteRows": "Hapus Baris",
+        "loadError": "Gagal memuat daftar tamu. Periksa koneksi kamu.",
+        "empty": "Belum ada tamu.",
+        "noResults": "Tidak ada tamu yang cocok dengan pencarian.",
+        "actionError": "Terjadi kesalahan. Coba lagi.",
+        "addedToast": "Tamu berhasil ditambahkan",
+        "updatedToast": "Tamu berhasil diperbarui",
+        "deletedToast": "Tamu berhasil dihapus",
+        "categoryAddedToast": "Kategori berhasil ditambahkan",
+        "categoryUpdatedToast": "Kategori berhasil diperbarui",
+        "categoryDeletedToast": "Kategori berhasil dihapus",
         "table": {
           "name": "Nama",
           "whatsApp": "WhatsApp",
           "email": "Email",
           "category": "Kategori",
           "actions": "Aksi",
-          "delivered": "Terkirim?"
+          "delivered": "Terkirim?",
+          "allCategories": "Semua Kategori"
         },
         "form": {
           "name": "Nama Lengkap",
@@ -591,19 +614,36 @@
           "email": "Email",
           "category": "Kategori",
           "chooseCategory": "Pilih kategori",
-          "categoryHint": "Silakan sesuaikan kategori"
+          "categoryHint": "Silakan sesuaikan kategori",
+          "noCategoryOptions": "Belum ada kategori — tambahkan di bawah.",
+          "addCategory": "Tambah Kategori",
+          "newCategoryPlaceholder": "Nama kategori baru",
+          "nameRequired": "Nama lengkap wajib diisi",
+          "whatsAppRequired": "Nomor WhatsApp wajib diisi",
+          "emailRequired": "Email wajib diisi",
+          "emailInvalid": "Masukkan alamat email yang valid",
+          "categoryRequired": "Silakan pilih kategori"
         },
         "messageTemplate": {
           "title": "Template Pesan Untuk Tamu",
-          "defaultBody": "Dengan penuh kebahagiaan, kami mengundang {{guestName}} untuk menghadiri upacara pernikahan:\n{{eventName}}\n\nSilakan melihat detail lengkap acara melalui tautan berikut:\n{{link}}\n\nMerupakan suatu kehormatan bagi kami apabila Anda berkenan hadir.\nTerima kasih 🙏",
+          "defaultBody": "Dengan penuh kebahagiaan, kami mengundang '{{guestName}}' untuk menghadiri perayaan pernikahan kami. Silakan lihat detail lengkap acara di halaman undangan ini.\n\nMerupakan suatu kehormatan bagi kami apabila Anda berkenan hadir.\nTerima kasih 🙏",
           "helperText": "Klik variabel untuk menyisipkan ke dalam template pesan.",
           "save": "Simpan",
           "savedToast": "Template pesan berhasil disimpan",
+          "loadError": "Gagal memuat template pesan.",
           "variables": {
-            "guestName": "Nama Tamu",
-            "eventName": "Nama Acara",
-            "link": "Link"
+            "guestName": "Nama Tamu"
           }
+        },
+        "deleteDialog": {
+          "title": "Hapus Tamu",
+          "description": "Apakah kamu yakin ingin menghapus tamu ini?",
+          "descriptionMultiple": "Apakah kamu yakin ingin menghapus {count} tamu?"
+        },
+        "deleteCategoryDialog": {
+          "title": "Hapus Kategori",
+          "description": "Apakah kamu yakin ingin menghapus kategori ini?",
+          "descriptionNamed": "Apakah kamu yakin ingin menghapus kategori \"{name}\"?"
         }
       },
       "rsvp": {
@@ -619,7 +659,19 @@
       "messages": {
         "title": "Pesan dari Tamu",
         "searchPlaceholder": "Cari nama tamu...",
-        "voiceNote": "Voice Note dari {name}"
+        "voiceNote": "Voice Note dari {name}",
+        "empty": "Belum ada ucapan.",
+        "loadError": "Gagal memuat pesan. Periksa koneksi kamu.",
+        "hiddenBadge": "Disembunyikan",
+        "hiddenToast": "Pesan disembunyikan",
+        "shownToast": "Pesan ditampilkan",
+        "deletedToast": "Pesan dihapus",
+        "actionError": "Terjadi kesalahan. Coba lagi.",
+        "deleteDialog": {
+          "title": "Hapus Pesan",
+          "description": "Apakah kamu yakin ingin menghapus pesan ini?",
+          "descriptionNamed": "Apakah kamu yakin ingin menghapus pesan dari \"{name}\"?"
+        }
       },
       "notes": {
         "title": "After Party Notes",
@@ -627,12 +679,16 @@
         "stepTwo": "Langkah 2: Pilih Tamu dan Kirim",
         "formTitle": "Buat Catatan",
         "formSubtitle": "Buat catatan after party untuk dibagikan kepada tamu undangan.",
-        "galleryLink": "Link Galeri Foto",
         "souvenirLabel": "Souvenir Online",
+        "souvenirPlaceholder": "https://...",
         "messageLabel": "Ucapan",
+        "messagePlaceholder": "Ketik pesan kamu di sini.",
         "messageHint": "Silakan sesuaikan isi catatan sebelum dibagikan ke tamu.",
         "recipientTitle": "Pilih Tamu dan Kirim",
-        "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan after party Anda."
+        "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan after party Anda.",
+        "recipientsLoadError": "Gagal memuat daftar tamu. Periksa koneksi kamu.",
+        "savedToast": "Catatan after party berhasil disimpan",
+        "actionError": "Terjadi kesalahan. Coba lagi."
       },
       "edit": {
         "title": "Edit Template",

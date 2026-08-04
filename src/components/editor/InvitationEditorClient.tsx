@@ -547,8 +547,8 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
       ),
     }
 
-    // Use pathUrl as slug, or generate from name as fallback
-    const slug = detail.pathUrl || name.toLowerCase().replace(/\s+/g, "-")
+    // Use the existing slug, or generate from name as fallback
+    const slug = detail.slug || name.toLowerCase().replace(/\s+/g, "-")
 
     if (!slug) {
       toast("Error: Please enter an invitation name", "error")

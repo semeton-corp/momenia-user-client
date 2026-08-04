@@ -310,7 +310,7 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
                       >
                         {activeTemplate.title}
                       </motion.h3>
-                      <button className="pointer-events-auto cursor-pointer w-full rounded-[8px] border border-blue-500 py-1.5 text-[10px] font-medium text-blue-600 outline-none transition-colors hover:bg-blue-50 md:rounded-[10px] md:py-2 md:text-xs">
+                      <button className="pointer-events-auto cursor-pointer w-full rounded-[8px] border border-primary py-1.5 text-[10px] font-medium text-zinc-900 outline-none transition-colors hover:bg-primary/5 md:rounded-[10px] md:py-2 md:text-xs">
                         {t("viewTemplate")}
                       </button>
                     </div>

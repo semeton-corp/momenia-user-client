@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Users, UsersRound } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useRsvpOverview, useRsvps } from "@/hooks/useRsvps"
 import { DonutChart } from "./DonutChart"
@@ -50,6 +51,7 @@ export function RsvpWorkspaceClient({ invitationId }: Props) {
 
   const stats = {
     totalGuests: overview?.totalGuest ?? 0,
+    estimatedGuests: overview?.estimatedTotalGuest ?? 0,
     attending: overview?.totalGuestPresent ?? 0,
     declined: overview?.totalGuestAbsent ?? 0,
     pending: overview?.totalGuestNotConfirmed ?? 0,
@@ -121,6 +123,13 @@ export function RsvpWorkspaceClient({ invitationId }: Props) {
                   </div>
                 ))}
               </div>
+
+              {/* Estimasi row */}
+              <div className="flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-zinc-700 shadow-sm border border-zinc-100">
+                <UsersRound className="h-4 w-4 shrink-0" />
+                <span className="flex-1">{t("rsvp.estimatedGuests")}</span>
+                <p className="text-2xl font-semibold text-zinc-950">{stats.estimatedGuests}</p>
+              </div>
             </div>
           </div>
 
@@ -138,11 +147,21 @@ export function RsvpWorkspaceClient({ invitationId }: Props) {
                 />
               </div>
 
-              <div className="grid flex-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <SummaryStatCard label={t("rsvp.totalGuests")} value={stats.totalGuests} />
-                <SummaryStatCard label={t("common.attending")} value={stats.attending} markerColor="#4338CA" />
-                <SummaryStatCard label={t("common.declined")}  value={stats.declined}  markerColor="#818CF8" />
-                <SummaryStatCard label={t("common.pending")}   value={stats.pending}   markerColor="#C7D2FE" />
+              <div className="flex flex-1 flex-col gap-4">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <SummaryStatCard label={t("rsvp.totalGuests")} value={stats.totalGuests} />
+                  <SummaryStatCard label={t("common.attending")} value={stats.attending} markerColor="#4338CA" />
+                  <SummaryStatCard label={t("common.declined")}  value={stats.declined}  markerColor="#818CF8" />
+                  <SummaryStatCard label={t("common.pending")}   value={stats.pending}   markerColor="#C7D2FE" />
+                </div>
+
+                <div className="flex h-[58px] items-center justify-between rounded-2xl bg-indigo-100 px-8 py-3">
+                  <div className="flex items-center gap-4 text-lg font-normal text-foreground">
+                    <Users className="h-[34px] w-[34px] shrink-0" />
+                    <span>{t("rsvp.estimatedGuests")}</span>
+                  </div>
+                  <p className="text-2xl font-semibold text-foreground">{stats.estimatedGuests}</p>
+                </div>
               </div>
             </div>
           </WorkspaceCard>
@@ -167,6 +186,7 @@ export function RsvpWorkspaceClient({ invitationId }: Props) {
             presentLabel={t("common.attending")}
             absentLabel={t("common.declined")}
             notConfirmedLabel={t("common.pending")}
+            emptyLabel={keyword ? t("guests.noResults") : t("guests.empty")}
             selectionLabel={t("common.selectedRows", { count: 0, total: totalData })}
             rowsPerPageLabel={t("common.rowsPerPage")}
             pageLabel={t("common.pageLabel", { current: currentPage, total: totalPage })}
