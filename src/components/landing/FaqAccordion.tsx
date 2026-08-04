@@ -100,7 +100,7 @@ export function FaqAccordion({ items, defaultOpenId }: FaqAccordionProps) {
               aria-hidden={!isOpen}
             >
               <div className="min-h-0 overflow-hidden">
-                <div className={cn("text-sm font-medium text-zinc-800", isMobile ? "px-4 pb-4" : "px-7 pb-7")}>
+                <div className={cn("text-sm font-medium text-secondary-foreground md:text-base", isMobile ? "px-4 pb-4" : "px-7 pb-7")}>
                   {item.answer}
                 </div>
               </div>

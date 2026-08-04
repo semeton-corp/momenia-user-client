@@ -13,6 +13,7 @@ import { RadioDot } from "@/components/ui/radio-dot"
 import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
 import MobileFrame from "@/assets/dashboard/mobile.svg"
+import DesktopFrame from "@/assets/dashboard/laptop.png"
 import { useInvitationDurations } from "@/hooks/useInvitationDurations"
 
 // Styling tiap elemen markdown supaya deskripsi template (bold/heading/list)
@@ -119,63 +120,77 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
 
 
           {template && step === "detail" && (
-            <div className="hidden h-full grid-cols-[325px_1fr_auto] gap-x-[31px] overflow-hidden xl:grid">
+            <div
+              className={cn(
+                "hidden h-full gap-x-[31px] overflow-hidden xl:grid",
+                view === "desktop" ? "grid-cols-[500px_1fr_auto]" : "grid-cols-[325px_1fr_auto]",
+              )}
+            >
               {/* ── Left: Preview ── */}
               <div className="flex h-full flex-col items-center justify-start">
-                {/* Phone / Desktop preview */}
-                {view === "mobile" ? (
-                  <div className="relative shrink-0" style={{ width: "270px", height: "526px" }}>
-                    <div
-                      className="absolute overflow-hidden"
-                      style={{
-                        left: "2.593%",
-                        right: "2.593%",
-                        top: "1.331%",
-                        bottom: "1.331%",
-                        borderRadius: "50px",
-                      }}
-                    >
+                {/* Preview stage — fixed height (matches the taller phone frame) so the
+                    buttons below never jump up/down when switching Mobile/Desktop. */}
+                <div className="flex w-full shrink-0 items-center justify-center" style={{ height: "526px" }}>
+                  {view === "mobile" ? (
+                    <div className="relative shrink-0" style={{ width: "270px", height: "526px" }}>
+                      <div
+                        className="absolute overflow-hidden"
+                        style={{
+                          left: "2.593%",
+                          right: "2.593%",
+                          top: "1.331%",
+                          bottom: "1.331%",
+                          borderRadius: "50px",
+                        }}
+                      >
+                        <Image
+                          src={template.imageUrl}
+                          alt={template.title}
+                          fill
+                          quality={90}
+                          className="object-cover"
+                          sizes="270px"
+                        />
+                      </div>
                       <Image
-                        src={template.imageUrl}
-                        alt={template.title}
+                        src={MobileFrame}
+                        alt=""
                         fill
-                        quality={90}
-                        className="object-cover"
-                        sizes="270px"
+                        className="pointer-events-none object-contain"
                       />
                     </div>
-                    <Image
-                      src={MobileFrame}
-                      alt=""
-                      fill
-                      className="pointer-events-none object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className="relative shrink-0 w-[270px] overflow-hidden rounded-lg ring-8 ring-zinc-800"
-                    style={{ height: "526px" }}
-                  >
-                    <Image
-                      src={template.desktopImageUrl || template.imageUrl}
-                      alt={template.title}
-                      fill
-                      quality={90}
-                      className="object-cover"
-                      sizes="270px"
-                    />
-                    <div className="pointer-events-none absolute -bottom-4 left-1/2 h-4 w-20 -translate-x-1/2 rounded-b bg-zinc-800" />
-                  </div>
-                )}
+                  ) : (
+                    <div className="relative shrink-0" style={{ width: "460px", height: "261px" }}>
+                      <div
+                        className="absolute overflow-hidden"
+                        style={{ left: "13.1%", right: "12.6%", top: "3.5%", bottom: "13.3%" }}
+                      >
+                        <Image
+                          src={template.desktopImageUrl || template.imageUrl}
+                          alt={template.title}
+                          fill
+                          quality={90}
+                          className="object-cover"
+                          sizes="460px"
+                        />
+                      </div>
+                      <Image
+                        src={DesktopFrame}
+                        alt=""
+                        fill
+                        className="pointer-events-none object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
 
-                {/* Mobile / Desktop toggle - 30px below preview, no gap between buttons */}
-                <div className="flex shrink-0" style={{ marginTop: "30px" }}>
+                {/* Mobile / Desktop toggle — full width, matches preview width, no gap between buttons */}
+                <div className="flex w-full shrink-0" style={{ marginTop: "30px" }}>
                   <button
                     type="button"
                     onClick={() => setView("mobile")}
-                    className="cursor-pointer transition-colors"
+                    className="flex-1 cursor-pointer transition-colors"
                     style={{
-                      width: "130px",
                       borderRadius: "10px",
                       backgroundColor: view === "mobile" ? "#E0E7FF" : "var(--accent)",
                       padding: "12px 20px",
@@ -193,9 +208,8 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   <button
                     type="button"
                     onClick={() => setView("desktop")}
-                    className="cursor-pointer transition-colors"
+                    className="flex-1 cursor-pointer transition-colors"
                     style={{
-                      width: "130px",
                       borderRadius: "10px",
                       backgroundColor: view === "desktop" ? "#E0E7FF" : "var(--accent)",
                       padding: "12px 20px",
@@ -212,13 +226,12 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   </button>
                 </div>
 
-                {/* Demo button - 19px below toggle */}
+                {/* Demo button - 19px below toggle, full width to match */}
                 <button
                   type="button"
-                  className="cursor-pointer shrink-0 transition-colors hover:bg-zinc-50"
+                  className="w-full cursor-pointer shrink-0 transition-colors hover:bg-zinc-50"
                   style={{
                     marginTop: "19px",
-                    width: "265px",
                     height: "50px",
                     borderRadius: "12px",
                     backgroundColor: "#ffffff",
@@ -479,11 +492,14 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                       <Image src={MobileFrame} alt="" fill className="pointer-events-none object-contain" />
                     </div>
                   ) : (
-                    <div
-                      className="relative w-[150px] shrink-0 overflow-hidden rounded-lg ring-4 ring-zinc-800"
-                      style={{ height: "292px" }}
-                    >
-                      <Image src={template.desktopImageUrl || template.imageUrl} alt={template.title} fill quality={90} className="object-cover" sizes="150px" />
+                    <div className="relative w-[260px] shrink-0" style={{ height: "148px" }}>
+                      <div
+                        className="absolute overflow-hidden"
+                        style={{ left: "13.1%", right: "12.6%", top: "3.5%", bottom: "13.3%" }}
+                      >
+                        <Image src={template.desktopImageUrl || template.imageUrl} alt={template.title} fill quality={90} className="object-cover" sizes="260px" />
+                      </div>
+                      <Image src={DesktopFrame} alt="" fill className="pointer-events-none object-contain" />
                     </div>
                   )}
                 </div>

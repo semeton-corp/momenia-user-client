@@ -2,6 +2,7 @@ export type RsvpStatus = "present" | "absent" | "not-confirmed"
 
 export type RsvpOverview = {
   totalGuest: number
+  estimatedTotalGuest: number
   totalGuestPresent: number
   totalGuestAbsent: number
   totalGuestNotConfirmed: number
