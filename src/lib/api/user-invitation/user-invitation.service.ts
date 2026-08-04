@@ -1,6 +1,6 @@
 import { http } from "../http"
 import { getAuthHeader as authHeader } from "../auth-header"
-import { CheckPathUrlRequest, CheckPathUrlResponse, GetUserInvitationsParams, UpdateUserInvitationRequest, UserInvitation, UserInvitationDetail, UserInvitationOverview } from "./user-invitation.types"
+import { CheckPathUrlRequest, CheckPathUrlResponse, GetUserInvitationsParams, UpdateUserInvitationRequest, UserInvitation, UserInvitationContent, UserInvitationDetail, UserInvitationOverview } from "./user-invitation.types"
 
 export const getUserInvitationOverview = async (): Promise<UserInvitationOverview> => {
     return http("/api/v1/user-invitations/overview", { headers: authHeader() })
@@ -26,6 +26,12 @@ export const updateUserInvitation = async (id: string, data: UpdateUserInvitatio
         body: JSON.stringify(data),
         headers: authHeader(),
     })
+}
+
+// Halaman undangan publik — sengaja TANPA authHeader(): tamu yang membuka link
+// undangan tidak punya akun, endpoint ini cuma butuh x-api-key dari http().
+export const getUserInvitationContent = async (pathUrl: string): Promise<UserInvitationContent> => {
+    return http(`/api/v1/user-invitations/content/${encodeURIComponent(pathUrl)}`)
 }
 
 export const checkPathUrl = async (data: CheckPathUrlRequest): Promise<CheckPathUrlResponse> => {
