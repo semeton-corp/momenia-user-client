@@ -1,10 +1,14 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { getUserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.service"
+import { openInvitationPreview } from "@/lib/invitation-preview"
+import { useToast } from "@/providers/ToastProvider"
 import type { MyInvitationItem, MyInvitationStatus } from "@/lib/types/invitation-workspace"
 
 const BADGE: Record<MyInvitationStatus, string> = {
@@ -22,9 +26,29 @@ const OUTLINE_PRIMARY =
 
 export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
   const t = useTranslations("dashboard.workspace.myInvitations")
+  const locale = useLocale()
+  const { toast } = useToast()
+  const [isOpeningPreview, setIsOpeningPreview] = useState(false)
   const isDraft = inv.status === "draft"
   const dashHref = `/dashboard/my-invitation/${inv.id}`
   const editHref = `/dashboard/my-invitation/${inv.id}/edit`
+
+  // Same handoff the editor's Preview button uses: build the invitation HTML, stash it
+  // for /preview, open a tab. The list only carries summary data, so the full template
+  // has to be fetched first — kept inside the click so the tab still counts as
+  // user-initiated and isn't treated as a popup.
+  const handlePreview = async () => {
+    if (isOpeningPreview) return
+    setIsOpeningPreview(true)
+    try {
+      const detail = await getUserInvitationDetail(inv.id)
+      openInvitationPreview(detail, locale)
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to open preview", "error")
+    } finally {
+      setIsOpeningPreview(false)
+    }
+  }
 
   const statusBadge = (
     <span
@@ -119,6 +143,8 @@ export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
                 </Button>
                 <Button
                   variant="outline"
+                  onClick={handlePreview}
+                  disabled={isOpeningPreview}
                   className={cn("h-11 w-[174px] rounded-lg px-4 text-sm font-medium", OUTLINE_NEUTRAL)}
                 >
                   {t("preview")}
