@@ -1,4 +1,5 @@
 import { sanitizeToken } from "./auth-header"
+import { routing } from "@/i18n/routing"
 
 const BASE_URL = typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_API_URL
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY
@@ -13,6 +14,28 @@ function needsIdempotencyKey(method?: string): boolean {
 
 // Satu refresh berjalan bersama untuk semua request yang 401 berbarengan.
 let refreshPromise: Promise<boolean> | null = null
+
+// Sesi benar-benar habis (refresh token ditolak). Tanpa ini user ditinggal di
+// halaman dashboard yang terus melempar 401 tanpa penjelasan — lempar balik ke
+// /dashboard, biar auth gate di sana yang menampilkan modal login.
+// Hard redirect (bukan router.push) supaya cache React Query yang sudah basi ikut hilang.
+function redirectAfterSessionEnd(): void {
+    if (typeof window === "undefined") return
+
+    const path = window.location.pathname
+    // Di luar dashboard (landing/login), sesi mati cukup ditandai dengan token
+    // yang sudah dibersihkan — memaksa pindah halaman malah mengagetkan.
+    if (!path.includes("/dashboard")) return
+
+    const segments = path.split("/")
+    const locale = (routing.locales as readonly string[]).includes(segments[1])
+        ? segments[1]
+        : routing.defaultLocale
+
+    const target = `/${locale}/dashboard`
+    if (path === target) return
+    window.location.replace(target)
+}
 
 async function tryRefreshSession(): Promise<boolean> {
     if (typeof window === "undefined") return false
@@ -36,6 +59,7 @@ async function tryRefreshSession(): Promise<boolean> {
                 localStorage.removeItem("accessToken")
                 localStorage.removeItem("refreshToken")
                 localStorage.removeItem("user")
+                redirectAfterSessionEnd()
                 return false
             }
             const data: { accessToken: string; refreshToken: string } = await res.json()

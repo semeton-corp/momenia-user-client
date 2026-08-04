@@ -8,7 +8,23 @@ export default function QueryProvider({
 }: {
     children: React.ReactNode
 }) {
-    const [queryClient] = useState(() => new QueryClient())
+    const [queryClient] = useState(
+        () =>
+            new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        retry: (failureCount, error) => {
+                            // http() sudah mencoba refresh token sebelum melempar — kalau
+                            // tetap 401/403, mengulang cuma menghasilkan request gagal
+                            // beruntun yang memenuhi Network tab tanpa pernah berhasil.
+                            const status = (error as Error & { status?: number }).status
+                            if (status === 401 || status === 403) return false
+                            return failureCount < 3
+                        },
+                    },
+                },
+            }),
+    )
 
     return (
         <QueryClientProvider client={queryClient}>
