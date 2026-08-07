@@ -101,6 +101,15 @@ export function buildInvitationHtml(
 }
 body{font-family:var(--font-body);background:var(--color-background);color:var(--color-primary);}
 ${allCss}
+/* The cover is a full-screen splash, but templates size it in fixed pixels (e.g.
+   min-height:812px, one phone screen). That exactly fills the editor's 812px mockup
+   while leaving a band of bare background below it in a real browser window, which is
+   taller. Stretching the cover to whatever height it's given fixes every template at
+   once, and the template's own min-height still acts as the floor on short screens.
+   Deliberately not applied to #page-main — that page scrolls through many sections. */
+#page-cover{min-height:100vh;display:flex;flex-direction:column}
+#page-cover>[data-section-id]{flex:1 0 auto;display:flex;flex-direction:column}
+#page-cover>[data-section-id]>*{flex:1 0 auto}
 @media (min-width: 768px) {
   html, body {
     width: 100%;
