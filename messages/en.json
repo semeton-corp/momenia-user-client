@@ -261,7 +261,8 @@
         "description": "Make changes to your profile here. Click save when you're done.",
         "cancel": "Cancel",
         "save": "Save Changes",
-        "uploadError": "Failed to upload photo. Please try again."
+        "uploadError": "Failed to upload photo. Please try again.",
+        "unsupportedFormat": "This photo format isn't supported (usually HEIC from an iPhone). Please convert it to JPG or PNG."
       },
       "logoutDialog": {
         "title": "Log Out",

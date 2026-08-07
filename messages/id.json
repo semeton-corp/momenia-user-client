@@ -261,7 +261,8 @@
         "description": "Ubah informasi profilmu di sini. Klik simpan jika sudah selesai.",
         "cancel": "Batal",
         "save": "Simpan Perubahan",
-        "uploadError": "Gagal mengunggah foto. Coba lagi."
+        "uploadError": "Gagal mengunggah foto. Coba lagi.",
+        "unsupportedFormat": "Format foto ini tidak didukung (biasanya HEIC dari iPhone). Ubah dulu ke JPG atau PNG."
       },
       "logoutDialog": {
         "title": "Keluar",

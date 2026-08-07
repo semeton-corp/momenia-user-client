@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from "react"
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from "react-image-crop"
 import "react-image-crop/dist/ReactCrop.css"
-import { X, Check } from "lucide-react"
+import { X, Check, ImageOff } from "lucide-react"
 
 type AspectOption = { label: string; value: number | undefined }
 
@@ -76,6 +76,10 @@ export function ImageCropModal({
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<Crop>()
   const [isProcessing, setIsProcessing] = useState(false)
+  // Set when the browser can't decode the file at all — HEIC from an iPhone is the
+  // usual culprit, since only Safari decodes it. Without this the modal just shows an
+  // empty black box with no way to tell what went wrong.
+  const [decodeFailed, setDecodeFailed] = useState(false)
 
   const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const { width, height } = e.currentTarget
@@ -116,7 +120,7 @@ export function ImageCropModal({
           </button>
         </div>
 
-        <div className="flex items-center gap-2 border-b border-zinc-100 px-5 py-3">
+        <div className={`flex items-center gap-2 border-b border-zinc-100 px-5 py-3 ${decodeFailed ? "hidden" : ""}`}>
           {ASPECT_OPTIONS.map((opt) => (
             <button
               key={opt.label}
@@ -133,18 +137,38 @@ export function ImageCropModal({
           ))}
         </div>
 
-        <div className="flex-1 overflow-auto bg-zinc-900 p-4">
-          <ReactCrop
-            crop={crop}
-            onChange={(_, percentCrop) => setCrop(percentCrop)}
-            onComplete={(c) => setCompletedCrop(c)}
-            aspect={aspect}
-            className="mx-auto"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img ref={imgRef} src={imageSrc} alt="" onLoad={onImageLoad} className="max-h-[60vh] w-auto" />
-          </ReactCrop>
-        </div>
+        {decodeFailed ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-8 py-14 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
+              <ImageOff className="h-6 w-6 text-amber-600" />
+            </div>
+            <p className="text-sm font-semibold text-zinc-900">Foto ini tidak bisa dibuka</p>
+            <p className="max-w-sm text-sm text-zinc-500">
+              Browser kamu tidak mendukung format foto ini (biasanya HEIC dari iPhone).
+              Ubah dulu ke JPG atau PNG, lalu unggah kembali.
+            </p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-auto bg-zinc-900 p-4">
+            <ReactCrop
+              crop={crop}
+              onChange={(_, percentCrop) => setCrop(percentCrop)}
+              onComplete={(c) => setCompletedCrop(c)}
+              aspect={aspect}
+              className="mx-auto"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                ref={imgRef}
+                src={imageSrc}
+                alt=""
+                onLoad={onImageLoad}
+                onError={() => setDecodeFailed(true)}
+                className="max-h-[60vh] w-auto"
+              />
+            </ReactCrop>
+          </div>
+        )}
 
         <div className="flex items-center justify-end gap-2 border-t border-zinc-100 px-5 py-4">
           <button
@@ -152,11 +176,12 @@ export function ImageCropModal({
             onClick={onCancel}
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
           >
-            Cancel
+            {decodeFailed ? "Tutup" : "Cancel"}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
+            hidden={decodeFailed}
             disabled={isProcessing || !completedCrop}
             className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
           >

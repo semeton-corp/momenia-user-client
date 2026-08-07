@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useUploadAvatar } from "@/hooks/useUploadAvatar"
+import { ACCEPTED_IMAGE_TYPES, toDisplayableImage } from "@/lib/heic"
 import type { Account } from "@/lib/api/authentication/auth.types"
 
 const COUNTRY_CODE = "+62"
@@ -42,7 +43,8 @@ export function EditProfileDialog({ account, open, onOpenChange, onSave, isSavin
   // diakses sebelum Save, karena file masih di lokasi temp sampai backend
   // memindahkannya saat akun disimpan.
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
-  const [uploadError, setUploadError] = React.useState(false)
+  const [errorKey, setErrorKey] = React.useState<"uploadError" | "unsupportedFormat" | null>(null)
+  const [converting, setConverting] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const { mutate: uploadAvatar, isPending: isUploading } = useUploadAvatar()
 
@@ -59,24 +61,56 @@ export function EditProfileDialog({ account, open, onOpenChange, onSave, isSavin
       setName(account.name)
       setPhoneLocal(stripCountryCode(account.phoneNumber))
       setProfilePicture(account.profilePicture)
-      setUploadError(false)
+      setErrorKey(null)
       clearPreview()
     }
   }, [open, account, clearPreview])
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = "" // supaya bisa pilih file yang sama lagi kalau perlu
     if (!file) return
 
-    setUploadError(false)
+    setErrorKey(null)
     clearPreview()
-    setPreviewUrl(URL.createObjectURL(file))
 
-    uploadAvatar(file, {
+    // Avatar tidak lewat crop modal, jadi tidak ada canvas re-encode yang
+    // menormalkan formatnya — HEIC harus dikonversi di sini, kalau tidak ia terunggah
+    // "berhasil" lalu tampil rusak di mana-mana.
+    setConverting(true)
+    let uploadable: File
+    try {
+      uploadable = await toDisplayableImage(file)
+    } catch {
+      setErrorKey("unsupportedFormat")
+      return
+    } finally {
+      setConverting(false)
+    }
+
+    // Atribut accept bisa dilewati (drag-drop / "All Files"), jadi tetap pastikan
+    // browser benar-benar bisa membaca hasilnya sebelum diunggah.
+    const objectUrl = URL.createObjectURL(uploadable)
+    const canDecode = await new Promise<boolean>((resolve) => {
+      // window.Image, not the next/image component imported above under the same name.
+      const probe = new window.Image()
+      probe.onload = () => resolve(true)
+      probe.onerror = () => resolve(false)
+      probe.src = objectUrl
+    })
+
+    if (!canDecode) {
+      URL.revokeObjectURL(objectUrl)
+      setErrorKey("unsupportedFormat")
+      return
+    }
+
+    setPreviewUrl(objectUrl)
+
+    uploadAvatar(uploadable, {
       onSuccess: (url) => setProfilePicture(url),
       onError: () => {
-        setUploadError(true)
+        setErrorKey("uploadError")
         clearPreview() // balik ke foto lama kalau upload gagal
       },
     })
@@ -124,7 +158,7 @@ export function EditProfileDialog({ account, open, onOpenChange, onSave, isSavin
                 )}
               </div>
 
-              {isUploading && (
+              {(isUploading || converting) && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
                   <Loader2 className="h-6 w-6 animate-spin text-white" />
                 </div>
@@ -133,7 +167,7 @@ export function EditProfileDialog({ account, open, onOpenChange, onSave, isSavin
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
+                disabled={isUploading || converting}
                 className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-white ring-4 ring-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -141,13 +175,13 @@ export function EditProfileDialog({ account, open, onOpenChange, onSave, isSavin
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_IMAGE_TYPES}
                 className="hidden"
                 onChange={handleFileChange}
               />
             </div>
-            {uploadError && (
-              <p className="mt-2 text-xs text-destructive">{t("uploadError")}</p>
+            {errorKey && (
+              <p className="mt-2 text-xs text-destructive">{t(errorKey)}</p>
             )}
           </div>
 
