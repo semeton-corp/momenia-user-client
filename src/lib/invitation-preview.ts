@@ -40,6 +40,14 @@ export function buildInvitationHtml(
   const mainPage = template.pages.find((p) => p.id === "main")
   const coverPage = template.pages.find((p) => p.id === "cover")
 
+  // A field the couple hasn't filled in yet falls back to its schema placeholder, so a
+  // half-finished invitation previews as a realistic design instead of blank gaps.
+  const placeholders: Record<string, string> = {}
+  for (const field of template.schema.fields) {
+    if (field.placeholder) placeholders[field.key] = field.placeholder
+  }
+  const valueFor = (key: string) => userData[key] || placeholders[key] || ""
+
   function renderSection(sectionId: string, page: typeof mainPage) {
     const sec = page?.sections.find((s) => s.id === sectionId)
     if (!sec) return ""
@@ -47,7 +55,7 @@ export function buildInvitationHtml(
     if (!stype) return ""
     const source = stype.html
     const html = source.replace(/\{\{([^}]+)\}\}/g, (match, key: string, offset: number) => {
-      const value = userData[key] || ""
+      const value = valueFor(key)
 
       // A placeholder can sit either in an element's body (`<h1>{{headline}}</h1>`) or
       // inside an attribute (`src="{{photo}}"`, `alt="{{bride_name}}"`). Emitting a tag
@@ -60,7 +68,14 @@ export function buildInvitationHtml(
 
       // Body context: wrap so `memoriaUpdate` can retarget it as the user types. The
       // template supplies data-field-img on its own <img>, so images never need this.
-      return `<span data-field="${key}">${escapeHtml(value)}</span>`
+      //
+      // `all:unset` keeps the wrapper visually invisible. Templates style bare tags
+      // (e.g. `.cover span { font: 700 0.72rem }` for a label), which would otherwise
+      // hit this injected span and override the real element around it — a headline in
+      // an <h1> would render with the label's small red type instead. Inline style beats
+      // any stylesheet selector, and every inherited property still comes from the
+      // parent, so the text looks exactly as the template intended.
+      return `<span data-field="${key}" style="all:unset">${escapeHtml(value)}</span>`
     })
     return `<div data-section-id="${sec.id}">${html}</div>`
   }
@@ -132,6 +147,9 @@ ${allCss}
 <div id="page-cover" data-page="cover">${coverSections}</div>
 <div id="page-main" data-page="main" style="display:none">${mainSections}</div>
 <script>
+// "<" is escaped so a placeholder can't emit a closing script tag and end this
+// block early. (Careful: writing that tag literally here would do exactly that.)
+window.__memoriaPlaceholders = ${JSON.stringify(placeholders).replace(/</g, "\\u003c")};
 window.__memoriaGoTo = function(pageId) {
   document.querySelectorAll('[data-page]').forEach(function(el){
     el.style.display = el.dataset.page === pageId ? '' : 'none';
@@ -149,8 +167,11 @@ window.addEventListener('message', function(e) {
     var ud = e.data.userData || {};
     var th = e.data.theme || {};
     Object.keys(ud).forEach(function(k){
-      document.querySelectorAll('[data-field="'+k+'"]').forEach(function(el){ el.textContent = ud[k] || ''; });
-      document.querySelectorAll('[data-field-img="'+k+'"]').forEach(function(el){ if(ud[k]) el.src = ud[k]; });
+      // Same fallback as the initial render, so clearing a field in the editor
+      // reverts to its placeholder instead of leaving a blank gap.
+      var v = ud[k] || window.__memoriaPlaceholders[k] || '';
+      document.querySelectorAll('[data-field="'+k+'"]').forEach(function(el){ el.textContent = v; });
+      document.querySelectorAll('[data-field-img="'+k+'"]').forEach(function(el){ if(v) el.src = v; });
     });
     if(th.color_primary) document.documentElement.style.setProperty('--color-primary', th.color_primary);
     if(th.color_accent)  document.documentElement.style.setProperty('--color-accent',  th.color_accent);
@@ -161,6 +182,144 @@ window.addEventListener('message', function(e) {
   }
 });
 window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
+
+/* ── Guest bridge ───────────────────────────────────────────────────────────
+   Turns declarative data-momenia-* attributes in a template into real guest
+   behaviour (RSVP + guestbook). Templates never call an API themselves: this
+   iframe is sandboxed without allow-same-origin, so its fetches would have an
+   opaque origin and be rejected. Instead it posts intent to the host, which
+   owns every endpoint URL — so a backend change is one edit in the app rather
+   than a data migration across every template row in the database. */
+(function(){
+  var GUEST = { id: '', name: '' };
+
+  function when(root, name, on) {
+    root.querySelectorAll('[data-momenia-when="' + name + '"]').forEach(function(el){
+      el.style.display = on ? '' : 'none';
+    });
+  }
+
+  function setBusy(form, busy) {
+    form.querySelectorAll('button[type="submit"], button:not([type])').forEach(function(b){
+      b.disabled = busy;
+    });
+  }
+
+  function resize() {
+    window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
+  }
+
+  function applyGuest() {
+    when(document, 'guest', !!GUEST.id);
+    when(document, 'no-guest', !GUEST.id);
+    // Only overwrite when the name is actually known, so the template's own
+    // fallback text ("Tamu Undangan") stays visible otherwise.
+    if (GUEST.name) {
+      document.querySelectorAll('[data-momenia-text="guestName"]').forEach(function(el){
+        el.textContent = GUEST.name;
+      });
+    }
+  }
+
+  function renderMessages(items) {
+    document.querySelectorAll('[data-momenia-list="messages"]').forEach(function(list){
+      list.querySelectorAll('[data-momenia-rendered]').forEach(function(n){ n.remove(); });
+      when(list, 'empty', items.length === 0);
+
+      var tpl = list.querySelector('template[data-momenia-item]');
+      if (!tpl) return;
+
+      items.forEach(function(item){
+        var node = tpl.content.cloneNode(true).firstElementChild;
+        if (!node) return;
+        node.setAttribute('data-momenia-rendered', '');
+        node.querySelectorAll('[data-momenia-text]').forEach(function(el){
+          var val = item[el.getAttribute('data-momenia-text')];
+          // Hide rather than print blanks — the API still returns a zero date
+          // for messageAt, and an empty voiceNote for text-only messages.
+          if (val === undefined || val === null || val === '') { el.style.display = 'none'; return; }
+          el.textContent = val;
+        });
+        list.appendChild(node);
+      });
+      resize();
+    });
+  }
+
+  document.addEventListener('submit', function(e){
+    var form = e.target && e.target.closest ? e.target.closest('[data-momenia-form]') : null;
+    if (!form) return;
+    e.preventDefault();
+
+    var kind = form.getAttribute('data-momenia-form');
+    var payload = {};
+
+    if (kind === 'message') {
+      var box = form.querySelector('[name="message"]');
+      payload.message = box ? String(box.value || '').trim() : '';
+      if (!payload.message) return;
+    } else if (kind === 'rsvp') {
+      var st = form.querySelector('[name="status"]');
+      var tot = form.querySelector('[name="totalAttendee"]');
+      payload.status = st ? st.value : 'present';
+      payload.totalAttendee = tot ? (parseInt(tot.value, 10) || 1) : 1;
+    } else {
+      return;
+    }
+
+    when(form, 'success', false);
+    when(form, 'error', false);
+    when(form, 'sending', true);
+    setBusy(form, true);
+    window.parent.postMessage({type:'memoriaSubmit',form:kind,payload:payload},'*');
+  }, true);
+
+  window.addEventListener('message', function(e){
+    if (!e.data) return;
+
+    if (e.data.type === 'memoriaGuest') {
+      GUEST.id = e.data.guestInvitationId || '';
+      GUEST.name = e.data.guestName || '';
+      applyGuest();
+      resize();
+      return;
+    }
+
+    if (e.data.type === 'memoriaMessages') {
+      renderMessages(e.data.messages || []);
+      return;
+    }
+
+    if (e.data.type === 'memoriaFormResult') {
+      document.querySelectorAll('[data-momenia-form="' + e.data.form + '"]').forEach(function(form){
+        setBusy(form, false);
+        when(form, 'sending', false);
+        when(form, 'success', !!e.data.ok);
+        when(form, 'error', !e.data.ok);
+        if (e.data.ok) {
+          if (e.data.form === 'message') {
+            var box = form.querySelector('[name="message"]');
+            if (box) box.value = '';
+          }
+        } else {
+          form.querySelectorAll('[data-momenia-error]').forEach(function(el){
+            el.textContent = e.data.error || 'Gagal mengirim. Coba lagi.';
+          });
+        }
+      });
+      resize();
+    }
+  });
+
+  // Start hidden: transient states shouldn't flash before the host reports in.
+  document.querySelectorAll('[data-momenia-form]').forEach(function(form){
+    when(form, 'success', false);
+    when(form, 'error', false);
+    when(form, 'sending', false);
+  });
+  applyGuest();
+})();
+
 ${allJs}
 </script>
 </body>
