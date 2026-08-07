@@ -14,6 +14,7 @@ import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
 import { useEditorDirty } from "@/contexts/EditorDirtyContext"
 import { ALL_FONTS, getGoogleFontsUrl } from "@/lib/fonts"
+import { ACCEPTED_IMAGE_TYPES, toDisplayableImage } from "@/lib/heic"
 import {
   buildInvitationHtml,
   openInvitationPreview,
@@ -42,14 +43,27 @@ type HistoryState = {
 function UploadDropzone({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
+  const [converting, setConverting] = useState(false)
   const [pendingImage, setPendingImage] = useState<{ src: string; fileName: string } | null>(null)
   const { toast } = useToast()
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; e.target.value = ""
     if (!file) return
-    const src = URL.createObjectURL(file)
-    setPendingImage({ src, fileName: file.name })
+
+    // HEIC has to become a JPEG before anything else touches it — the crop modal draws
+    // to a canvas, and outside Safari the browser can't decode HEIC at all. Conversion
+    // can take a couple of seconds on a 12MP photo, hence the separate spinner.
+    setConverting(true)
+    try {
+      const displayable = await toDisplayableImage(file)
+      const src = URL.createObjectURL(displayable)
+      setPendingImage({ src, fileName: displayable.name })
+    } catch {
+      toast("Gagal membaca foto. Coba format JPG atau PNG.", "error")
+    } finally {
+      setConverting(false)
+    }
   }
 
   const handleCropCancel = () => {
@@ -74,7 +88,7 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
 
   return (
     <>
-      <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="sr-only" onChange={handleFile} />
+      <input ref={inputRef} type="file" accept={ACCEPTED_IMAGE_TYPES} className="sr-only" onChange={handleFile} />
       {pendingImage && (
         <ImageCropModal
           imageSrc={pendingImage.src}
@@ -86,9 +100,10 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
       {value ? (
         <div className="relative w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
           <img src={value} alt="" className="w-full h-auto object-contain" />
-          {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/60">
+          {(loading || converting) && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/70">
               <span className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-500" />
+              {converting && <span className="text-xs font-medium text-zinc-600">Mengonversi foto...</span>}
             </div>
           )}
           <div className="absolute inset-x-0 bottom-0 flex justify-between gap-2 bg-linear-to-t from-black/80 to-black/40 px-3 py-2">
@@ -101,16 +116,18 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
           </div>
         </div>
       ) : (
-        <button type="button" onClick={() => inputRef.current?.click()} disabled={loading}
+        <button type="button" onClick={() => inputRef.current?.click()} disabled={loading || converting}
           className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-300 py-6 transition hover:border-indigo-400 hover:bg-indigo-50/30 disabled:opacity-60">
-          {loading ? (
+          {loading || converting ? (
             <span className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-500" />
           ) : (
             <Upload className="h-5 w-5 text-indigo-500" />
           )}
           <div className="text-center">
-            <p className="text-sm font-medium text-zinc-700">{loading ? "Uploading..." : "Upload Photo"}</p>
-            <p className="text-xs text-zinc-400">Upload a high-quality JPG or PNG image</p>
+            <p className="text-sm font-medium text-zinc-700">
+              {converting ? "Mengonversi foto..." : loading ? "Uploading..." : "Upload Photo"}
+            </p>
+            <p className="text-xs text-zinc-400">Upload a high-quality JPG, PNG, or HEIC image</p>
           </div>
         </button>
       )}

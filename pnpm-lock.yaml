@@ -29,6 +29,9 @@ importers:
       framer-motion:
         specifier: ^12.34.0
         version: 12.38.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      heic-to:
+        specifier: ^1.5.2
+        version: 1.5.2
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@19.2.3)
@@ -2805,6 +2808,9 @@ packages:
 
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
+
+  heic-to@1.5.2:
+    resolution: {integrity: sha512-8Fns+lZHAWmz5U5IUxDeXKwIf3foBoKNPLxxFY4B0MkLjNuomEIHCoDbDE+x/llFK3NCEO1cu4+n3iUKY+Svmw==}
 
   hermes-estree@0.25.1:
     resolution: {integrity: sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw==}
@@ -7364,6 +7370,8 @@ snapshots:
       '@types/hast': 3.0.5
 
   headers-polyfill@4.0.3: {}
+
+  heic-to@1.5.2: {}
 
   hermes-estree@0.25.1: {}
 
