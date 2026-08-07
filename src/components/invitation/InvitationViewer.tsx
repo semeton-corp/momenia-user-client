@@ -1,6 +1,15 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
+import {
+  confirmGuestInvitation,
+  getGuestInvitationById,
+} from "@/lib/api/guest-invitation/guest-invitation.service"
+import {
+  createGuestInvitationMessage,
+  getGuestInvitationMessages,
+} from "@/lib/api/guest-message/guest-message.service"
+import type { GuestInvitationMessage } from "@/lib/api/guest-message/guest-message.types"
 
 // The invitation renders at phone width even on desktop. CSS media queries measure the
 // iframe's own viewport, so a full-width iframe would make the template lay itself out
@@ -8,22 +17,146 @@ import { useEffect, useRef } from "react"
 // width the iframe simply fills the screen, which is the real mobile case.
 const PHONE_W = 420
 
+// The backend returns 201 with an all-zero id (and empty fields) when the
+// guestInvitationId doesn't exist, instead of 4xx — so status alone can't tell success
+// from failure. Treat a zero id as a rejection until that's fixed server-side.
+const ZERO_UUID = "00000000-0000-0000-0000-000000000000"
+
+// Go's zero time, which the API still sends for messages that have no timestamp.
+function isZeroDate(value: string): boolean {
+  return !value || value.startsWith("0001-01-01")
+}
+
+type SubmitMessage = {
+  type: "memoriaSubmit"
+  form: "message" | "rsvp"
+  payload: { message?: string; status?: string; totalAttendee?: number }
+}
+
 type InvitationViewerProps = {
   html: string
   /** Wallpaper shown around the invitation on screens wider than the phone column. */
   background: string
+  /** Invitation this page belongs to — used to load the guestbook. */
+  userInvitationId: string
+  /** From ?guestInvitationId=… — absent when the link isn't personalised. */
+  guestInvitationId?: string
 }
 
-export function InvitationViewer({ html, background }: InvitationViewerProps) {
+export function InvitationViewer({
+  html,
+  background,
+  userInvitationId,
+  guestInvitationId,
+}: InvitationViewerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
+  const post = useCallback((data: unknown) => {
+    iframeRef.current?.contentWindow?.postMessage(data, "*")
+  }, [])
+
+  const sendMessages = useCallback(
+    (items: GuestInvitationMessage[]) => {
+      post({
+        type: "memoriaMessages",
+        messages: items
+          .filter((m) => !m.isMessageHidden)
+          .map((m) => ({
+            name: m.name,
+            message: m.message,
+            messageAt: isZeroDate(m.messageAt) ? "" : m.messageAt,
+          })),
+      })
+    },
+    [post],
+  )
+
+  const refreshMessages = useCallback(async () => {
+    try {
+      sendMessages(await getGuestInvitationMessages(userInvitationId))
+    } catch {
+      // A guestbook that fails to load shouldn't break the invitation — the
+      // template's own "empty" state stays visible.
+    }
+  }, [sendMessages, userInvitationId])
+
   // srcdoc is set imperatively rather than as a prop so React never re-parses this
-  // (large) HTML string into the attribute on unrelated re-renders.
+  // (large) HTML string into the attribute on unrelated re-renders. Once the document
+  // is up, tell it who is viewing and fill the guestbook.
   useEffect(() => {
     const iframe = iframeRef.current
     if (!iframe || !html) return
+    let cancelled = false
+
+    const onLoad = () => {
+      void (async () => {
+        let guestName = ""
+        if (guestInvitationId) {
+          try {
+            guestName = (await getGuestInvitationById(guestInvitationId)).name
+          } catch {
+            // Unknown or revoked id — fall through with no name. The form still shows;
+            // an invalid id surfaces as an error when they actually submit.
+          }
+        }
+        if (cancelled) return
+        post({ type: "memoriaGuest", guestInvitationId: guestInvitationId ?? "", guestName })
+        await refreshMessages()
+      })()
+    }
+
+    iframe.addEventListener("load", onLoad, { once: true })
     iframe.setAttribute("srcdoc", html)
-  }, [html])
+    return () => {
+      cancelled = true
+      iframe.removeEventListener("load", onLoad)
+    }
+  }, [html, guestInvitationId, post, refreshMessages])
+
+  // Handle submits relayed up from the template's data-momenia-form elements.
+  useEffect(() => {
+    const handler = async (e: MessageEvent) => {
+      if (e.source !== iframeRef.current?.contentWindow) return
+      const data = e.data as SubmitMessage | undefined
+      if (data?.type !== "memoriaSubmit") return
+
+      const fail = (error: string) =>
+        post({ type: "memoriaFormResult", form: data.form, ok: false, error })
+
+      if (!guestInvitationId) {
+        fail("Tautan undangan ini tidak memuat identitas tamu.")
+        return
+      }
+
+      try {
+        if (data.form === "message") {
+          const created = await createGuestInvitationMessage({
+            guestInvitationId,
+            message: data.payload.message ?? "",
+          })
+          if (!created?.id || created.id === ZERO_UUID) {
+            fail("Tamu tidak dikenali. Periksa kembali tautan undanganmu.")
+            return
+          }
+          post({ type: "memoriaFormResult", form: "message", ok: true })
+          await refreshMessages()
+          return
+        }
+
+        const status = data.payload.status === "absent" ? "absent" : "present"
+        await confirmGuestInvitation(guestInvitationId, {
+          status,
+          totalAttendee: status === "absent" ? 0 : Math.max(1, data.payload.totalAttendee ?? 1),
+        })
+        post({ type: "memoriaFormResult", form: "rsvp", ok: true })
+      } catch (err) {
+        fail(err instanceof Error && err.message ? err.message : "Gagal mengirim. Coba lagi.")
+      }
+    }
+
+    window.addEventListener("message", handler)
+    return () => window.removeEventListener("message", handler)
+  }, [guestInvitationId, post, refreshMessages])
 
   return (
     // Left-aligned on desktop (matching the editor preview), so the wallpaper fills

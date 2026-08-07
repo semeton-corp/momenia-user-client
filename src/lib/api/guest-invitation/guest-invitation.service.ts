@@ -1,9 +1,12 @@
 import { http } from "../http"
 import { getAuthHeader as authHeader } from "../auth-header"
 import type {
+  ConfirmGuestInvitationRequest,
+  ConfirmGuestInvitationResponse,
   CreateGuestInvitationRequest,
   CreateGuestInvitationResponse,
   GetGuestInvitationsParams,
+  GuestInvitationInfo,
   GuestInvitationListResponse,
   UpdateGuestInvitationRequest,
   UpdateGuestInvitationResponse,
@@ -32,6 +35,22 @@ export async function getGuestInvitations(
     sortOrder: params.sortOrder,
   })
   return http(`/api/v1/user-invitations/${userInvitationId}/guest-invitations${qs}`, { headers: authHeader() })
+}
+
+// Dua fungsi berikut dipakai tamu di halaman undangan publik — TANPA authHeader(),
+// karena tamu tidak punya akun. Backend hanya butuh x-api-key dari http().
+export async function getGuestInvitationById(id: string): Promise<GuestInvitationInfo> {
+  return http(`/api/v1/guest-invitations/${id}`)
+}
+
+export async function confirmGuestInvitation(
+  id: string,
+  data: ConfirmGuestInvitationRequest,
+): Promise<ConfirmGuestInvitationResponse> {
+  return http(`/api/v1/guest-invitations/${id}/confirmation`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  })
 }
 
 export async function createGuestInvitation(

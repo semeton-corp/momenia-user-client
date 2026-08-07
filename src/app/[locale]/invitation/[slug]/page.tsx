@@ -14,6 +14,7 @@ const DEFAULT_BACKGROUND = "/background-default-desktop.png"
 
 type Props = {
   readonly params: Promise<{ locale: string; slug: string }>
+  readonly searchParams: Promise<{ guestInvitationId?: string }>
 }
 
 async function fetchInvitation(slug: string): Promise<UserInvitationContent | null> {
@@ -45,8 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function InvitationPage({ params }: Props) {
+export default async function InvitationPage({ params, searchParams }: Props) {
   const { locale, slug } = await params
+  const { guestInvitationId } = await searchParams
   setRequestLocale(locale)
 
   const invitation = await fetchInvitation(slug)
@@ -66,6 +68,8 @@ export default async function InvitationPage({ params }: Props) {
     <InvitationViewer
       html={html}
       background={template.theme_defaults.backgroundImage || DEFAULT_BACKGROUND}
+      userInvitationId={invitation.id}
+      guestInvitationId={guestInvitationId}
     />
   )
 }
