@@ -27,6 +27,30 @@ function isZeroDate(value: string): boolean {
   return !value || value.startsWith("0001-01-01")
 }
 
+// Matches Go's default time.Time string ("2006-01-02 15:04:05.999999999 -0700 MST")
+// and RFC3339 ("2006-01-02T15:04:05-07:00") — the API has sent both shapes for
+// different endpoints. The trailing zone name/abbreviation ("UTC", "+07", "WIB", …)
+// is ignored; the numeric offset it's paired with already carries that information.
+const GO_TIME_RE = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?\s*([+-]\d{2}):?(\d{2})/
+
+// The API sends a raw Go-formatted timestamp with no locale or timezone conversion —
+// this turns it into something readable in the GUEST's own timezone (Intl reads that
+// from the browser), so someone in Jakarta and someone in Bali each see their local
+// time, not the server's.
+function formatMessageTimestamp(raw: string, locale: string): string {
+  const match = GO_TIME_RE.exec(raw)
+  if (!match) return ""
+  const [, y, mo, d, h, mi, s, frac, offH, offM] = match
+  const ms = (frac ?? "").padEnd(3, "0").slice(0, 3)
+  const date = new Date(`${y}-${mo}-${d}T${h}:${mi}:${s}.${ms}${offH}:${offM}`)
+  if (Number.isNaN(date.getTime())) return ""
+
+  return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date)
+}
+
 type SubmitMessage = {
   type: "memoriaSubmit"
   form: "message" | "rsvp"
@@ -41,6 +65,8 @@ type InvitationViewerProps = {
   userInvitationId: string
   /** From ?guestInvitationId=… — absent when the link isn't personalised. */
   guestInvitationId?: string
+  /** Locale of the page the guest is viewing — controls guestbook timestamp formatting. */
+  locale: string
 }
 
 export function InvitationViewer({
@@ -48,6 +74,7 @@ export function InvitationViewer({
   background,
   userInvitationId,
   guestInvitationId,
+  locale,
 }: InvitationViewerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
@@ -64,11 +91,11 @@ export function InvitationViewer({
           .map((m) => ({
             name: m.name,
             message: m.message,
-            messageAt: isZeroDate(m.messageAt) ? "" : m.messageAt,
+            messageAt: isZeroDate(m.messageAt) ? "" : formatMessageTimestamp(m.messageAt, locale),
           })),
       })
     },
-    [post],
+    [post, locale],
   )
 
   const refreshMessages = useCallback(async () => {
