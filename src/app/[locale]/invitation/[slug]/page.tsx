@@ -70,6 +70,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
       background={template.theme_defaults.backgroundImage || DEFAULT_BACKGROUND}
       userInvitationId={invitation.id}
       guestInvitationId={guestInvitationId}
+      locale={locale}
     />
   )
 }
