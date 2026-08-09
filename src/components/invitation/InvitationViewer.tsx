@@ -90,17 +90,22 @@ export function InvitationViewer({
 
     const onLoad = () => {
       void (async () => {
+        // Only report the id to the template once it's confirmed real — a link with a
+        // garbage or revoked guestInvitationId should behave exactly like no id at all
+        // (RSVP/guestbook hidden via the "no-guest" state), not show forms that are
+        // guaranteed to fail on submit.
+        let verifiedGuestId = ""
         let guestName = ""
         if (guestInvitationId) {
           try {
             guestName = (await getGuestInvitationById(guestInvitationId)).name
+            verifiedGuestId = guestInvitationId
           } catch {
-            // Unknown or revoked id — fall through with no name. The form still shows;
-            // an invalid id surfaces as an error when they actually submit.
+            // Unknown or revoked id — the template falls back to "no-guest".
           }
         }
         if (cancelled) return
-        post({ type: "memoriaGuest", guestInvitationId: guestInvitationId ?? "", guestName })
+        post({ type: "memoriaGuest", guestInvitationId: verifiedGuestId, guestName })
         await refreshMessages()
       })()
     }
