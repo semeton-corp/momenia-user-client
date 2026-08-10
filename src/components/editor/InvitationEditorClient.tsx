@@ -22,6 +22,7 @@ import {
 } from "@/lib/invitation-preview"
 import { RestoreChangesModal } from "./RestoreChangesModal"
 import { ImageCropModal } from "./ImageCropModal"
+import { LocationField } from "./LocationField"
 
 type UnsavedState = {
   name: string
@@ -267,7 +268,10 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
     >
       <iframe
         ref={iframeRef}
-        sandbox="allow-scripts allow-same-origin"
+        // allow-popups(-to-escape-sandbox): the embedded map's own "Buka di Maps" link
+        // opens a new tab; without escaping the sandbox that tab inherits our restrictions
+        // and Google refuses to render it (ERR_BLOCKED_BY_RESPONSE).
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         title="Invitation Preview"
         style={{
           width: VIEWPORT_W,
@@ -878,6 +882,8 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                     ) : field.type === "time" ? (
                       <input type="time" value={userData[field.key] ?? ""} onChange={(e) => handleFieldChange(field.key, e.target.value)}
                         className="w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                    ) : field.type === "location" ? (
+                      <LocationField value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} />
                     ) : (
                       <TextField value={userData[field.key] ?? ""} placeholder={field.placeholder} onChange={(v) => handleFieldChange(field.key, v)} />
                     )}
