@@ -207,6 +207,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             activeUntilLabel={activeUntilLabel}
             publishLabel={t("overview.publishNow")}
             publishedLabel={t("overview.published")}
+            publishingLabel={t("overview.publishing")}
             notActiveWarning={t("overview.notActiveWarning")}
             isPublished={isPublished}
             isPublishing={publishMutation.isPending}
