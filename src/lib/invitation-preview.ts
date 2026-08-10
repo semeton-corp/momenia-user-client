@@ -181,6 +181,12 @@ window.addEventListener('message', function(e) {
       var v = ud[k] || window.__memoriaPlaceholders[k] || '';
       document.querySelectorAll('[data-field="'+k+'"]').forEach(function(el){ el.textContent = v; });
       document.querySelectorAll('[data-field-img="'+k+'"]').forEach(function(el){ if(v) el.src = v; });
+      // The template's own static src="...?q={{field}}&output=embed" only renders once at
+      // build time — this keeps the map preview live as the couple edits the location field,
+      // the same way data-field-img keeps a photo live without a full iframe reload.
+      document.querySelectorAll('[data-field-map="'+k+'"]').forEach(function(el){
+        if(v) el.src = 'https://www.google.com/maps?q=' + encodeURIComponent(v) + '&output=embed';
+      });
     });
     if(th.color_primary) document.documentElement.style.setProperty('--color-primary', th.color_primary);
     if(th.color_accent)  document.documentElement.style.setProperty('--color-accent',  th.color_accent);

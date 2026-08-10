@@ -206,7 +206,11 @@ export function InvitationViewer({
         ref={iframeRef}
         // No allow-same-origin: the invitation's own script only needs to run and
         // postMessage, and withholding it keeps the template sandboxed from this origin.
-        sandbox="allow-scripts allow-popups allow-forms"
+        // allow-popups-to-escape-sandbox matters specifically for the map: Google's own
+        // "Buka di Maps" link lives inside the embedded maps.google.com iframe, and without
+        // this flag the tab it opens inherits our sandbox restrictions too — Google then
+        // refuses to render in that restricted context (ERR_BLOCKED_BY_RESPONSE).
+        sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms"
         title="Invitation"
         className="h-full border-0 shadow-2xl"
         style={{ width: `min(${PHONE_W}px, 100vw)` }}
