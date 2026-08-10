@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { ImageOff, PencilLine, Users } from "lucide-react"
+import { ImageOff, Loader2, PencilLine, Users } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -14,6 +14,7 @@ type InvitationPhonePreviewProps = {
   activeUntilLabel: string
   publishLabel: string
   publishedLabel: string
+  publishingLabel: string
   notActiveWarning: string
   isPublished: boolean
   isPublishing?: boolean
@@ -32,6 +33,7 @@ export function InvitationPhonePreview({
   activeUntilLabel,
   publishLabel,
   publishedLabel,
+  publishingLabel,
   notActiveWarning,
   isPublished,
   isPublishing,
@@ -84,7 +86,16 @@ export function InvitationPhonePreview({
               : "bg-primary text-primary-foreground hover:bg-primary/90",
           )}
         >
-          {isPublished ? publishedLabel : publishLabel}
+          {isPublishing ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+              {publishingLabel}
+            </span>
+          ) : isPublished ? (
+            publishedLabel
+          ) : (
+            publishLabel
+          )}
         </Button>
       </div>
 
