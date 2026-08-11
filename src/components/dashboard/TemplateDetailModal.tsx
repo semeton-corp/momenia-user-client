@@ -163,7 +163,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                     <div className="relative shrink-0" style={{ width: "460px", height: "261px" }}>
                       <div
                         className="absolute overflow-hidden"
-                        style={{ left: "13.1%", right: "12.6%", top: "3.5%", bottom: "13.3%" }}
+                        style={{ left: "13.1%", right: "12.6%", top: "2%", bottom: "10%" }}
                       >
                         <Image
                           src={template.desktopImageUrl || template.imageUrl}
@@ -184,8 +184,8 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   )}
                 </div>
 
-                {/* Mobile / Desktop toggle — full width, matches preview width, no gap between buttons */}
-                <div className="flex w-full shrink-0" style={{ marginTop: "30px" }}>
+                {/* Mobile / Desktop toggle — full width, matches preview width */}
+                <div className="flex w-full shrink-0" style={{ marginTop: "30px", gap: "10px" }}>
                   <button
                     type="button"
                     onClick={() => setView("mobile")}
@@ -492,12 +492,12 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                       <Image src={MobileFrame} alt="" fill className="pointer-events-none object-contain" />
                     </div>
                   ) : (
-                    <div className="relative w-[260px] shrink-0" style={{ height: "148px" }}>
+                    <div className="relative w-[320px] shrink-0" style={{ height: "182px" }}>
                       <div
                         className="absolute overflow-hidden"
-                        style={{ left: "13.1%", right: "12.6%", top: "3.5%", bottom: "13.3%" }}
+                        style={{ left: "13.1%", right: "12.6%", top: "2%", bottom: "10%" }}
                       >
-                        <Image src={template.desktopImageUrl || template.imageUrl} alt={template.title} fill quality={90} className="object-cover" sizes="260px" />
+                        <Image src={template.desktopImageUrl || template.imageUrl} alt={template.title} fill quality={90} className="object-cover" sizes="320px" />
                       </div>
                       <Image src={DesktopFrame} alt="" fill className="pointer-events-none object-contain" />
                     </div>

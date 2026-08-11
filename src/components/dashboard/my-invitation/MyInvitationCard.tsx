@@ -84,8 +84,8 @@ export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
       {/* ── Desktop ── */}
       <div className="hidden h-full items-center gap-6 xl:flex">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-40">
-            <h3 className="truncate text-2xl font-semibold text-[#111111]">{inv.title}</h3>
+          <div className="flex items-center gap-4">
+            <h3 className="w-[240px] shrink-0 truncate text-2xl font-semibold text-[#111111]">{inv.title}</h3>
             {statusBadge}
           </div>
           <p className="mt-3 text-base font-normal text-[#485563]">

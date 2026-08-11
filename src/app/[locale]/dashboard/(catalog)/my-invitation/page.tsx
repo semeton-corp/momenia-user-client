@@ -41,6 +41,15 @@ const CHIP_INACTIVE: Record<Tab, string> = {
 
 const TABS: Tab[] = ["all", "published", "draft", "expired"]
 
+// Teks empty-state beda per tab: "all" pakai pesan "belum bikin undangan sama sekali",
+// tab lain pakai pesan spesifik statusnya.
+const EMPTY_KEYS: Record<Tab, { title: string; subtitle: string }> = {
+  all: { title: "emptyTitle", subtitle: "emptySubtitle" },
+  published: { title: "emptyPublishedTitle", subtitle: "emptyPublishedSubtitle" },
+  draft: { title: "emptyDraftTitle", subtitle: "emptyDraftSubtitle" },
+  expired: { title: "emptyExpiredTitle", subtitle: "emptyExpiredSubtitle" },
+}
+
 const FALLBACK_THUMBNAIL = "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&q=80"
 
 function mapToMyInvitationItem(inv: UserInvitation, locale: string, lastUpdatedLabel: (date: string) => string): MyInvitationItem {
@@ -193,16 +202,22 @@ export default function MyInvitationPage() {
           <div className="rounded-2xl border border-zinc-200 py-16 text-center text-sm text-zinc-400">
             {t("loadError")}
           </div>
+        ) : items.length === 0 && debouncedSearch.trim() ? (
+          <div className="rounded-2xl border border-zinc-200 py-16 text-center text-sm text-zinc-400">
+            {t("empty")}
+          </div>
         ) : items.length === 0 ? (
           <div className="mx-auto flex w-full max-w-[448px] flex-col items-center gap-6 py-10 text-center">
             <Image src={EmptyFolderIllustration} alt="" className="h-[151px] w-[188px] xl:h-auto xl:w-64" priority />
             <div className="flex flex-col gap-3">
-              <h2 className="text-lg font-semibold text-gray-950 xl:text-2xl">{t("emptyTitle")}</h2>
-              <p className="text-xs font-normal text-muted-foreground xl:text-base">{t("emptySubtitle")}</p>
+              <h2 className="text-lg font-semibold text-gray-950 xl:text-2xl">{t(EMPTY_KEYS[tab].title)}</h2>
+              <p className="text-xs font-normal text-muted-foreground xl:text-base">{t(EMPTY_KEYS[tab].subtitle)}</p>
             </div>
-            <Button asChild className="h-12 rounded-xl px-6 text-sm font-medium xl:font-semibold">
-              <Link href="/dashboard">{t("browseTemplates")}</Link>
-            </Button>
+            {tab === "all" && (
+              <Button asChild className="h-12 rounded-xl px-6 text-sm font-medium xl:font-semibold">
+                <Link href="/dashboard">{t("browseTemplates")}</Link>
+              </Button>
+            )}
           </div>
         ) : (
           items.map((inv) => <MyInvitationCard key={inv.id} inv={inv} />)
