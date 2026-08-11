@@ -66,7 +66,9 @@ export function buildCoverPreviewHtml(
       :root { ${themeVars} }
       * { box-sizing: border-box; }
       html, body { margin: 0; padding: 0; width: 396px; height: 846px; overflow: hidden; }
-      body { font-family: var(--font-body); }
+      /* Section "cover" tingginya fixed (mis. 812px) < tinggi iframe (846px);
+         isi background biar celah bawahnya ikut warna cover, bukan putih. */
+      body { font-family: var(--font-body); background: var(--color-primary); }
     </style>
   </head>
   <body>${sectionsHtml}</body>

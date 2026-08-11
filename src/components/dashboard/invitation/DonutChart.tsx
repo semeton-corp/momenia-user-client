@@ -6,11 +6,16 @@ type DonutSegment = {
 type DonutChartProps = {
   segments: DonutSegment[]
   sizeClassName?: string
+  // Controls the inner white hole. Larger inset = smaller hole (thicker ring),
+  // smaller inset = bigger hole (thinner ring). Accepts responsive classes so the
+  // hole can differ per breakpoint. Defaults to the original look.
+  holeClassName?: string
 }
 
 export function DonutChart({
   segments,
   sizeClassName = "h-32 w-32",
+  holeClassName = "inset-[20%]",
 }: DonutChartProps) {
   const total = segments.reduce((sum, segment) => sum + segment.value, 0) || 1
   const gradient = segments
@@ -33,7 +38,7 @@ export function DonutChart({
       className={`relative rounded-full ${sizeClassName}`}
       style={{ background: `conic-gradient(${gradient})` }}
     >
-      <div className="absolute inset-[20%] rounded-full bg-white" />
+      <div className={`absolute rounded-full bg-white ${holeClassName}`} />
     </div>
   )
 }

@@ -551,6 +551,12 @@
         "empty": "No invitations found.",
         "emptyTitle": "You haven't created any invitation yet",
         "emptySubtitle": "Create your first invitation to get started. All your projects will appear here so you can manage them easily.",
+        "emptyPublishedTitle": "No published invitations yet",
+        "emptyPublishedSubtitle": "Once you publish an invitation, it will show up here, ready to share with your guests.",
+        "emptyDraftTitle": "No drafts here",
+        "emptyDraftSubtitle": "Invitations you're still working on will appear here until you publish them.",
+        "emptyExpiredTitle": "No expired invitations",
+        "emptyExpiredSubtitle": "Invitations whose package has ended will appear here so you can renew them.",
         "browseTemplates": "Browse Templates",
         "loadError": "Failed to load invitations. Please check your connection."
       },
@@ -650,7 +656,7 @@
         "title": "RSVP",
         "listTitle": "Guest List",
         "totalGuests": "Total Guests",
-        "estimatedGuests": "Estimated total guests (including plus ones)",
+        "estimatedGuests": "Estimated total guests",
         "table": {
           "attendance": "Attendance",
           "guestCount": "Guest Count"
