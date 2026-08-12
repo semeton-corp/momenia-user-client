@@ -552,6 +552,12 @@
         "empty": "Tidak ada undangan ditemukan.",
         "emptyTitle": "Kamu belum membuat undangan apapun",
         "emptySubtitle": "Buat undangan pertamamu untuk memulai. Semua project akan muncul di sini supaya mudah kamu kelola.",
+        "emptyPublishedTitle": "Belum ada undangan yang dipublish",
+        "emptyPublishedSubtitle": "Setelah kamu publish undangan, ia akan muncul di sini, siap dibagikan ke tamu kamu.",
+        "emptyDraftTitle": "Belum ada draft",
+        "emptyDraftSubtitle": "Undangan yang masih kamu kerjakan akan muncul di sini sampai dipublish.",
+        "emptyExpiredTitle": "Tidak ada undangan yang kedaluwarsa",
+        "emptyExpiredSubtitle": "Undangan yang masa paketnya sudah habis akan muncul di sini agar bisa kamu perpanjang.",
         "browseTemplates": "Jelajahi Template",
         "loadError": "Gagal memuat undangan. Periksa koneksi kamu."
       },
@@ -652,7 +658,7 @@
         "title": "RSVP",
         "listTitle": "List Tamu",
         "totalGuests": "Total Tamu",
-        "estimatedGuests": "Estimasi total tamu (dengan plus one)",
+        "estimatedGuests": "Estimasi total tamu",
         "table": {
           "attendance": "Kehadiran",
           "guestCount": "Jumlah Hadir"

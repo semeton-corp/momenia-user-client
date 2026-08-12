@@ -49,16 +49,26 @@ export function InvitationPhonePreview({
       {/* Image — 264x564 fixed di mobile (rasio sama persis dengan 396/846) */}
       <div className="mx-auto w-[264px] sm:w-80 xl:mx-0 xl:w-[312px]">
         <div
-          className="relative w-full overflow-hidden"
-          style={{ aspectRatio: "396 / 846", borderRadius: "14px" }}
+          className="relative w-full overflow-hidden [isolation:isolate]"
+          // clipPath (bukan cuma border-radius + overflow-hidden) supaya iframe
+          // yang di-transform scale() ikut ke-clip rounded di semua sudut —
+          // border-radius biasa tidak meng-clip child yang punya transform di
+          // sebagian browser, itu yang bikin sudut bawah kelihatan siku.
+          style={{ aspectRatio: "396 / 846", borderRadius: "28px", clipPath: "inset(0 round 28px)" }}
         >
           {coverHtml ? (
-            <div className="pointer-events-none absolute left-0 top-0 h-[846px] w-[396px] origin-top-left scale-[0.6667] sm:scale-[0.8081] xl:scale-[0.7879]">
+            // rounded + overflow-hidden di wrapper yang di-scale ini (bukan cuma di
+            // container luar): iframe di-clip rounded dulu di koordinat lokal, baru
+            // di-scale — jadi keempat sudut ikut lengkung, termasuk yang bawah.
+            <div className="pointer-events-none absolute left-0 top-0 h-[846px] w-[396px] origin-top-left overflow-hidden rounded-[40px] scale-[0.6667] sm:scale-[0.8081] xl:scale-[0.7879]">
               <iframe
                 srcDoc={coverHtml}
                 title={title}
                 sandbox=""
-                className="h-full w-full border-0"
+                // border-radius langsung di iframe — iframe replaced element
+                // sering tidak ke-clip border-radius parent (terutama sudut bawah),
+                // jadi harus di-round di elemennya sendiri.
+                className="h-full w-full rounded-[40px] border-0"
               />
             </div>
           ) : imageUrl ? (

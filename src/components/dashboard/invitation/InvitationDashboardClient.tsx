@@ -104,7 +104,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const hasValidEventDate = !!eventDateObj && !Number.isNaN(eventDateObj.getTime())
   const countdown = hasValidEventDate ? computeCountdown(eventDateObj!) : { days: 0, hours: 0, minutes: 0, seconds: 0 }
   const eventDateLabel = hasValidEventDate
-    ? eventDateObj!.toLocaleDateString(locale === "id" ? "id-ID" : "en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+    ? eventDateObj!.toLocaleDateString(locale === "id" ? "id-ID" : "en-US", { day: "numeric", month: "long", year: "numeric" })
     : ""
 
   const title = data.name
@@ -187,7 +187,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`momenia.com/${slug}`)
+      await navigator.clipboard.writeText(`https://www.momenia.id/${slug}`)
       toast(t("overview.linkCopiedToast"), "success")
     } catch {
       toast(t("overview.actionError"), "error")
@@ -222,17 +222,11 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
         {/* ── Right: Content ── */}
         <div className="flex flex-col gap-4 xl:gap-0">
 
-          {/* Title + Date — cuma tampil desktop, di mobile tanggal event
-              sudah terwakili lewat foto preview & tanggal countdown di bawah */}
+          {/* Title — desktop only; di mobile judul & tanggal terwakili lewat foto preview */}
           <div className="hidden items-start justify-between gap-2 xl:flex">
-            <div className="flex-1">
-              <h2 className={`${typography["5xl"].semibold} text-zinc-900`}>
-                {title}
-              </h2>
-              <p className={`${typography["2xl"].regular} xl:mt-16`} style={{ color: "var(--semantic-border)" }}>
-                {eventDateLabel}
-              </p>
-            </div>
+            <h2 className={`${typography["5xl"].semibold} flex-1 text-zinc-900`}>
+              {title}
+            </h2>
             <Button asChild variant="ghost" size="icon" className="h-9 w-9 shrink-0 rounded-full text-zinc-400 hover:text-zinc-600">
               <Link href={`${basePath}/edit`} aria-label={t("overview.editTemplate")}>
                 <PencilLine className="h-4 w-4" />
@@ -240,8 +234,18 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             </Button>
           </div>
 
-          {/* Countdown */}
-          <WorkspaceCard className="border-0 shadow-none xl:border xl:shadow-sm p-4 pt-3 sm:p-5 xl:p-0 xl:mt-8">
+          {/* Tanggal event (desktop) — tepat di atas kartu countdown, sesuai referensi.
+              Hanya dirender kalau tanggalnya ada supaya tidak menyisakan gap kosong. */}
+          {eventDateLabel && (
+            <p className="hidden text-lg font-normal xl:mt-12 xl:block" style={{ color: "var(--semantic-border)" }}>
+              {eventDateLabel}
+            </p>
+          )}
+
+          {/* Countdown — kalau ada tanggal di atasnya, jaraknya dirapatkan;
+              kalau tidak (mis. draft belum ada event_date), beri jarak lebih
+              lega dari judul supaya tidak mepet. */}
+          <WorkspaceCard className={cn("border-0 shadow-none xl:border xl:shadow-sm p-4 pt-3 sm:p-5 xl:p-0", eventDateLabel ? "xl:mt-4" : "xl:mt-16")}>
             <p className="mb-3 text-center text-lg font-normal xl:hidden" style={{ color: "var(--semantic-border)" }}>
               {eventDateLabel}
             </p>
@@ -256,7 +260,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                   <p className={`text-2xl font-semibold leading-none sm:text-4xl xl:${typography["5xl"].medium}`} style={{ color: "var(--indigo-deep)" }}>
                     {item.value}
                   </p>
-                  <p className={`mt-1.5 ${typography.xl.regular} sm:mt-2`} style={{ color: "var(--foreground)" }}>
+                  <p className="mt-1.5 text-xs font-normal sm:mt-2 sm:text-sm xl:text-xl xl:font-normal" style={{ color: "var(--foreground)" }}>
                     {t(`overview.countdownUnits.${item.key}`)}
                   </p>
                 </div>
@@ -273,11 +277,12 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
               {t("overview.guestStatsTitle")}
             </h3>
 
-            <WorkspaceCard className="border-0 shadow-none p-0 xl:border xl:shadow-sm xl:p-5 xl:h-[263px] w-full">
+            <WorkspaceCard className="border-0 shadow-none p-0 xl:border xl:shadow-sm xl:p-5 xl:h-[280px] w-full">
               <div className="flex flex-col items-center gap-5 xl:flex-row xl:items-center xl:justify-between">
                 <div className="shrink-0">
                   <DonutChart
-                    sizeClassName="h-52 w-52 xl:h-[215px] xl:w-[215px]"
+                    sizeClassName="h-52 w-52 xl:h-[235px] xl:w-[235px]"
+                    holeClassName="inset-[20%] xl:inset-[16%]"
                     segments={[
                       { value: attending, color: "#4338CA" },
                       { value: declined,  color: "#818CF8" },
@@ -286,8 +291,8 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                   />
                 </div>
 
-                <div className="flex w-full flex-1 flex-col gap-4 sm:gap-5">
-                  <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <div className="flex w-full flex-1 flex-col gap-4 sm:gap-5 xl:gap-8">
+                  <div className="grid grid-cols-3 gap-2 divide-x divide-zinc-200 sm:gap-4">
                     {[
                       { value: attending, label: t("common.attending"),  color: "#4338CA" },
                       { value: declined,  label: t("common.declined"),   color: "#818CF8" },
@@ -308,7 +313,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                     className="h-12 w-full justify-start gap-3 rounded-[10px] border border-primary bg-white px-4 text-sm font-semibold text-primary hover:bg-primary/5 hover:text-primary sm:text-base xl:h-16 xl:rounded-xl xl:border-0 xl:bg-primary xl:p-4 xl:text-xl xl:font-semibold xl:text-primary-foreground xl:hover:bg-primary/90 xl:hover:text-primary-foreground"
                   >
                     <Link href={`${basePath}/rsvp`}>
-                      <BookOpenCheck className="h-5 w-5 xl:h-8 xl:w-8" />
+                      <BookOpenCheck className="size-4 xl:size-6" />
                       {t("sidebar.rsvp")}
                     </Link>
                   </Button>
@@ -347,7 +352,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             {isEditingLink ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 text-sm text-zinc-500">momenia.com/</span>
+                  <span className="shrink-0 text-sm text-zinc-500">https://www.momenia.id/</span>
                   <div className="relative flex-1">
                     <Input
                       value={slugDraft}
@@ -389,15 +394,12 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
               </div>
             ) : (
               <>
-                <div className="flex overflow-hidden rounded-xl border border-zinc-200 shadow-sm xl:h-[60px] xl:items-center xl:rounded-lg xl:px-3 xl:gap-3">
-                  <span className="flex shrink-0 items-center border-r border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:w-[196px] xl:justify-center xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:px-3">
-                    momenia.com/
+                <div className="flex overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm xl:h-[60px] xl:items-center xl:rounded-lg xl:px-3 xl:gap-3">
+                  <span className="flex shrink-0 items-center whitespace-nowrap border-r border-zinc-200 bg-white px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-white xl:text-base xl:font-normal xl:px-3">
+                    https://www.momenia.id/
                   </span>
-                  <span className="flex min-w-0 flex-1 items-center truncate px-2 py-3 text-xs text-zinc-700 sm:px-3 sm:text-sm xl:text-base xl:font-normal xl:px-2">
+                  <span className="flex min-w-0 flex-1 items-center truncate px-2 py-3 text-xs text-zinc-800 sm:px-3 sm:text-sm xl:text-base xl:font-normal xl:px-2">
                     {slug}
-                  </span>
-                  <span className="flex shrink-0 items-center border-l border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:w-[61px] xl:justify-center xl:rounded-lg xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:border-l-0">
-                    .id
                   </span>
                 </div>
 

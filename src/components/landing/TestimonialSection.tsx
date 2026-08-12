@@ -156,9 +156,11 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
               let opacity = 1
               const zIndex = 10 - absOffset
 
-              // Ukuran kartu "tumpukan" di belakang kartu aktif (mobile) — sesuai spec Figma.
+              // Ukuran kartu "tumpukan" di belakang kartu aktif (mobile).
+              // Tinggi dinaikkan supaya kertas belakang lebih terlihat (masih lebih
+              // pendek dari kartu depan yang h-[340px] biar layering-nya tetap terbaca).
               const stackWidth = 219.36
-              const stackHeight = 225
+              const stackHeight = 300
               const stackPeek = 16 // seberapa jauh tumpukan mengintip di sisi luar kartu aktif
 
               const gap = isDesktop ? 24 : 16
@@ -194,7 +196,10 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
                   initial={false}
                   animate={{
                     x: xOffset,
-                    y: isMobileStack ? "calc(-50% - 12px)" : "-50%",
+                    // Selalu -50% (tanpa offset vertikal untuk kartu belakang) supaya
+                    // saat berpindah, kartu hanya bergerak horizontal — geser dari
+                    // kanan ke tengah, bukan diagonal/miring.
+                    y: "-50%",
                     scale: 1,
                     opacity,
                     filter: "none",
