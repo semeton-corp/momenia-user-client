@@ -86,16 +86,23 @@ export function GuestMessageTemplateCard({
 }: GuestMessageTemplateCardProps) {
   const editorRef = React.useRef<HTMLDivElement>(null)
   const [length, setLength] = React.useState(0)
+  const [hasVariable, setHasVariable] = React.useState(false)
 
-  const recalcLength = React.useCallback(() => {
-    setLength(editorRef.current?.innerText.length ?? 0)
+  // Recompute the character count AND whether the variable chip is currently in
+  // the editor. The button reflects that presence (filled check = inserted,
+  // outline plus = absent); running this on every edit means deleting the chip
+  // with the keyboard flips the button back to "+" too, not just clicking it.
+  const syncState = React.useCallback(() => {
+    const el = editorRef.current
+    setLength(el?.innerText.length ?? 0)
+    setHasVariable(!!el?.querySelector(`[data-variable="${GUEST_NAME_ATTR}"]`))
   }, [])
 
   React.useEffect(() => {
     const el = editorRef.current
     if (!el) return
     el.innerHTML = buildHtml(body, variableLabel)
-    recalcLength()
+    syncState()
     // Cuma dijalankan sekali saat mount — lihat catatan "uncontrolled" di atas.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -108,7 +115,20 @@ export function GuestMessageTemplateCard({
     if (!inserted) {
       el.insertAdjacentHTML("beforeend", `${chipHtml(variableLabel)}&nbsp;`)
     }
-    recalcLength()
+    syncState()
+  }
+
+  const removeVariable = () => {
+    const el = editorRef.current
+    if (!el) return
+    el.querySelectorAll(`[data-variable="${GUEST_NAME_ATTR}"]`).forEach((node) => node.remove())
+    syncState()
+  }
+
+  // Insert the variable when it's absent, remove it when it's already present.
+  const toggleVariable = () => {
+    if (hasVariable) removeVariable()
+    else insertVariable()
   }
 
   const handleSave = () => {
@@ -126,7 +146,7 @@ export function GuestMessageTemplateCard({
           ref={editorRef}
           contentEditable
           suppressContentEditableWarning
-          onInput={recalcLength}
+          onInput={syncState}
           role="textbox"
           aria-multiline="true"
           aria-label={title}
@@ -145,10 +165,15 @@ export function GuestMessageTemplateCard({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={insertVariable}
-            className="inline-flex items-center gap-1.5 rounded-[10px] border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-foreground"
+            onClick={toggleVariable}
+            aria-pressed={hasVariable}
+            className={
+              hasVariable
+                ? "inline-flex items-center gap-1.5 rounded-[10px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                : "inline-flex items-center gap-1.5 rounded-[10px] border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50"
+            }
           >
-            <Plus className="h-4 w-4" />
+            {hasVariable ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             {variableLabel}
           </button>
         </div>
@@ -169,10 +194,15 @@ export function GuestMessageTemplateCard({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={insertVariable}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            onClick={toggleVariable}
+            aria-pressed={hasVariable}
+            className={
+              hasVariable
+                ? "inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                : "inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50"
+            }
           >
-            <Check className="h-3.5 w-3.5" />
+            {hasVariable ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
             {variableLabel}
           </button>
         </div>
