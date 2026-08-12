@@ -50,6 +50,14 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const [slugAvailability, setSlugAvailability] = React.useState<"idle" | "checking" | "available" | "taken" | "invalid">("idle")
   const [slugError, setSlugError] = React.useState<string | null>(null)
   const [isSavingLink, setIsSavingLink] = React.useState(false)
+  // Empty until mount, then set from window.location — deriving the real invitation
+  // domain (staging.momenia.id / momenia.id / localhost:3000, whichever this app is
+  // actually running on) this way means it can never drift out of sync with reality,
+  // unlike a hardcoded per-environment string. Set in an effect, not read directly at
+  // render time, since `window` doesn't exist during the server render this client
+  // component still goes through — reading it there would mismatch on hydration.
+  const [origin, setOrigin] = React.useState("")
+  React.useEffect(() => { setOrigin(window.location.origin) }, [])
 
   const basePath = `/dashboard/my-invitation/${invitationId}`
 
@@ -187,7 +195,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`https://www.momenia.id/${slug}`)
+      await navigator.clipboard.writeText(`${window.location.origin}/${locale}/invitation/${slug}`)
       toast(t("overview.linkCopiedToast"), "success")
     } catch {
       toast(t("overview.actionError"), "error")
@@ -394,9 +402,9 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
               </div>
             ) : (
               <>
-                <div className="flex overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm xl:h-[60px] xl:items-center xl:rounded-lg xl:px-3 xl:gap-3">
-                  <span className="flex shrink-0 items-center whitespace-nowrap border-r border-zinc-200 bg-white px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-white xl:text-base xl:font-normal xl:px-3">
-                    https://www.momenia.id/
+                <div className="flex overflow-hidden rounded-xl border border-zinc-200 shadow-sm xl:h-[60px] xl:items-center xl:rounded-lg xl:px-3 xl:gap-3">
+                  <span className="flex shrink-0 items-center border-r border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:w-[196px] xl:justify-center xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:px-3">
+                      https://www.momenia.id/
                   </span>
                   <span className="flex min-w-0 flex-1 items-center truncate px-2 py-3 text-xs text-zinc-800 sm:px-3 sm:text-sm xl:text-base xl:font-normal xl:px-2">
                     {slug}
