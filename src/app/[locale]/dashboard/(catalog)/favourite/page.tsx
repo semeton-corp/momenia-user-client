@@ -12,16 +12,19 @@ import { TemplateCard } from "@/components/dashboard/TemplateCard"
 import { TemplateCardSkeleton } from "@/components/dashboard/TemplateCardSkeleton"
 import { TemplateDetailModal, type TemplateDetail } from "@/components/dashboard/TemplateDetailModal"
 import { UnfavouriteConfirmDialog } from "@/components/dashboard/favourite/UnfavouriteConfirmDialog"
-import { useFavouriteTemplates, useInvitationTemplateDetail, useToggleFavourite } from "@/hooks/useInvitationTemplates"
+import { useFavouriteTemplates, useFavouriteTemplateTags, useInvitationTemplateDetail, useToggleFavourite } from "@/hooks/useInvitationTemplates"
 import { templateCategoryName, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
 import EmptyFolderIllustration from "@/assets/empty-states/empty-folder.svg"
 
-type ChipKey = "allSaved" | "wedding" | "modern" | "classic" | "recentlyAdded"
-const CHIPS: ChipKey[] = ["allSaved", "wedding", "modern", "classic", "recentlyAdded"]
-const CATEGORY_CHIPS: ChipKey[] = ["wedding", "modern", "classic"]
-
 type SortKey = "recent" | "priceLow" | "priceHigh"
 const SORTS: SortKey[] = ["recent", "priceLow", "priceHigh"]
+
+// Map opsi sort UI ke param endpoint favourites (semua diurutkan server-side).
+const SORT_PARAMS: Record<SortKey, { sortField: "createdAt" | "price"; sortOrder: "asc" | "desc" }> = {
+  recent: { sortField: "createdAt", sortOrder: "desc" },
+  priceLow: { sortField: "price", sortOrder: "asc" },
+  priceHigh: { sortField: "price", sortOrder: "desc" },
+}
 
 type FavCard = {
   id: string
@@ -50,18 +53,27 @@ function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): Temp
 export default function FavouritePage() {
   const t = useTranslations("dashboard.favourite")
   const locale = useLocale()
-  const [chip, setChip] = React.useState<ChipKey>("allSaved")
+  const [selectedTagId, setSelectedTagId] = React.useState<number | null>(null)
   const [search, setSearch] = React.useState("")
+  const [debouncedSearch, setDebouncedSearch] = React.useState("")
   const [sort, setSort] = React.useState<SortKey>("recent")
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
   // Item yang menunggu konfirmasi hapus dari favorit (null = dialog tertutup).
   const [pendingUnfav, setPendingUnfav] = React.useState<{ id: string; name: string } | null>(null)
 
-  // List tidak membawa createdAt, jadi "Most recent" cuma bisa diwujudkan lewat
-  // sortOrder di API (bukan sort client-side seperti harga).
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 400)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  const { data: tags = [] } = useFavouriteTemplateTags()
+
+  // Tag (tagsIds), keyword, dan sort semuanya difilter/diurutkan server-side.
   const { data: favouritesData, isLoading, isError } = useFavouriteTemplates({
     pageSize: 20,
-    sortOrder: sort === "recent" ? "desc" : undefined,
+    ...SORT_PARAMS[sort],
+    keyword: debouncedSearch || undefined,
+    tagsIds: selectedTagId != null ? [selectedTagId] : undefined,
   })
   const { data: detailData, isLoading: isDetailLoading } = useInvitationTemplateDetail(selectedId)
   const { mutate: toggleFavourite } = useToggleFavourite()
@@ -75,19 +87,6 @@ export default function FavouritePage() {
     mobileThumbnail: tpl.mobileThumbnail,
     isUserFavorite: tpl.isUserFavorite,
   }))
-
-  const q = search.trim().toLowerCase()
-  const filtered = realCards
-    .filter((tpl) => {
-      const okChip = !CATEGORY_CHIPS.includes(chip) || tpl.category.toLowerCase().includes(chip)
-      const okSearch = !q || tpl.name.toLowerCase().includes(q)
-      return okChip && okSearch
-    })
-    .sort((a, b) => {
-      if (sort === "priceLow") return parseFloat(a.priceAfterDiscount) - parseFloat(b.priceAfterDiscount)
-      if (sort === "priceHigh") return parseFloat(b.priceAfterDiscount) - parseFloat(a.priceAfterDiscount)
-      return 0
-    })
 
   const selectedTemplate = detailData ? mapToTemplateDetail(detailData, locale) : null
 
@@ -147,17 +146,29 @@ export default function FavouritePage() {
       {/* ── Mobile: chips ── */}
       <div className="mt-[14px] -mx-5 overflow-x-auto pb-0.5 scrollbar-hide md:-mx-8 xl:hidden">
         <div className="flex w-max gap-2 px-5 md:px-8">
-          {CHIPS.map((c) => (
-            <StyleTag key={c} label={t(`chips.${c}`)} active={chip === c} onClick={() => setChip(c)} />
+          <StyleTag label={t("chips.allSaved")} active={selectedTagId === null} onClick={() => setSelectedTagId(null)} />
+          {tags.map((tag) => (
+            <StyleTag
+              key={tag.id}
+              label={formatLabel(tag.name)}
+              active={selectedTagId === tag.id}
+              onClick={() => setSelectedTagId(tag.id)}
+            />
           ))}
         </div>
       </div>
 
       {/* ── Desktop: chips left + search/sort right ── */}
       <div className="mt-8 hidden items-center justify-between gap-4 xl:flex">
-        <div className="flex items-center gap-3">
-          {CHIPS.map((c) => (
-            <StyleTag key={c} label={t(`chips.${c}`)} active={chip === c} onClick={() => setChip(c)} />
+        <div className="flex flex-wrap items-center gap-3">
+          <StyleTag label={t("chips.allSaved")} active={selectedTagId === null} onClick={() => setSelectedTagId(null)} />
+          {tags.map((tag) => (
+            <StyleTag
+              key={tag.id}
+              label={formatLabel(tag.name)}
+              active={selectedTagId === tag.id}
+              onClick={() => setSelectedTagId(tag.id)}
+            />
           ))}
         </div>
         <div className="flex items-center gap-3">
@@ -183,7 +194,7 @@ export default function FavouritePage() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="text-base text-zinc-400">{t("loadError")}</p>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : realCards.length === 0 ? (
           <div className="mx-auto flex w-full max-w-[448px] flex-col items-center gap-6 py-10 text-center">
             <Image src={EmptyFolderIllustration} alt="" className="h-[151px] w-[188px] xl:h-auto xl:w-64" priority />
             <div className="flex flex-col gap-3">
@@ -196,7 +207,7 @@ export default function FavouritePage() {
           </div>
         ) : (
           <div className={gridClass}>
-            {filtered.map((tpl) => (
+            {realCards.map((tpl) => (
               <TemplateCard
                 key={tpl.id}
                 id={tpl.id}

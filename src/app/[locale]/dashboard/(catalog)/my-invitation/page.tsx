@@ -4,7 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
 import { Search } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatLabel, parseGoTimestamp } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
 import { MyInvitationStatCard } from "@/components/dashboard/my-invitation/MyInvitationStatCard"
@@ -54,21 +54,23 @@ const FALLBACK_THUMBNAIL = "https://images.unsplash.com/photo-1519225421980-715c
 
 function mapToMyInvitationItem(inv: UserInvitation, locale: string, lastUpdatedLabel: (date: string) => string): MyInvitationItem {
   const dateLocale = locale === "id" ? "id-ID" : "en-US"
-  const eventDate = inv.eventDate
-    ? new Date(inv.eventDate).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" })
+  const expiredAt = parseGoTimestamp(inv.expiredAt ?? "")
+  const expiresLabel = expiredAt
+    ? expiredAt.toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" })
     : ""
 
   return {
     id: inv.id,
     title: inv.name || "Untitled",
-    category: inv.invitationTemplateCategory,
-    eventDate,
+    category: inv.category?.name ? formatLabel(inv.category.name) : "",
+    expiresLabel,
     status: inv.status,
     lastActivity: inv.lastUpdatedAt ? lastUpdatedLabel(inv.lastUpdatedAt) : "",
-    url: inv.pathUrl ? `momenia.com/${inv.pathUrl}` : null,
+    url: inv.slug ? `momenia.com/${inv.slug}` : null,
+    slug: inv.slug || null,
     guests: inv.totalGuest ?? 0,
-    rsvp: inv.totalRsvp ?? 0,
-    thumbnail: inv.invitationTemplateThumbnail || FALLBACK_THUMBNAIL,
+    rsvp: inv.totalRSVP ?? 0,
+    thumbnail: FALLBACK_THUMBNAIL,
   }
 }
 
