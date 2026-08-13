@@ -77,7 +77,7 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
   const pillWidth = viewportWidth >= 768 ? 80 : 60
 
   const visibleOffsets = React.useMemo(() => {
-    if (isMobile) return [-2, -1, 0, 1, 2]
+    if (isMobile) return [-1, 0, 1]
 
     if (isDesktop) {
       if (zoomLevel >= 1.7) return [0]
@@ -148,45 +148,36 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
               const absOffset = Math.abs(offset)
               const sign = Math.sign(offset)
 
-              const showExpandedNeighbors = isDesktop
-              const isExpanded = absOffset === 0 || (showExpandedNeighbors && absOffset === 1)
+              // Mobile: carousel satu-kartu — semua kartu full-size, tetangganya
+              // diparkir penuh di luar layar biar gesernya bersih (tidak ada kartu
+              // "nyangkut" di belakang). Desktop/tablet tetap pola stack seperti semula.
+              const isExpanded = isMobile || absOffset === 0 || (isDesktop && absOffset === 1)
 
-              const isMobileStack = isMobile && absOffset >= 1
-
-              let opacity = 1
+              const opacity = 1
               const zIndex = 10 - absOffset
-
-              // Ukuran kartu "tumpukan" di belakang kartu aktif (mobile).
-              // Tinggi dinaikkan supaya kertas belakang lebih terlihat (masih lebih
-              // pendek dari kartu depan yang h-[340px] biar layering-nya tetap terbaca).
-              const stackWidth = 219.36
-              const stackHeight = 300
-              const stackPeek = 16 // seberapa jauh tumpukan mengintip di sisi luar kartu aktif
 
               const gap = isDesktop ? 24 : 16
               let xOffset = 0
 
-              if (absOffset === 1) {
+              if (isMobile) {
+                xOffset = absOffset === 0 ? 0 : sign * (viewportWidth || 400)
+              } else if (absOffset === 1) {
                 if (isDesktop) {
                   xOffset = sign * (expandedWidth + gap)
-                } else if (isTablet) {
-                  xOffset = sign * (expandedWidth / 2 + gap + pillWidth / 2)
                 } else {
-                  xOffset = sign * (expandedWidth / 2 - stackWidth / 2 + stackPeek)
+                  // tablet
+                  xOffset = sign * (expandedWidth / 2 + gap + pillWidth / 2)
                 }
               } else if (absOffset >= 2) {
                 if (isDesktop) {
                   const base = expandedWidth + gap + expandedWidth / 2 + pillWidth / 2 + gap
                   const stackIndex = absOffset - 2
                   xOffset = sign * (base + stackIndex * 28)
-                } else if (isTablet) {
+                } else {
+                  // tablet
                   const base = expandedWidth / 2 + gap + pillWidth / 2 + gap
                   const stackIndex = absOffset - 2
                   xOffset = sign * (base + stackIndex * 24)
-                } else {
-                  const stackIndex = absOffset - 2
-                  xOffset = sign * (expandedWidth / 2 - stackWidth / 2 + stackPeek + stackIndex * 8)
-                  if (isMobile) opacity = 0.5
                 }
               }
 
@@ -212,23 +203,16 @@ export function TestimonialSection({ testimonials: apiTestimonials }: Testimonia
                   className="absolute left-1/2 top-1/2 flex justify-center -translate-x-1/2"
                   style={{ transformOrigin: "center", zIndex }}
                 >
-                  {isMobileStack ? (
-                    <div
-                      className="pointer-events-none rounded-3xl bg-white shadow-[4px_4px_12.5px_rgba(0,0,0,0.1),_-1px_-1px_3.8px_rgba(0,0,0,0.04)]"
-                      style={{ width: stackWidth, height: stackHeight }}
-                    />
-                  ) : (
-                    <TestimonialCard
-                      quote={t.quote}
-                      name={t.name}
-                      product={t.product}
-                      avatarSrc={t.avatarSrc}
-                      rating={t.rating}
-                      isExpanded={isExpanded}
-                      expandedWidth={expandedWidth}
-                      pillWidth={pillWidth}
-                    />
-                  )}
+                  <TestimonialCard
+                    quote={t.quote}
+                    name={t.name}
+                    product={t.product}
+                    avatarSrc={t.avatarSrc}
+                    rating={t.rating}
+                    isExpanded={isExpanded}
+                    expandedWidth={expandedWidth}
+                    pillWidth={pillWidth}
+                  />
                 </motion.div>
               )
             })}

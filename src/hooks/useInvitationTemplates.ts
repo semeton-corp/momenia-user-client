@@ -6,6 +6,7 @@ import { useToast } from "@/providers/ToastProvider"
 import {
   addFavouriteTemplate,
   getFavouriteTemplates,
+  getFavouriteTemplateTags,
   getInvitationTemplateCategories,
   getInvitationTemplateTags,
   getInvitationTemplateById,
@@ -23,6 +24,7 @@ export const TEMPLATE_KEYS = {
   list: (params: GetTemplatesParams) => ["invitation-templates", "list", params] as const,
   detail: (id: string) => ["invitation-templates", "detail", id] as const,
   favourites: (params: GetFavouritesParams) => ["invitation-templates", "favourites", params] as const,
+  favouriteTags: ["invitation-templates", "favourite-tags"] as const,
   favouriteIds: ["invitation-templates", "favourite-ids"] as const,
   tags: (keyword?: string) => ["invitation-templates", "tags", keyword ?? ""] as const,
   categories: (keyword?: string) => ["invitation-templates", "categories", keyword ?? ""] as const,
@@ -106,6 +108,14 @@ export function useFavouriteTemplates(params: GetFavouritesParams = {}) {
   return useQuery({
     queryKey: TEMPLATE_KEYS.favourites(params),
     queryFn: () => getFavouriteTemplates(params),
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useFavouriteTemplateTags() {
+  return useQuery({
+    queryKey: TEMPLATE_KEYS.favouriteTags,
+    queryFn: getFavouriteTemplateTags,
     staleTime: 1000 * 60 * 5,
   })
 }

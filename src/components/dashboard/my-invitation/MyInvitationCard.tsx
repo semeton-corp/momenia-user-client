@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
+import { CalendarDays } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -74,18 +75,27 @@ export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
               <h3 className="text-[15px] font-semibold leading-snug text-[#111111]">{inv.title}</h3>
               {statusBadge}
             </div>
-            <p className="mt-1 text-[12px] font-normal text-[#6B7280]">
-              {inv.category} • {inv.eventDate}
-            </p>
+            <p className="mt-1 text-[12px] font-normal text-[#6B7280]">{inv.category}</p>
             <p className="mt-1 text-[12px] font-normal text-[#4B5563]">
               {inv.guests} {t("guests").toLowerCase()} • {inv.rsvp} RSVP
             </p>
           </div>
         </div>
         <div className="mt-2 flex items-center justify-between gap-2">
-          <span className="truncate text-[12px] font-normal text-[#6B7280]">
-            {isDraft ? t("draftHint") : inv.url}
-          </span>
+          {isDraft ? (
+            <span className="truncate text-[12px] font-normal text-[#6B7280]">{t("draftHint")}</span>
+          ) : inv.slug ? (
+            <a
+              href={`/${locale}/invitation/${inv.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="truncate text-[12px] font-medium text-primary hover:underline"
+            >
+              {inv.url}
+            </a>
+          ) : (
+            <span className="truncate text-[12px] font-normal text-[#6B7280]" />
+          )}
           {isDraft ? (
             <Button
               asChild
@@ -108,15 +118,24 @@ export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
       {/* ── Desktop ── */}
       <div className="hidden h-full items-center gap-6 xl:flex">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-10">
             <h3 className="w-[240px] shrink-0 truncate text-2xl font-semibold text-[#111111]">{inv.title}</h3>
             {statusBadge}
           </div>
-          <p className="mt-3 text-base font-normal text-[#485563]">
-            {inv.category} • {inv.eventDate}
-          </p>
+          <p className="mt-3 text-base font-normal text-[#485563]">{inv.category}</p>
           <p className="mt-3 text-sm font-normal text-[#6B7280]">{inv.lastActivity}</p>
-          <p className="mt-3 text-sm font-medium text-[#111827]">{isDraft ? t("draftHint") : inv.url}</p>
+          {isDraft ? (
+            <p className="mt-3 text-sm font-medium text-[#111827]">{t("draftHint")}</p>
+          ) : inv.slug ? (
+            <a
+              href={`/${locale}/invitation/${inv.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
+            >
+              {inv.url}
+            </a>
+          ) : null}
         </div>
 
         <div className="flex shrink-0 gap-6">
@@ -170,6 +189,12 @@ export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
           <p className="mt-2 text-[13px] font-normal text-[#6B7280]">
             {isDraft ? t("helperDraft") : t("helperActive")}
           </p>
+          {!isDraft && inv.expiresLabel && (
+            <p className="mt-2 flex items-center gap-1.5 text-[13px] font-normal text-[#6B7280]">
+              <CalendarDays className="size-4 shrink-0" />
+              {t("expiresOn", { date: inv.expiresLabel })}
+            </p>
+          )}
         </div>
       </div>
     </div>
