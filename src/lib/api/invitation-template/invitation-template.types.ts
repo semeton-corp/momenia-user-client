@@ -110,6 +110,8 @@ export type GetTemplatesParams = {
 export type GetFavouritesParams = {
   pageSize?: number
   sortOrder?: "asc" | "desc"
+  sortField?: "createdAt" | "price"
   cursor?: string
   keyword?: string
+  tagsIds?: number[]
 }

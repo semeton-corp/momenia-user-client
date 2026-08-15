@@ -2,16 +2,19 @@
 
 import * as React from "react"
 import { useTranslations } from "next-intl"
-import { Mail, Phone, User } from "lucide-react"
+import { Headphones, Mail, Phone, User } from "lucide-react"
 import { useAccount, useUpdateAccount } from "@/hooks/auth/useAccount"
 import { useLogout } from "@/hooks/auth/useLogout"
 import { ProfileHeaderCard } from "@/components/dashboard/profile/ProfileHeaderCard"
 import { ProfileInfoRow } from "@/components/dashboard/profile/ProfileInfoRow"
+import { ProfileActionRow } from "@/components/dashboard/profile/ProfileActionRow"
+import { ProfileLanguageRow } from "@/components/dashboard/profile/ProfileLanguageRow"
 import { ProfileLogoutCard } from "@/components/dashboard/profile/ProfileLogoutCard"
-import { ProfileContactSupportCard } from "@/components/dashboard/profile/ProfileContactSupportCard"
 import { EditProfileDialog } from "@/components/dashboard/profile/EditProfileDialog"
 import { LogoutConfirmDialog } from "@/components/dashboard/profile/LogoutConfirmDialog"
 import { ProfileSkeleton } from "@/components/dashboard/profile/ProfileSkeleton"
+
+const WHATSAPP_NUMBER = "628561114275"
 
 export default function ProfilePage() {
   const t = useTranslations("dashboard.profile")
@@ -35,7 +38,7 @@ export default function ProfilePage() {
           <p className="text-sm text-zinc-400">{t("loadError")}</p>
         </div>
       ) : (
-        <div className="mt-6 space-y-4 xl:mt-8 xl:space-y-8">
+        <div className="mt-6 space-y-6 xl:mt-8 xl:space-y-8">
           <ProfileHeaderCard
             name={account.name}
             email={account.email}
@@ -44,16 +47,34 @@ export default function ProfilePage() {
             onEditClick={() => setEditOpen(true)}
           />
 
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-            <ProfileInfoRow icon={User} label={t("fullName")} value={account.name} />
-            <ProfileInfoRow icon={Mail} label={t("emailAddress")} value={account.email} />
-            <ProfileInfoRow icon={Phone} label={t("phoneNumber")} value={account.phoneNumber} isLast />
-          </div>
+          {/* ── Personal Information ── */}
+          <section className="space-y-3 xl:space-y-4">
+            <h2 className="text-base font-semibold text-[#111111] xl:text-lg">{t("personalInformation")}</h2>
+            <div>
+              <ProfileInfoRow icon={User} label={t("fullName")} value={account.name} />
+              <ProfileInfoRow icon={Mail} label={t("emailAddress")} value={account.email} />
+              <ProfileInfoRow icon={Phone} label={t("phoneNumber")} value={account.phoneNumber} isLast />
+            </div>
+          </section>
 
-          <div className="flex flex-col gap-4 xl:flex-row">
-            <ProfileContactSupportCard title={t("contactSupport")} subtitle={t("contactSupportSubtitle")} />
-            <ProfileLogoutCard title={t("logOut")} subtitle={t("logOutSubtitle")} onClick={() => setLogoutOpen(true)} />
-          </div>
+          {/* ── Preference (language switch) ── */}
+          <section className="space-y-3 xl:space-y-4">
+            <h2 className="text-base font-semibold text-[#111111] xl:text-lg">{t("preference")}</h2>
+            <ProfileLanguageRow label={t("language")} title={t("selectLanguage")} />
+          </section>
+
+          {/* ── Support ── */}
+          <section className="space-y-3 xl:space-y-4">
+            <h2 className="text-base font-semibold text-[#111111] xl:text-lg">{t("support")}</h2>
+            <ProfileActionRow
+              icon={Headphones}
+              label={t("support")}
+              value={t("chatWhatsApp")}
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+            />
+          </section>
+
+          <ProfileLogoutCard title={t("logOut")} subtitle={t("logOutSubtitle")} onClick={() => setLogoutOpen(true)} />
         </div>
       )}
 
