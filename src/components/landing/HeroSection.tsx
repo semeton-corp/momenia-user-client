@@ -35,7 +35,13 @@ export function HeroSection({ promoContent }: HeroSectionProps = {}) {
   const t = useTranslations("landing.hero")
   const reduceMotion = useReducedMotion()
   const { isLoggedIn } = useCurrentUser()
-  const ctaHref = isLoggedIn ? "/dashboard" : "/login"
+  // isLoggedIn berasal dari localStorage (hanya ada di client). Kalau dipakai
+  // langsung, render pertama client (login) beda dengan SSR → hydration mismatch.
+  // Tunggu mounted dulu: render awal selalu "/login" (sama dengan server), baru
+  // beralih ke "/dashboard" setelah mount kalau ternyata sudah login.
+  const [mounted, setMounted] = React.useState(false)
+  React.useEffect(() => setMounted(true), [])
+  const ctaHref = mounted && isLoggedIn ? "/dashboard" : "/login"
 
   const frontEnvelopeClipPath = promoContent
     ? "polygon(0 0%, 48.8% 56.8%, 51.2% 56.8%, 100% 0%, 100% 100%, 0 100%)"

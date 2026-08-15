@@ -62,8 +62,16 @@ export async function getFavouriteTemplates(params: GetFavouritesParams = {}): P
   const qs = buildQuery({
     pageSize: params.pageSize,
     sortOrder: params.sortOrder,
+    sortField: params.sortField,
     cursor: params.cursor,
     keyword: params.keyword,
+    tagsIds: params.tagsIds?.map(String),
   })
   return http(`${BASE_FAV}/favourites${qs}`, { headers: authHeader() })
+}
+
+// Tags khusus dari template yang di-favorit user (dipakai untuk chip filter di
+// halaman favorit). Beda dari getInvitationTemplateTags yang untuk katalog umum.
+export async function getFavouriteTemplateTags(): Promise<InvitationTemplateTag[]> {
+  return http(`${BASE_FAV}/favourites/tags`, { headers: authHeader() })
 }

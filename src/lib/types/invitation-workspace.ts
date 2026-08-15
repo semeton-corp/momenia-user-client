@@ -72,10 +72,11 @@ export type MyInvitationItem = {
   id: string
   title: string
   category: string
-  eventDate: string
+  expiresLabel: string
   status: MyInvitationStatus
   lastActivity: string
   url: string | null
+  slug: string | null
   guests: number
   rsvp: number
   thumbnail: string

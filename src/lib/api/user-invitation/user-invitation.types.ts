@@ -7,15 +7,17 @@ export type UserInvitationOverview = {
 
 export type UserInvitation = {
     id: string
-    pathUrl: string
+    slug: string
     status: "published" | "draft" | "expired"
     name: string
-    invitationTemplateThumbnail: string
-    invitationTemplateCategory: string
+    category: {
+        id: number
+        name: string
+    }
     lastUpdatedAt: string
-    eventDate: string
+    expiredAt: string
     totalGuest?: number
-    totalRsvp?: number
+    totalRSVP?: number
 }
 
 export type GetUserInvitationsParams = {
