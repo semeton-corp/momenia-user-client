@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useCallback, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
+import Image from "next/image"
 import { useRouter } from "@/i18n/navigation"
 import { useLocale } from "next-intl"
+import DesktopFrame from "@/assets/dashboard/laptop.png"
 import {
   Pencil, Type, Palette, Music, ListOrdered, GripVertical, ChevronDown,
-  ChevronLeft, ChevronRight, Undo2, Redo2, Eye, Save, Smartphone, Plus, Minus,
+  ChevronLeft, ChevronRight, Undo2, Redo2, Eye, Save, Smartphone, Monitor, Plus, Minus,
   Search, Star, Users, Upload, Play, X, CheckCircle2, Check,
 } from "lucide-react"
 import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
@@ -17,6 +19,8 @@ import { ALL_FONTS, getGoogleFontsUrl } from "@/lib/fonts"
 import { ACCEPTED_IMAGE_TYPES, toDisplayableImage } from "@/lib/heic"
 import {
   buildInvitationHtml,
+  DEFAULT_DESKTOP_BACKGROUND,
+  DESKTOP_CARD_WIDTH,
   openInvitationPreview,
   type ThemeDefaults,
 } from "@/lib/invitation-preview"
@@ -147,10 +151,33 @@ export type PreviewFrameHandle = {
 const VIEWPORT_W = 375
 const VIEWPORT_H = 812
 
+// laptop.png's intrinsic size and the percentage insets of its transparent "screen"
+// cutout — same inset values TemplateDetailModal.tsx uses to fit a screenshot into this
+// same asset, kept in sync here since this frame wraps a live iframe instead of an <Image>.
+const LAPTOP_FRAME_W = 3744
+const LAPTOP_FRAME_H = 2126
+const LAPTOP_SCREEN_INSET = { left: "13.1%", right: "12.6%", top: "2%", bottom: "10%" }
+
+// Fixed layout size of the whole laptop mockup (frame + screen). Deliberately constant:
+// the invitation inside is laid out against these exact pixels, so it renders identically
+// at every zoom level. Zoom is then applied as a CSS transform over the finished result —
+// scaling the picture, never re-running layout — which is why the content no longer
+// reflows (or crosses a responsive breakpoint) as you zoom. Same fixed-canvas-plus-
+// transform approach the Mobile viewport uses above.
+//
+// Sized so the screen *cutout* comes out at roughly 1337x899 — a realistic desktop
+// viewport. The height is the part that matters: the invitation's cover section is
+// min-height:100vh, so a cutout much shorter than a real screen clips it. Scale this
+// number to make the mockup bigger or smaller; don't shrink it to fit the panel, that's
+// what zoom is for.
+const DESKTOP_MOCKUP_BASE_W = 1800
+const DESKTOP_MOCKUP_BASE_H = Math.round((DESKTOP_MOCKUP_BASE_W * LAPTOP_FRAME_H) / LAPTOP_FRAME_W)
+
 function resetIframeScroll(iframe: HTMLIFrameElement | null) {
   const body = iframe?.contentDocument?.body
   if (body) body.scrollTop = 0
 }
+
 
 const PreviewFrame = forwardRef<PreviewFrameHandle, {
   html: string
@@ -158,8 +185,9 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
   theme: ThemeDefaults
   activePage: string
   zoom: number
+  device: "mobile" | "desktop"
   onPageChange?: (pageId: string) => void
-}>(function PreviewFrame({ html, userData, theme, activePage, zoom, onPageChange }, ref) {
+}>(function PreviewFrame({ html, userData, theme, activePage, zoom, device, onPageChange }, ref) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const loadedRef = useRef(false)
   const loadedFontsRef = useRef<Set<string>>(new Set())
@@ -202,7 +230,11 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
     iframe.addEventListener("load", onLoad, { once: true })
     iframe.setAttribute("srcdoc", html)
     return () => iframe.removeEventListener("load", onLoad)
-  }, [html])
+    // device is a dependency on purpose, not because it affects `html`: switching it
+    // swaps in a structurally different iframe (bare vs. bezel-wrapped), which unmounts
+    // the old element and mounts a fresh one with no srcdoc — since `html` itself didn't
+    // change, this effect wouldn't otherwise re-run to fill the new element in.
+  }, [html, device])
 
   const injectFont = (fontName: string) => {
     const iframe = iframeRef.current
@@ -252,6 +284,26 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
       el?.scrollIntoView({ behavior: "smooth", block: "start" })
     },
   }), [])
+
+  // Same content as the standalone /preview route: a narrow card (bare iframe, capped
+  // under the 768px breakpoint) left-aligned over the wallpaper the parent draws behind
+  // it. Deliberately NOT a full-bleed desktop-width iframe — the invitation's own
+  // @media(min-width:768px) CSS switches some templates to a multi-column layout that
+  // clips when the surrounding frame isn't actually that wide, which is exactly what a
+  // real desktop guest never sees (InvitationViewer.tsx keeps guests on this same narrow
+  // card). Zoom is handled by the parent scaling the whole laptop mockup box instead of
+  // this iframe, so it's ignored here.
+  if (device === "desktop") {
+    return (
+      <iframe
+        ref={iframeRef}
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        title="Invitation Preview"
+        className="h-full shrink-0 border-0 shadow-2xl"
+        style={{ width: `min(${DESKTOP_CARD_WIDTH}px, 100%)` }}
+      />
+    )
+  }
 
   return (
     <div
@@ -382,7 +434,18 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   const [theme, setTheme] = useState(template.theme_defaults)
   const [sectionOrder, setSectionOrder] = useState(defaultSectionOrder)
   const [activePageIdx, setActivePageIdx] = useState(0)
-  const [zoom, setZoom] = useState(1)
+  // Separate zoom per device: Desktop's 1280px canvas needs a much smaller default than
+  // Mobile's 375px one to fit the same preview pane, and each mode should keep its own
+  // level when you switch back and forth instead of inheriting whatever the other was at.
+  const [mobileZoom, setMobileZoom] = useState(1)
+  const [desktopZoom, setDesktopZoom] = useState(0.6)
+  // Purely a preview-panel toggle — doesn't affect what's saved. "Desktop" mirrors what
+  // a desktop guest actually sees on the published invitation (InvitationViewer.tsx):
+  // the same phone-width card, left-aligned, over the theme's wallpaper. "Mobile" is
+  // today's plain centered mockup, matching how it fills a guest's actual phone screen.
+  const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
+  const zoom = previewDevice === "desktop" ? desktopZoom : mobileZoom
+  const setZoom = previewDevice === "desktop" ? setDesktopZoom : setMobileZoom
   const dragIndexRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
   const previewRef = useRef<PreviewFrameHandle>(null)
@@ -691,10 +754,25 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           </p>
         </div>
 
-        {/* device toggle (center) */}
-        <div className="flex items-center gap-2 rounded-xl bg-indigo-100 px-4 py-2.5">
-          <Smartphone className="h-4 w-4 text-indigo-600" />
-          <span className="text-sm font-medium text-indigo-700">Mobile</span>
+        {/* device toggle (center) — switches how the preview panel wraps the phone
+            mockup, not what gets saved; the invitation itself is always mobile-built. */}
+        <div className="flex items-center gap-1 rounded-xl bg-indigo-100 p-1">
+          <button
+            onClick={() => setPreviewDevice("mobile")}
+            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              previewDevice === "mobile" ? "bg-white text-indigo-700 shadow-sm" : "text-indigo-600/70 hover:text-indigo-700"
+            }`}
+          >
+            <Smartphone className="h-4 w-4" />Mobile
+          </button>
+          <button
+            onClick={() => setPreviewDevice("desktop")}
+            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              previewDevice === "desktop" ? "bg-white text-indigo-700 shadow-sm" : "text-indigo-600/70 hover:text-indigo-700"
+            }`}
+          >
+            <Monitor className="h-4 w-4" />Desktop
+          </button>
         </div>
 
         {/* actions */}
@@ -839,12 +917,52 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             </button>
           </div>
 
-          {/* phone */}
-          <div ref={previewScrollRef} className="flex flex-1 items-center justify-center overflow-auto p-6">
-            <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} onPageChange={handlePreviewPageChange} />
+          {/* phone — in "Desktop" mode the card + wallpaper (same content as the
+              standalone /preview route) sits inside the laptop.png mockup's screen
+              cutout; zoom scales the whole mockup box, not the content inside it.
+              Mobile mode is unchanged: centered, padded, on the panel's plain gray. */}
+          <div
+            ref={previewScrollRef}
+            className="flex flex-1 items-center justify-center overflow-auto p-6"
+          >
+            {previewDevice === "desktop" ? (
+              // Outer box carries the *scaled* size so flex-centering and scrolling see
+              // the real footprint — a CSS transform alone leaves the layout box at full
+              // size, which would push everything around it.
+              <div
+                className="shrink-0"
+                style={{ width: DESKTOP_MOCKUP_BASE_W * zoom, height: DESKTOP_MOCKUP_BASE_H * zoom }}
+              >
+                <div
+                  className="relative"
+                  style={{
+                    width: DESKTOP_MOCKUP_BASE_W,
+                    height: DESKTOP_MOCKUP_BASE_H,
+                    transform: `scale(${zoom})`,
+                    transformOrigin: "top left",
+                  }}
+                >
+                  <div
+                    className="absolute overflow-hidden"
+                    style={{
+                      ...LAPTOP_SCREEN_INSET,
+                      backgroundImage: `url('${theme.backgroundImage || DEFAULT_DESKTOP_BACKGROUND}')`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                  >
+                    <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} device={previewDevice} onPageChange={handlePreviewPageChange} />
+                  </div>
+                  <Image src={DesktopFrame} alt="" fill className="pointer-events-none object-contain" priority />
+                </div>
+              </div>
+            ) : (
+              <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} device={previewDevice} onPageChange={handlePreviewPageChange} />
+            )}
           </div>
 
-          {/* zoom */}
+          {/* zoom — each device mode tracks (and remembers) its own level. */}
           <div className="flex shrink-0 items-center justify-center py-3">
             <div className="flex items-center gap-3 rounded-full border border-zinc-200 bg-white px-4 py-2 shadow-sm">
               <button onClick={() => setZoom((z) => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Plus className="h-4 w-4" /></button>

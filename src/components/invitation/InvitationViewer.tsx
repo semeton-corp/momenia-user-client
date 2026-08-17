@@ -10,12 +10,7 @@ import {
   getGuestInvitationMessages,
 } from "@/lib/api/guest-message/guest-message.service"
 import type { GuestInvitationMessage } from "@/lib/api/guest-message/guest-message.types"
-
-// The invitation renders at phone width even on desktop. CSS media queries measure the
-// iframe's own viewport, so a full-width iframe would make the template lay itself out
-// for desktop (sections side by side) and overflow the column it sits in. Below this
-// width the iframe simply fills the screen, which is the real mobile case.
-const PHONE_W = 420
+import { DESKTOP_CARD_WIDTH } from "@/lib/invitation-preview"
 
 // The backend returns 201 with an all-zero id (and empty fields) when the
 // guestInvitationId doesn't exist, instead of 4xx — so status alone can't tell success
@@ -213,7 +208,7 @@ export function InvitationViewer({
         sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms"
         title="Invitation"
         className="h-full border-0 shadow-2xl"
-        style={{ width: `min(${PHONE_W}px, 100vw)` }}
+        style={{ width: `min(${DESKTOP_CARD_WIDTH}px, 100vw)` }}
       />
     </div>
   )
