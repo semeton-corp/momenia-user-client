@@ -6,6 +6,20 @@ import { getGoogleFontsUrl } from "@/lib/fonts"
 // so the snapshot must be written BEFORE the tab is opened.
 export const PREVIEW_STORAGE_KEY = "momenia_preview"
 
+// Fallback wallpaper for the desktop-width surround around the phone-shaped invitation,
+// used whenever a theme doesn't set its own backgroundImage. One shared constant so the
+// public invitation page, this renderer, and the editor's desktop preview toggle can't
+// drift out of sync on the path.
+export const DEFAULT_DESKTOP_BACKGROUND = "/background-default-desktop.png"
+
+// Card width for every "phone-on-a-desktop-wallpaper" preview — the public invitation
+// page, /preview, and the editor's Desktop toggle. Deliberately stays well under 768px:
+// at that breakpoint the template's own per-section CSS can switch to desktop layouts
+// (e.g. side-by-side columns) that this narrow card would then clip, which is the exact
+// bug this width was chosen to avoid. Widen with that ceiling in mind, not past it, and
+// re-check templates with multi-column sections if it ever needs to move closer to 768.
+export const DESKTOP_CARD_WIDTH = 560
+
 export type PreviewSnapshot = {
   html: string
   userData: Record<string, string>
@@ -120,7 +134,7 @@ ${allCss}
   }
   html {
     background-color: #1a1a1a;
-    background-image: url('${theme.backgroundImage || "/background-default-desktop.png"}');
+    background-image: url('${theme.backgroundImage || DEFAULT_DESKTOP_BACKGROUND}');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
