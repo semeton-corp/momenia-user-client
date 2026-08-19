@@ -15,6 +15,8 @@ import { useZoomScale } from "@/hooks/use-zoom-scale"
 import MobileFrame from "@/assets/dashboard/mobile.svg"
 import DesktopFrame from "@/assets/dashboard/laptop.png"
 import { useInvitationDurations } from "@/hooks/useInvitationDurations"
+import { openInvitationPreview } from "@/lib/invitation-preview"
+import type { InvitationTemplate } from "@/lib/api/invitation-template/invitation-template.types"
 
 // Styling tiap elemen markdown supaya deskripsi template (bold/heading/list)
 // tampil rapi, bukan cuma teks mentah dengan tanda ** dan ### kelihatan.
@@ -41,6 +43,9 @@ export type TemplateDetail = {
   /** Screenshot khusus tampilan desktop — fallback ke imageUrl kalau backend belum kirim. */
   desktopImageUrl?: string
   description: string
+  /** Full template body — only present once the detail request resolves; the Demo
+   *  button needs it to render the invitation, so it stays disabled until it lands. */
+  template?: InvitationTemplate
 }
 
 type Props = {
@@ -82,6 +87,14 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
 
   const selectedDurationPrice = Number(durations.find((d) => d.id === selectedDuration)?.price ?? 0)
   const totalPrice = (template?.price ?? 0) + selectedDurationPrice
+
+  // Demo opens the same /preview route the editor uses, rather than a bespoke viewer —
+  // one renderer means the catalog demo can't drift from what the couple actually gets.
+  // No fieldValues are passed, so every slot falls back to its schema placeholder.
+  const handleOpenDemo = () => {
+    if (!template?.template) return
+    openInvitationPreview({ template: template.template }, locale, { activePage: "cover" })
+  }
 
   const handleContinueToPayment = () => {
     if (!template) return
@@ -229,7 +242,9 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                 {/* Demo button - 19px below toggle, full width to match */}
                 <button
                   type="button"
-                  className="w-full cursor-pointer shrink-0 transition-colors hover:bg-zinc-50"
+                  onClick={handleOpenDemo}
+                  disabled={!template.template}
+                  className="w-full cursor-pointer shrink-0 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{
                     marginTop: "19px",
                     height: "50px",
@@ -528,7 +543,9 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   </div>
                   <button
                     type="button"
-                    className="flex h-10 cursor-pointer items-center justify-center gap-2 transition-colors hover:bg-zinc-50"
+                    onClick={handleOpenDemo}
+                    disabled={!template.template}
+                    className="flex h-10 cursor-pointer items-center justify-center gap-2 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
                     style={{ borderRadius: "10px", backgroundColor: "#ffffff", border: "1px solid #e5e5e5", padding: "0 18px" }}
                   >
                     <Eye style={{ width: "16px", height: "16px", flexShrink: 0 }} />

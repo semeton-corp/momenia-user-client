@@ -380,7 +380,10 @@ ${allJs}
 // Opens the invitation in a new tab via the /preview route. Defaults to the saved
 // invitation; the editor passes its live state to preview unsaved edits instead.
 export function openInvitationPreview(
-  detail: UserInvitationDetail,
+  // Only the template body and (optionally) filled-in values are ever read, so a catalog
+  // template with no saved invitation behind it can preview itself too — it just falls
+  // back to the schema placeholders, which is exactly what a demo should show.
+  detail: Pick<UserInvitationDetail, "template"> & { fieldValues?: Record<string, string> },
   locale: string,
   opts?: { userData?: Record<string, string>; theme?: ThemeDefaults; sectionOrder?: string[]; activePage?: string },
 ): void {
