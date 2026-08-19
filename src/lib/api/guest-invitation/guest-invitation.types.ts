@@ -11,11 +11,15 @@ export type GuestInvitation = {
 }
 
 // GET /api/v1/guest-invitations/:id — publik, dipakai halaman undangan buat
-// menyapa tamu dengan namanya. Sengaja cuma {id, name}: endpoint ini terbuka
-// tanpa login, jadi backend tidak mengembalikan kontak tamu.
+// menyapa tamu dengan namanya dan tahu apakah dia sudah RSVP. Sengaja tanpa
+// kontak tamu: endpoint ini terbuka tanpa login.
 export type GuestInvitationInfo = {
   id: string
   name: string
+  // "not-confirmed" = belum RSVP; selain itu tamu sudah menjawab.
+  status: RsvpStatus
+  isInvitationSent: boolean
+  isAfterPartyNoteSent: boolean
 }
 
 // PATCH /api/v1/guest-invitations/:id/confirmation — publik juga (tamu tidak punya akun).
