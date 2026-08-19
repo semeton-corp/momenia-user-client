@@ -76,7 +76,6 @@ export type UserInvitationDetail = {
             color_accent: string
             color_primary: string
             color_background: string
-            backgroundImage?: string
         }
     }
 }

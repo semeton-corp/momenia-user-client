@@ -1,7 +1,13 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react"
-import { DESKTOP_CARD_WIDTH, PREVIEW_STORAGE_KEY, type PreviewSnapshot } from "@/lib/invitation-preview"
+import {
+  DEFAULT_DESKTOP_BACKGROUND,
+  DESKTOP_BACKGROUND_FIELD_KEY,
+  DESKTOP_CARD_WIDTH,
+  PREVIEW_STORAGE_KEY,
+  type PreviewSnapshot,
+} from "@/lib/invitation-preview"
 
 function subscribe() {
   return () => {}
@@ -55,7 +61,7 @@ export default function PreviewPage() {
 
   // The wallpaper lives out here rather than inside the iframe, since the iframe is now
   // only as wide as the phone column and can no longer fill the screen behind it.
-  const background = state?.theme?.backgroundImage || "/background-default-desktop.png"
+  const background = state?.userData?.[DESKTOP_BACKGROUND_FIELD_KEY] || DEFAULT_DESKTOP_BACKGROUND
 
   return (
     <div
