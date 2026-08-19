@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQueries, useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
 import { useToast } from "@/providers/ToastProvider"
 import {
@@ -109,6 +109,23 @@ export function useFavouriteTemplates(params: GetFavouritesParams = {}) {
     queryKey: TEMPLATE_KEYS.favourites(params),
     queryFn: () => getFavouriteTemplates(params),
     staleTime: 1000 * 60 * 5,
+  })
+}
+
+// Endpoint favourites tidak punya filter tag di backend, jadi tag difilter di FE:
+// ambil detail (yang membawa `tags`) untuk tiap item favorit yang sedang tampil,
+// lalu halaman yang memanggil ini yang mencocokkan ke tag terpilih. `enabled` dibuat
+// eksplisit supaya request detail cuma jalan waktu user benar-benar memilih tag —
+// tidak membebani saat menampilkan "All saved". queryKey sama dengan
+// useInvitationTemplateDetail, jadi cache-nya saling terpakai (mis. modal detail).
+export function useTemplateTagsByIds(ids: string[], enabled: boolean) {
+  return useQueries({
+    queries: ids.map((id) => ({
+      queryKey: TEMPLATE_KEYS.detail(id),
+      queryFn: () => getInvitationTemplateById(id),
+      enabled: enabled && Boolean(id),
+      staleTime: 1000 * 60 * 5,
+    })),
   })
 }
 

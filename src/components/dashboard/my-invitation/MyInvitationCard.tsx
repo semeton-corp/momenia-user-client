@@ -89,7 +89,7 @@ export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
               href={`/${locale}/invitation/${inv.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="truncate text-[12px] font-medium text-primary hover:underline"
+              className="min-w-0 flex-1 truncate text-[12px] font-medium text-primary hover:underline"
             >
               {inv.url}
             </a>
@@ -131,7 +131,7 @@ export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
               href={`/${locale}/invitation/${inv.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
+              className="mt-3 block w-full truncate text-sm font-medium text-primary hover:underline"
             >
               {inv.url}
             </a>
