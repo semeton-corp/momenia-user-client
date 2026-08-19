@@ -53,6 +53,8 @@ function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): Temp
     imageUrl: data.mobileThumbnail,
     desktopImageUrl: data.desktopThumbnail,
     description: locale === "id" ? data.descriptionIdn : data.descriptionEn,
+     // Needed by the modal's Demo button to render the template.
+    template: data.template,
   }
 }
 
