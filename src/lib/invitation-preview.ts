@@ -18,13 +18,16 @@ export const DEFAULT_DESKTOP_BACKGROUND = "/background-default-desktop.png"
 // fieldValues/userData like any other field — no separate theme plumbing needed.
 export const DESKTOP_BACKGROUND_FIELD_KEY = "desktop_background"
 
-// Card width for every "phone-on-a-desktop-wallpaper" preview — the public invitation
-// page, /preview, and the editor's Desktop toggle. Deliberately stays well under 768px:
-// at that breakpoint the template's own per-section CSS can switch to desktop layouts
-// (e.g. side-by-side columns) that this narrow card would then clip, which is the exact
-// bug this width was chosen to avoid. Widen with that ceiling in mind, not past it, and
-// re-check templates with multi-column sections if it ever needs to move closer to 768.
-export const DESKTOP_CARD_WIDTH = 560
+// Card width for every "phone-on-a-desktop-wallpaper" surface — the public invitation
+// page, /preview, and the editor's Desktop toggle. One constant so all three stay in
+// agreement; the editor mockup is only trustworthy if it's the same width guests get.
+//
+// Bounded on both sides. Ceiling: stay well under 768px, since at that breakpoint the
+// template's own per-section CSS can switch to desktop layouts (e.g. side-by-side
+// columns) that this narrow card would then clip — the exact bug this width exists to
+// avoid. Floor: sections are authored mobile-first, so dropping under ~430px (a large
+// phone) starts cramping content that was never designed to go narrower.
+export const DESKTOP_CARD_WIDTH = 440
 
 export type PreviewSnapshot = {
   html: string
