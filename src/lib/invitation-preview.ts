@@ -229,7 +229,7 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
    owns every endpoint URL — so a backend change is one edit in the app rather
    than a data migration across every template row in the database. */
 (function(){
-  var GUEST = { id: '', name: '' };
+  var GUEST = { id: '', name: '', status: '' };
 
   function when(root, name, on) {
     root.querySelectorAll('[data-momenia-when="' + name + '"]').forEach(function(el){
@@ -250,6 +250,18 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
   function applyGuest() {
     when(document, 'guest', !!GUEST.id);
     when(document, 'no-guest', !GUEST.id);
+
+    /* A guest who already answered has no use for the RSVP form. Hide the whole
+       section it sits in (buildInvitationHtml wraps each one in [data-section-id])
+       rather than just the form, so they aren't left with a "Konfirmasi Kehadiran"
+       heading standing over nothing. Deliberately keyed off the status the host
+       reported at load, not off a submit in this session — that way the success
+       message still gets its moment before the section disappears on the next visit. */
+    var answered = !!GUEST.id && !!GUEST.status && GUEST.status !== 'not-confirmed';
+    document.querySelectorAll('[data-momenia-form="rsvp"]').forEach(function(form){
+      var container = form.closest('[data-section-id]') || form;
+      container.style.display = answered ? 'none' : '';
+    });
     // Only overwrite when the name is actually known, so the template's own
     // fallback text ("Tamu Undangan") stays visible otherwise.
     if (GUEST.name) {
@@ -318,6 +330,7 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
     if (e.data.type === 'memoriaGuest') {
       GUEST.id = e.data.guestInvitationId || '';
       GUEST.name = e.data.guestName || '';
+      GUEST.status = e.data.guestStatus || '';
       applyGuest();
       resize();
       return;

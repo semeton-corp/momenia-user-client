@@ -4,6 +4,7 @@ import type {
   CreateGuestInvitationMessageRequest,
   GetGuestInvitationMessagesParams,
   GuestInvitationMessage,
+  PublicGuestInvitationMessage,
   UpdateGuestInvitationMessageRequest,
 } from "./guest-message.types"
 
@@ -17,6 +18,7 @@ function buildQuery(params: Record<string, string | boolean | undefined>): strin
   return s ? `?${s}` : ""
 }
 
+// Owner-facing (dashboard guestbook moderation) — requires the owner's token.
 export async function getGuestInvitationMessages(
   userInvitationId: string,
   params: GetGuestInvitationMessagesParams = {},
@@ -25,6 +27,15 @@ export async function getGuestInvitationMessages(
   return http(`/api/v1/user-invitations/${userInvitationId}/guest-invitation-messages${qs}`, {
     headers: authHeader(),
   })
+}
+
+// Guest-facing counterpart for the public invitation page. Separate endpoint rather than
+// the one above because guests have no account: sending the owner-only route without a
+// token just fails, which is why the guestbook has to read from here instead.
+export async function getPublicGuestInvitationMessages(
+  userInvitationId: string,
+): Promise<PublicGuestInvitationMessage[]> {
+  return http(`/api/v1/user-invitations/${userInvitationId}/guest-invitation-message-invitations`)
 }
 
 // Dipakai tamu (belum login) buat kirim ucapan lewat halaman undangan publik —

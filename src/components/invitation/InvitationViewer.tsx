@@ -7,9 +7,9 @@ import {
 } from "@/lib/api/guest-invitation/guest-invitation.service"
 import {
   createGuestInvitationMessage,
-  getGuestInvitationMessages,
+  getPublicGuestInvitationMessages,
 } from "@/lib/api/guest-message/guest-message.service"
-import type { GuestInvitationMessage } from "@/lib/api/guest-message/guest-message.types"
+import type { PublicGuestInvitationMessage } from "@/lib/api/guest-message/guest-message.types"
 import { DESKTOP_CARD_WIDTH } from "@/lib/invitation-preview"
 
 // The backend returns 201 with an all-zero id (and empty fields) when the
@@ -78,16 +78,16 @@ export function InvitationViewer({
   }, [])
 
   const sendMessages = useCallback(
-    (items: GuestInvitationMessage[]) => {
+    (items: PublicGuestInvitationMessage[]) => {
       post({
         type: "memoriaMessages",
-        messages: items
-          .filter((m) => !m.isMessageHidden)
-          .map((m) => ({
-            name: m.name,
-            message: m.message,
-            messageAt: isZeroDate(m.messageAt) ? "" : formatMessageTimestamp(m.messageAt, locale),
-          })),
+        // No isMessageHidden filter here: the guest-facing endpoint doesn't return that
+        // flag because it has already withheld anything the owner hid.
+        messages: items.map((m) => ({
+          name: m.name,
+          message: m.message,
+          messageAt: isZeroDate(m.messageAt) ? "" : formatMessageTimestamp(m.messageAt, locale),
+        })),
       })
     },
     [post, locale],
@@ -95,7 +95,7 @@ export function InvitationViewer({
 
   const refreshMessages = useCallback(async () => {
     try {
-      sendMessages(await getGuestInvitationMessages(userInvitationId))
+      sendMessages(await getPublicGuestInvitationMessages(userInvitationId))
     } catch {
       // A guestbook that fails to load shouldn't break the invitation — the
       // template's own "empty" state stays visible.
@@ -118,16 +118,21 @@ export function InvitationViewer({
         // guaranteed to fail on submit.
         let verifiedGuestId = ""
         let guestName = ""
+        let guestStatus = ""
         if (guestInvitationId) {
           try {
-            guestName = (await getGuestInvitationById(guestInvitationId)).name
+            const guest = await getGuestInvitationById(guestInvitationId)
+            guestName = guest.name
+            // Anything other than "not-confirmed" means this guest already answered,
+            // which is what lets the template drop the RSVP form for them.
+            guestStatus = guest.status ?? ""
             verifiedGuestId = guestInvitationId
           } catch {
             // Unknown or revoked id — the template falls back to "no-guest".
           }
         }
         if (cancelled) return
-        post({ type: "memoriaGuest", guestInvitationId: verifiedGuestId, guestName })
+        post({ type: "memoriaGuest", guestInvitationId: verifiedGuestId, guestName, guestStatus })
         await refreshMessages()
       })()
     }
