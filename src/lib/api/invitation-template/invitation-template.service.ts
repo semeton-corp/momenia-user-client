@@ -58,6 +58,9 @@ export async function removeFavouriteTemplate(id: string): Promise<void> {
   return http(`${BASE_FAV}/unfavourite/${id}`, { method: "DELETE", headers: authHeader() })
 }
 
+// Filter tag TIDAK didukung endpoint ini di backend (dikonfirmasi tim backend) —
+// makanya tidak ada param tagsIds di sini. Filter tag dilakukan di FE, lihat
+// useTemplateTagsByIds() di useInvitationTemplates.ts.
 export async function getFavouriteTemplates(params: GetFavouritesParams = {}): Promise<TemplatesListResponse> {
   const qs = buildQuery({
     pageSize: params.pageSize,
@@ -65,7 +68,6 @@ export async function getFavouriteTemplates(params: GetFavouritesParams = {}): P
     sortField: params.sortField,
     cursor: params.cursor,
     keyword: params.keyword,
-    tagsIds: params.tagsIds?.map(String),
   })
   return http(`${BASE_FAV}/favourites${qs}`, { headers: authHeader() })
 }

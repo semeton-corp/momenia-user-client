@@ -52,7 +52,12 @@ const EMPTY_KEYS: Record<Tab, { title: string; subtitle: string }> = {
 
 const FALLBACK_THUMBNAIL = "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&q=80"
 
-function mapToMyInvitationItem(inv: UserInvitation, locale: string, lastUpdatedLabel: (date: string) => string): MyInvitationItem {
+function mapToMyInvitationItem(
+  inv: UserInvitation,
+  locale: string,
+  origin: string,
+  lastUpdatedLabel: (date: string) => string,
+): MyInvitationItem {
   const dateLocale = locale === "id" ? "id-ID" : "en-US"
   const expiredAt = parseGoTimestamp(inv.expiredAt ?? "")
   const expiresLabel = expiredAt
@@ -66,7 +71,9 @@ function mapToMyInvitationItem(inv: UserInvitation, locale: string, lastUpdatedL
     expiresLabel,
     status: inv.status,
     lastActivity: inv.lastUpdatedAt ? lastUpdatedLabel(inv.lastUpdatedAt) : "",
-    url: inv.slug ? `momenia.com/${inv.slug}` : null,
+    // Ikut domain apa pun app-nya lagi jalan (staging/prod/localhost) + rute publik
+    // asli /{locale}/invitation/{slug} — bukan domain hardcode.
+    url: inv.slug ? `${origin}/${locale}/invitation/${inv.slug}` : null,
     slug: inv.slug || null,
     guests: inv.totalGuest ?? 0,
     rsvp: inv.totalRSVP ?? 0,
@@ -80,11 +87,19 @@ export default function MyInvitationPage() {
   const [tab, setTab] = React.useState<Tab>("all")
   const [search, setSearch] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
+  // Kosong sampai mount lalu diisi dari window.location.origin — supaya link yang
+  // ditampilkan ikut domain apa pun app-nya lagi jalan (staging/prod/localhost),
+  // dan tidak mismatch saat hydration (window belum ada di server render).
+  const [origin, setOrigin] = React.useState("")
 
   React.useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 400)
     return () => clearTimeout(timer)
   }, [search])
+
+  React.useEffect(() => {
+    setOrigin(window.location.origin)
+  }, [])
 
   const { data: overview, isLoading: isOverviewLoading } = useUserInvitationOverview()
   const { data: invitations = [], isLoading, isError } = useUserInvitations(
@@ -111,7 +126,7 @@ export default function MyInvitationPage() {
       }),
     })
 
-  const items = invitations.map((inv) => mapToMyInvitationItem(inv, locale, lastUpdatedLabel))
+  const items = invitations.map((inv) => mapToMyInvitationItem(inv, locale, origin, lastUpdatedLabel))
 
   return (
     <div className="px-5 pt-2 md:px-8 xl:mx-auto xl:max-w-[1824px] xl:px-16 xl:pb-10 xl:pt-[72px]">
