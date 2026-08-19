@@ -31,6 +31,10 @@ export type UpdateUserInvitationRequest = {
     fieldValues: Record<string, string>
     status: string
     template: UserInvitationDetail["template"]
+    // Derived from the event_date / event_time schema fields on save — the API keeps the
+    // event as one top-level timestamp while the editor collects it as two fields.
+    // Omitted entirely when there's no date yet, rather than sent empty.
+    eventTime?: string
 }
 
 export type UserInvitationDetail = {
