@@ -14,6 +14,7 @@ import { WorkspaceCard } from "@/components/dashboard/invitation/WorkspaceCard"
 import { typography } from "@/lib/typography"
 import { cn, parseGoTimestamp } from "@/lib/utils"
 import { buildCoverPreviewHtml } from "@/lib/invitation-template/render-cover-preview"
+import { applyEventDateTime } from "@/lib/event-time"
 import { useCheckPathUrl, useUpdateUserInvitation, useUserInvitationDetail } from "@/hooks/useUserInvitations"
 import { useToast } from "@/providers/ToastProvider"
 
@@ -42,9 +43,15 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const { data, isLoading, isError } = useUserInvitationDetail(invitationId)
   const publishMutation = useUpdateUserInvitation(invitationId)
   const linkMutation = useUpdateUserInvitation(invitationId)
+  const eventDateMutation = useUpdateUserInvitation(invitationId)
   const checkPathUrlMutation = useCheckPathUrl()
 
   const [isEditingLink, setIsEditingLink] = React.useState(false)
+  const [isEditingEventDate, setIsEditingEventDate] = React.useState(false)
+  const [eventDateDraft, setEventDateDraft] = React.useState("")
+  const [eventTimeDraft, setEventTimeDraft] = React.useState("")
+  const [eventDateError, setEventDateError] = React.useState<string | null>(null)
+  const [isSavingEventDate, setIsSavingEventDate] = React.useState(false)
   const [slugDraft, setSlugDraft] = React.useState("")
   const [debouncedSlugDraft, setDebouncedSlugDraft] = React.useState("")
   const [slugAvailability, setSlugAvailability] = React.useState<"idle" | "checking" | "available" | "taken" | "invalid">("idle")
@@ -131,6 +138,48 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const pending = data.guestStatistic?.totalNotResponded ?? 0
 
   const coverHtml = buildCoverPreviewHtml(data.template, fieldValues)
+
+  const startEditingEventDate = () => {
+    setEventDateDraft(fieldValues.event_date ?? "")
+    setEventTimeDraft(fieldValues.event_time ?? "")
+    setEventDateError(null)
+    setIsEditingEventDate(true)
+  }
+
+  // The reverse of what the editor does on save: the user picks a date/time here, and
+  // applyEventDateTime writes it back into BOTH places it has to live — the event_date /
+  // event_time / event_date_display schema fields the template renders, and the top-level
+  // eventTime the API stores. Doing it in one helper is what stops the two drifting apart.
+  const saveEventDate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!eventDateDraft) {
+      setEventDateError(t("overview.eventDateRequired"))
+      return
+    }
+    setIsSavingEventDate(true)
+    setEventDateError(null)
+    try {
+      const { fieldValues: nextFieldValues, eventTime } = applyEventDateTime(
+        fieldValues,
+        eventDateDraft,
+        eventTimeDraft,
+      )
+      await eventDateMutation.mutateAsync({
+        name: data.name,
+        slug: data.slug,
+        fieldValues: nextFieldValues,
+        status: data.status,
+        template: data.template,
+        ...(eventTime ? { eventTime } : {}),
+      })
+      toast(t("overview.eventDateUpdatedToast"), "success")
+      setIsEditingEventDate(false)
+    } catch {
+      setEventDateError(t("overview.actionError"))
+    } finally {
+      setIsSavingEventDate(false)
+    }
+  }
 
   const handlePublish = () => {
     publishMutation.mutate(
@@ -243,20 +292,87 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
           </div>
 
           {/* Tanggal event (desktop) — tepat di atas kartu countdown, sesuai referensi.
-              Hanya dirender kalau tanggalnya ada supaya tidak menyisakan gap kosong. */}
-          {eventDateLabel && (
-            <p className="hidden text-lg font-normal xl:mt-12 xl:block" style={{ color: "var(--semantic-border)" }}>
-              {eventDateLabel}
+              Selalu dirender sekarang (bukan cuma kalau tanggalnya ada) supaya tombol ubah
+              tanggal tetap terjangkau saat event_date masih kosong. */}
+          <div className="hidden items-center gap-2 xl:mt-12 xl:flex">
+            <p className="text-lg font-normal" style={{ color: "var(--semantic-border)" }}>
+              {eventDateLabel || t("overview.eventDateEmpty")}
             </p>
-          )}
+            <button
+              type="button"
+              onClick={startEditingEventDate}
+              title={t("overview.editEventDate")}
+              className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 transition-colors hover:bg-indigo-100 hover:ring-indigo-300"
+            >
+              <SquarePen className="h-4 w-4" />
+              {t("overview.editEventDate")}
+            </button>
+          </div>
 
-          {/* Countdown — kalau ada tanggal di atasnya, jaraknya dirapatkan;
-              kalau tidak (mis. draft belum ada event_date), beri jarak lebih
-              lega dari judul supaya tidak mepet. */}
-          <WorkspaceCard className={cn("border-0 shadow-none xl:border xl:shadow-sm p-4 pt-3 sm:p-5 xl:p-0", eventDateLabel ? "xl:mt-4" : "xl:mt-16")}>
-            <p className="mb-3 text-center text-lg font-normal xl:hidden" style={{ color: "var(--semantic-border)" }}>
-              {eventDateLabel}
-            </p>
+          {/* Countdown — atau, saat tanggalnya sedang diubah, form tanggal & waktu acara. */}
+          <WorkspaceCard className={cn("border-0 shadow-none xl:border xl:shadow-sm p-4 pt-3 sm:p-5 xl:p-0", "xl:mt-4")}>
+            <div className="mb-3 flex flex-col items-center gap-2 xl:hidden">
+              <p className="text-lg font-normal" style={{ color: "var(--semantic-border)" }}>
+                {eventDateLabel || t("overview.eventDateEmpty")}
+              </p>
+              <button
+                type="button"
+                onClick={startEditingEventDate}
+                className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3.5 py-2 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 transition-colors hover:bg-indigo-100 active:bg-indigo-100"
+              >
+                <SquarePen className="h-4 w-4" />
+                {t("overview.editEventDate")}
+              </button>
+            </div>
+
+            {isEditingEventDate ? (
+              <form onSubmit={saveEventDate} className="space-y-3 xl:p-5">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="event-date" className="mb-1.5 block text-xs font-medium text-zinc-600">
+                      {t("overview.eventDateLabel")}
+                    </label>
+                    <Input
+                      id="event-date"
+                      type="date"
+                      value={eventDateDraft}
+                      onChange={(e) => { setEventDateDraft(e.target.value); setEventDateError(null) }}
+                      disabled={isSavingEventDate}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="event-time" className="mb-1.5 block text-xs font-medium text-zinc-600">
+                      {t("overview.eventTimeLabel")}
+                    </label>
+                    <Input
+                      id="event-time"
+                      type="time"
+                      value={eventTimeDraft}
+                      onChange={(e) => setEventTimeDraft(e.target.value)}
+                      disabled={isSavingEventDate}
+                    />
+                  </div>
+                </div>
+
+                {eventDateError && <p className="text-xs text-red-500">{eventDateError}</p>}
+
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsEditingEventDate(false)}
+                    disabled={isSavingEventDate}
+                    className="shadow-none"
+                  >
+                    {t("overview.cancel")}
+                  </Button>
+                  <Button type="submit" disabled={isSavingEventDate} className="gap-2">
+                    {isSavingEventDate && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {t("overview.save")}
+                  </Button>
+                </div>
+              </form>
+            ) : (
             <div className="grid grid-cols-4 xl:h-[136px]">
               {[
                 { key: "days",    value: countdown.days },
@@ -274,6 +390,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                 </div>
               ))}
             </div>
+            )}
           </WorkspaceCard>
 
           {/* Divider — mobile only, desktop pakai xl:mt-8 di section berikutnya */}

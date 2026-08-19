@@ -17,6 +17,7 @@ import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.
 import { useEditorDirty } from "@/contexts/EditorDirtyContext"
 import { ALL_FONTS, getGoogleFontsUrl } from "@/lib/fonts"
 import { ACCEPTED_IMAGE_TYPES, toDisplayableImage } from "@/lib/heic"
+import { buildEventTime, formatDateId } from "@/lib/event-time"
 import {
   buildInvitationHtml,
   DEFAULT_DESKTOP_BACKGROUND,
@@ -407,12 +408,9 @@ function TextField({ value, onChange, placeholder, max = 100 }: {
 
 // ── Main Editor ───────────────────────────────────────────────────────────────
 
-const DAYS_ID = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"]
+// Month names for the "Last modified" stamp. (The event-date formatter that also used
+// these now lives in @/lib/event-time, shared with the invitation dashboard.)
 const MONTHS_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
-function formatDateId(iso: string) {
-  const d = new Date(iso + "T00:00:00")
-  return `${DAYS_ID[d.getDay()]}, ${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`
-}
 
 function formatLastModified(dateStr: string) {
   const date = new Date(dateStr)
@@ -690,12 +688,16 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
       return
     }
 
+    const eventTime = buildEventTime(userData)
+
     saveInvitation({
       name: name,
       slug: slug,
       fieldValues: userData,
       status: detail.status,
       template: updatedTemplate,
+      // Only sent once there's a date to derive it from — see buildEventTime.
+      ...(eventTime ? { eventTime } : {}),
     }, {
       onSuccess: () => {
         setSavedSnapshot(JSON.stringify({ name, userData, theme, sectionOrder }))
