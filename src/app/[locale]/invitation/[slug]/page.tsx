@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { setRequestLocale } from "next-intl/server"
 import { InvitationViewer } from "@/components/invitation/InvitationViewer"
 import { getUserInvitationContent } from "@/lib/api/user-invitation/user-invitation.service"
-import { buildInvitationHtml, DEFAULT_DESKTOP_BACKGROUND } from "@/lib/invitation-preview"
+import { buildInvitationHtml, DEFAULT_DESKTOP_BACKGROUND, DESKTOP_BACKGROUND_FIELD_KEY } from "@/lib/invitation-preview"
 import type { UserInvitationContent } from "@/lib/api/user-invitation/user-invitation.types"
 
 // Guests must always see the couple's latest published content, so this is never
@@ -65,7 +65,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
   return (
     <InvitationViewer
       html={html}
-      background={template.theme_defaults.backgroundImage || DEFAULT_DESKTOP_BACKGROUND}
+      background={fieldValues[DESKTOP_BACKGROUND_FIELD_KEY] || DEFAULT_DESKTOP_BACKGROUND}
       userInvitationId={invitation.id}
       guestInvitationId={guestInvitationId}
       locale={locale}

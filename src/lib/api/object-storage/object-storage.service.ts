@@ -1,5 +1,10 @@
 import { http } from "../http"
-import { ObjectCategory, PresignedUploadRequest, PresignedUploadResponse } from "./object-storage.types"
+import {
+  ObjectCategory,
+  PresignedUploadRequest,
+  PresignedUploadResponse,
+  PresignedUserInvitationContentUploadRequest,
+} from "./object-storage.types"
 
 function authHeader(): Record<string, string> {
   const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
@@ -12,6 +17,17 @@ export const getPresignedUploadUrl = async (
   data: PresignedUploadRequest
 ): Promise<PresignedUploadResponse> => {
   return http("/api/v1/objects", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: authHeader(),
+  })
+}
+
+// Same handshake, but the dedicated endpoint for photos belonging to one invitation.
+export const getPresignedUserInvitationContentUploadUrl = async (
+  data: PresignedUserInvitationContentUploadRequest
+): Promise<PresignedUploadResponse> => {
+  return http("/api/v1/objects/user-invitation-contents", {
     method: "POST",
     body: JSON.stringify(data),
     headers: authHeader(),
@@ -39,31 +55,48 @@ async function putToPresignedUrl(presigned: PresignedUploadResponse, file: File)
   }
 }
 
-// The API returns a presigned PUT url but no public url. Objects are uploaded with
-// `public-read`, so the permanent url is that same url minus the signature query
-// string. Deriving it this way keeps the bucket right across environments (staging
+// Prefer the url the API states outright. Where it doesn't return one, objects are
+// uploaded `public-read`, so the permanent url is the presigned url minus its signature
+// query string. Deriving it that way keeps the bucket right across environments (staging
 // uploads to `.../temp/...`, production to `.../momenia/...`) instead of hardcoding one.
 function publicUrlFrom(presigned: PresignedUploadResponse): string {
-  return presigned.presignedUrl.split("?")[0]
+  return presigned.publicUrl || presigned.presignedUrl.split("?")[0]
+}
+
+function metadataFor(file: File) {
+  return {
+    originalName: file.name,
+    size: String(file.size),
+    uploadAt: new Date().toISOString(),
+  }
 }
 
 // Orchestrator — returns the permanent object URL to store in fieldValues.
-export const uploadImage = async (
-  file: File,
-  category: ObjectCategory = "user-invitation-content"
-): Promise<string> => {
+export const uploadImage = async (file: File, category: ObjectCategory): Promise<string> => {
   const presigned = await getPresignedUploadUrl({
     category,
     contentType: file.type || "image/jpeg",
-    metadata: {
-      originalName: file.name,
-      size: String(file.size),
-      uploadAt: new Date().toISOString(),
-    },
+    metadata: metadataFor(file),
   })
 
   // Only reached if the PUT succeeded — putToPresignedUrl throws on a non-2xx, so a
   // failed upload never returns a url that would get saved onto the invitation.
+  await putToPresignedUrl(presigned, file)
+
+  return publicUrlFrom(presigned)
+}
+
+// Photos edited into one invitation (cover, couple portraits, desktop wallpaper, …).
+export const uploadUserInvitationContent = async (
+  file: File,
+  userInvitationId: string
+): Promise<string> => {
+  const presigned = await getPresignedUserInvitationContentUploadUrl({
+    userInvitationId,
+    contentType: file.type || "image/jpeg",
+    metadata: metadataFor(file),
+  })
+
   await putToPresignedUrl(presigned, file)
 
   return publicUrlFrom(presigned)

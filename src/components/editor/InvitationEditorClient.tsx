@@ -11,7 +11,7 @@ import {
   Search, Star, Users, Upload, Play, X, CheckCircle2, Check,
 } from "lucide-react"
 import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
-import { uploadImage } from "@/lib/api/object-storage/object-storage.service"
+import { uploadUserInvitationContent } from "@/lib/api/object-storage/object-storage.service"
 import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
 import { useEditorDirty } from "@/contexts/EditorDirtyContext"
@@ -20,6 +20,7 @@ import { ACCEPTED_IMAGE_TYPES, toDisplayableImage } from "@/lib/heic"
 import {
   buildInvitationHtml,
   DEFAULT_DESKTOP_BACKGROUND,
+  DESKTOP_BACKGROUND_FIELD_KEY,
   DESKTOP_CARD_WIDTH,
   openInvitationPreview,
   type ThemeDefaults,
@@ -45,7 +46,7 @@ type HistoryState = {
 
 // ── Image upload ─────────────────────────────────────────────────────────────
 
-function UploadDropzone({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function UploadDropzone({ value, onChange, invitationId }: { value: string; onChange: (v: string) => void; invitationId: string }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [converting, setConverting] = useState(false)
@@ -81,7 +82,7 @@ function UploadDropzone({ value, onChange }: { value: string; onChange: (v: stri
     setPendingImage(null)
     setLoading(true)
     try {
-      const url = await uploadImage(croppedFile, "user-invitation-content")
+      const url = await uploadUserInvitationContent(croppedFile, invitationId)
       onChange(url)
       toast("Image uploaded successfully", "success")
     } catch (err) {
@@ -668,9 +669,13 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     const order: string[] = []
     const bySection = new Map<string, typeof template.schema.fields>()
     for (const f of template.schema.fields) {
+      // The desktop wallpaper is page-wide rather than one section's content, so it's
+      // pulled out here and rendered as its own card below the section groups instead.
+      if (f.key === DESKTOP_BACKGROUND_FIELD_KEY) continue
       if (!bySection.has(f.section)) { bySection.set(f.section, []); order.push(f.section) }
       bySection.get(f.section)!.push(f)
     }
+
     return order.map((sectionId) => ({
       sectionId,
       label: SECTION_LABELS[sectionId] ?? sectionId.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
@@ -706,6 +711,15 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
       return idxA - idxB
     })
   }, [groups, activePageSectionTypeIds, activePage, sectionOrder, template.pages, activePageIdx])
+
+  // The desktop wallpaper is a platform-wide feature rather than per-template content, so the
+  // editor always offers it on its own card — templates don't have to declare it in their
+  // schema.json, which also means it reaches invitations created before the field existed.
+  // A template that *does* declare it just gets to customise the label.
+  const desktopBackgroundField = useMemo(
+    () => template.schema.fields.find((f) => f.key === DESKTOP_BACKGROUND_FIELD_KEY),
+    [template.schema.fields]
+  )
 
   const swatch = (key: keyof ThemeDefaults, label: string) => (
     <div className="flex items-center justify-between">
@@ -946,7 +960,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                     className="absolute overflow-hidden"
                     style={{
                       ...LAPTOP_SCREEN_INSET,
-                      backgroundImage: `url('${theme.backgroundImage || DEFAULT_DESKTOP_BACKGROUND}')`,
+                      backgroundImage: `url('${userData[DESKTOP_BACKGROUND_FIELD_KEY] || DEFAULT_DESKTOP_BACKGROUND}')`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       backgroundRepeat: "no-repeat",
@@ -993,7 +1007,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                   <div key={field.key}>
                     <FieldLabel>{field.label}{field.required && <span className="ml-0.5 text-indigo-500">*</span>}</FieldLabel>
                     {field.type === "image" ? (
-                      <UploadDropzone value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} />
+                      <UploadDropzone value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} invitationId={invitationId} />
                     ) : field.type === "date" ? (
                       <input type="date" value={userData[field.key] ?? ""} onChange={(e) => handleFieldChange(field.key, e.target.value)}
                         className="w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
@@ -1009,6 +1023,26 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 ))}
               </Section>
             ))}
+
+            {/* Page-wide wallpaper, not any one section's content — so it gets its own card
+                rather than living inside a section group. Shown only on the first page since
+                it applies to the whole invitation; repeating it per page would just be noise. */}
+            {activePageIdx === 0 && (
+              <Section
+                title={desktopBackgroundField?.label || "Background Desktop"}
+                defaultOpen={false}
+                icon={<span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100"><Monitor className="h-4 w-4 text-indigo-600" /></span>}
+              >
+                <p className="-mt-2 mb-1 text-xs text-zinc-400">
+                  Tampil di belakang undangan saat dibuka lewat layar desktop.
+                </p>
+                <UploadDropzone
+                  value={userData[DESKTOP_BACKGROUND_FIELD_KEY] ?? ""}
+                  onChange={(v) => handleFieldChange(DESKTOP_BACKGROUND_FIELD_KEY, v)}
+                  invitationId={invitationId}
+                />
+              </Section>
+            )}
           </div>
         </div>
       </div>

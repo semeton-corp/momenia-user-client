@@ -7,10 +7,16 @@ import { getGoogleFontsUrl } from "@/lib/fonts"
 export const PREVIEW_STORAGE_KEY = "momenia_preview"
 
 // Fallback wallpaper for the desktop-width surround around the phone-shaped invitation,
-// used whenever a theme doesn't set its own backgroundImage. One shared constant so the
-// public invitation page, this renderer, and the editor's desktop preview toggle can't
-// drift out of sync on the path.
+// used whenever a template doesn't set its own. One shared constant so the public
+// invitation page, this renderer, and the editor's desktop preview toggle can't drift
+// out of sync on the path.
 export const DEFAULT_DESKTOP_BACKGROUND = "/background-default-desktop.png"
+
+// Reserved schema-field key: a template opts into a custom desktop wallpaper by
+// declaring an image field with exactly this key (e.g. `{ key: "desktop_background",
+// type: "image", ... }` in template.schema.fields). Its value then flows through
+// fieldValues/userData like any other field — no separate theme plumbing needed.
+export const DESKTOP_BACKGROUND_FIELD_KEY = "desktop_background"
 
 // Card width for every "phone-on-a-desktop-wallpaper" preview — the public invitation
 // page, /preview, and the editor's Desktop toggle. Deliberately stays well under 768px:
@@ -134,7 +140,7 @@ ${allCss}
   }
   html {
     background-color: #1a1a1a;
-    background-image: url('${theme.backgroundImage || DEFAULT_DESKTOP_BACKGROUND}');
+    background-image: url('${userData[DESKTOP_BACKGROUND_FIELD_KEY] || DEFAULT_DESKTOP_BACKGROUND}');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
