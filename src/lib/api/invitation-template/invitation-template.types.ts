@@ -113,5 +113,4 @@ export type GetFavouritesParams = {
   sortField?: "createdAt" | "price"
   cursor?: string
   keyword?: string
-  tagsIds?: number[]
 }
