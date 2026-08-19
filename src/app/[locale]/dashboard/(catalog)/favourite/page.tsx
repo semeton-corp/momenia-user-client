@@ -3,28 +3,34 @@
 import * as React from "react"
 import Image from "next/image"
 import { useTranslations, useLocale } from "next-intl"
-import { cn, formatLabel } from "@/lib/utils"
+import { formatLabel } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
-import { SortDropdown } from "@/components/dashboard/SortDropdown"
+import { SortFilterDropdown, type SortFilterOption } from "@/components/dashboard/SortFilterDropdown"
 import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
 import { TemplateCardSkeleton } from "@/components/dashboard/TemplateCardSkeleton"
 import { TemplateDetailModal, type TemplateDetail } from "@/components/dashboard/TemplateDetailModal"
 import { UnfavouriteConfirmDialog } from "@/components/dashboard/favourite/UnfavouriteConfirmDialog"
-import { useFavouriteTemplates, useFavouriteTemplateTags, useInvitationTemplateDetail, useToggleFavourite } from "@/hooks/useInvitationTemplates"
-import { templateCategoryName, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import {
+  useFavouriteTemplates,
+  useFavouriteTemplateTags,
+  useInvitationTemplateDetail,
+  useTemplateTagsByIds,
+  useToggleFavourite,
+} from "@/hooks/useInvitationTemplates"
+import { templateCategoryName, type GetFavouritesParams, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
 import EmptyFolderIllustration from "@/assets/empty-states/empty-folder.svg"
 
-type SortKey = "recent" | "priceLow" | "priceHigh"
-const SORTS: SortKey[] = ["recent", "priceLow", "priceHigh"]
-
-// Map opsi sort UI ke param endpoint favourites (semua diurutkan server-side).
-const SORT_PARAMS: Record<SortKey, { sortField: "createdAt" | "price"; sortOrder: "asc" | "desc" }> = {
-  recent: { sortField: "createdAt", sortOrder: "desc" },
-  priceLow: { sortField: "price", sortOrder: "asc" },
-  priceHigh: { sortField: "price", sortOrder: "desc" },
-}
+// Sama seperti dropdown sort di katalog utama dashboard: "Time/Price" + "Ascending/Descending".
+const SORT_FIELD_OPTIONS: { value: NonNullable<GetFavouritesParams["sortField"]>; key: string }[] = [
+  { value: "createdAt", key: "time" },
+  { value: "price", key: "price" },
+]
+const SORT_ORDER_OPTIONS: { value: NonNullable<GetFavouritesParams["sortOrder"]>; key: string }[] = [
+  { value: "asc", key: "ascending" },
+  { value: "desc", key: "descending" },
+]
 
 type FavCard = {
   id: string
@@ -52,11 +58,13 @@ function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): Temp
 
 export default function FavouritePage() {
   const t = useTranslations("dashboard.favourite")
+  const tBanner = useTranslations("dashboard.banner")
   const locale = useLocale()
   const [selectedTagId, setSelectedTagId] = React.useState<number | null>(null)
   const [search, setSearch] = React.useState("")
   const [debouncedSearch, setDebouncedSearch] = React.useState("")
-  const [sort, setSort] = React.useState<SortKey>("recent")
+  const [sortField, setSortField] = React.useState<NonNullable<GetFavouritesParams["sortField"]>>("createdAt")
+  const [sortOrder, setSortOrder] = React.useState<NonNullable<GetFavouritesParams["sortOrder"]>>("desc")
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
   // Item yang menunggu konfirmasi hapus dari favorit (null = dialog tertutup).
   const [pendingUnfav, setPendingUnfav] = React.useState<{ id: string; name: string } | null>(null)
@@ -68,12 +76,14 @@ export default function FavouritePage() {
 
   const { data: tags = [] } = useFavouriteTemplateTags()
 
-  // Tag (tagsIds), keyword, dan sort semuanya difilter/diurutkan server-side.
+  // Keyword & sort tetap server-side (endpoint mendukungnya). Filter tag TIDAK
+  // dikirim ke server — backend bilang endpoint /favourites belum bisa filter tag,
+  // jadi itu ditangani manual di bawah lewat useTemplateTagsByIds.
   const { data: favouritesData, isLoading, isError } = useFavouriteTemplates({
-    pageSize: 20,
-    ...SORT_PARAMS[sort],
+    pageSize: 100,
+    sortField,
+    sortOrder,
     keyword: debouncedSearch || undefined,
-    tagsIds: selectedTagId != null ? [selectedTagId] : undefined,
   })
   const { data: detailData, isLoading: isDetailLoading } = useInvitationTemplateDetail(selectedId)
   const { mutate: toggleFavourite } = useToggleFavourite()
@@ -87,6 +97,18 @@ export default function FavouritePage() {
     mobileThumbnail: tpl.mobileThumbnail,
     isUserFavorite: tpl.isUserFavorite,
   }))
+
+  // Filter tag di FE: ambil detail (yang membawa `tags`) tiap kartu yang sedang
+  // tampil, cuma waktu ada tag terpilih (biar tidak boros request pas "All saved").
+  const isTagFilterActive = selectedTagId !== null
+  const tagQueries = useTemplateTagsByIds(
+    realCards.map((c) => c.id),
+    isTagFilterActive,
+  )
+  const isTagFilterLoading = isTagFilterActive && tagQueries.some((q) => q.isLoading)
+  const cards = isTagFilterActive
+    ? realCards.filter((_, idx) => tagQueries[idx]?.data?.tags.some((tag) => tag.id === selectedTagId) ?? false)
+    : realCards
 
   const selectedTemplate = detailData ? mapToTemplateDetail(detailData, locale) : null
 
@@ -108,13 +130,26 @@ export default function FavouritePage() {
     setPendingUnfav(null)
   }
 
-  const sortControl = (sizeClass: string) => (
-    <SortDropdown
-      value={sort}
-      onChange={(v) => setSort(v as SortKey)}
-      options={SORTS.map((s) => ({ value: s, label: t(`sort.${s}`) }))}
-      title={t("sortBy")}
-      className={cn("shrink-0", sizeClass)}
+  const sortFieldOptions: SortFilterOption[] = SORT_FIELD_OPTIONS.map((o) => ({
+    value: o.value,
+    label: tBanner(`sortFieldOptions.${o.key}`),
+  }))
+  const sortOrderOptions: SortFilterOption[] = SORT_ORDER_OPTIONS.map((o) => ({
+    value: o.value,
+    label: tBanner(`sortOrderOptions.${o.key}`),
+  }))
+
+  const sortControl = (triggerClassName: string) => (
+    <SortFilterDropdown
+      label={tBanner("sort")}
+      title={tBanner("sortBy")}
+      fieldValue={sortField}
+      fieldOptions={sortFieldOptions}
+      onFieldChange={(v) => setSortField(v as NonNullable<GetFavouritesParams["sortField"]>)}
+      orderValue={sortOrder}
+      orderOptions={sortOrderOptions}
+      onOrderChange={(v) => setSortOrder(v as NonNullable<GetFavouritesParams["sortOrder"]>)}
+      triggerClassName={triggerClassName}
     />
   )
 
@@ -184,7 +219,7 @@ export default function FavouritePage() {
 
       {/* ── Grid ── */}
       <div className="mt-6 xl:mt-8">
-        {isLoading ? (
+        {isLoading || isTagFilterLoading ? (
           <div className={gridClass}>
             {Array.from({ length: 12 }).map((_, i) => (
               <TemplateCardSkeleton key={i} />
@@ -194,7 +229,7 @@ export default function FavouritePage() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="text-base text-zinc-400">{t("loadError")}</p>
           </div>
-        ) : realCards.length === 0 ? (
+        ) : cards.length === 0 ? (
           <div className="mx-auto flex w-full max-w-[448px] flex-col items-center gap-6 py-10 text-center">
             <Image src={EmptyFolderIllustration} alt="" className="h-[151px] w-[188px] xl:h-auto xl:w-64" priority />
             <div className="flex flex-col gap-3">
@@ -207,7 +242,7 @@ export default function FavouritePage() {
           </div>
         ) : (
           <div className={gridClass}>
-            {realCards.map((tpl) => (
+            {cards.map((tpl) => (
               <TemplateCard
                 key={tpl.id}
                 id={tpl.id}

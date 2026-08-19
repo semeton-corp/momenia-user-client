@@ -65,6 +65,10 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   // component still goes through — reading it there would mismatch on hydration.
   const [origin, setOrigin] = React.useState("")
   React.useEffect(() => { setOrigin(window.location.origin) }, [])
+  // Prefix link publik yang benar-benar berfungsi: {origin saat ini}/{locale}/invitation/
+  // — ikut domain apa pun app-nya lagi jalan (staging/prod/localhost), dan match rute
+  // asli di src/app/[locale]/invitation/[slug]/page.tsx.
+  const invitationUrlPrefix = `${origin}/${locale}/invitation/`
 
   const basePath = `/dashboard/my-invitation/${invitationId}`
 
@@ -244,7 +248,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/${locale}/invitation/${slug}`)
+      await navigator.clipboard.writeText(`${invitationUrlPrefix}${slug}`)
       toast(t("overview.linkCopiedToast"), "success")
     } catch {
       toast(t("overview.actionError"), "error")
@@ -477,7 +481,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             {isEditingLink ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 text-sm text-zinc-500">https://www.momenia.id/</span>
+                  <span className="shrink-0 whitespace-nowrap text-sm text-zinc-500">{invitationUrlPrefix}</span>
                   <div className="relative flex-1">
                     <Input
                       value={slugDraft}
@@ -520,8 +524,8 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             ) : (
               <>
                 <div className="flex overflow-hidden rounded-xl border border-zinc-200 shadow-sm xl:h-[60px] xl:items-center xl:rounded-lg xl:px-3 xl:gap-3">
-                  <span className="flex shrink-0 items-center border-r border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:w-[196px] xl:justify-center xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:px-3">
-                      https://www.momenia.id/
+                  <span className="flex shrink-0 items-center whitespace-nowrap border-r border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:px-3">
+                      {invitationUrlPrefix}
                   </span>
                   <span className="flex min-w-0 flex-1 items-center truncate px-2 py-3 text-xs text-zinc-800 sm:px-3 sm:text-sm xl:text-base xl:font-normal xl:px-2">
                     {slug}
