@@ -8,7 +8,7 @@ import DesktopFrame from "@/assets/dashboard/laptop.png"
 import {
   Pencil, Type, Palette, Music, ListOrdered, GripVertical, ChevronDown,
   ChevronLeft, ChevronRight, Undo2, Redo2, Eye, Save, Smartphone, Monitor, Plus, Minus,
-  Search, Star, Users, Upload, Play, X, CheckCircle2, Check,
+  Search, Star, Users, Upload, Play, X, CheckCircle2, Check, Maximize2, Minimize2,
 } from "lucide-react"
 import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
 import { uploadUserInvitationContent } from "@/lib/api/object-storage/object-storage.service"
@@ -151,6 +151,18 @@ export type PreviewFrameHandle = {
 // area. Content longer than this scrolls inside the frame instead of growing it.
 const VIEWPORT_W = 375
 const VIEWPORT_H = 812
+
+// Share of the screen height the phone may occupy on a narrow viewport, clamped so it
+// stays sane on both a small SE and a tall Pro Max. Leaves room for the tabs and the top
+// of the panel below, so the page doesn't open already needing a scroll to find them.
+const MOBILE_PREVIEW_H_RATIO = 0.42
+const MOBILE_PREVIEW_H_MIN = 260
+const MOBILE_PREVIEW_H_MAX = 420
+
+// Everything stacked around the phone when the preview is expanded: the workspace header
+// (60) and bottom nav (90), the editor's own padding and title row (~90), plus the pager
+// and control row inside the preview card (~110). What's left is the phone's to use.
+const MOBILE_PREVIEW_CHROME_H = 350
 
 // laptop.png's intrinsic size and the percentage insets of its transparent "screen"
 // cutout — same inset values TemplateDetailModal.tsx uses to fit a screenshot into this
@@ -445,8 +457,46 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   // the same phone-width card, left-aligned, over the theme's wallpaper. "Mobile" is
   // today's plain centered mockup, matching how it fills a guest's actual phone screen.
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
+  // Mobile-only chrome. On lg+ both panels are always visible side by side, so neither of
+  // these is ever read there — every consumer is guarded by an `lg:` class that wins.
+  const [mobilePanel, setMobilePanel] = useState<"design" | "content">("design")
+  const [isPreviewExpanded, setIsPreviewExpanded] = useState(false)
   const zoom = previewDevice === "desktop" ? desktopZoom : mobileZoom
   const setZoom = previewDevice === "desktop" ? setDesktopZoom : setMobileZoom
+
+  // Below lg there's no zoom control (no room for one), so the preview has to size itself
+  // to the screen instead — at the desktop default a 375x812 phone is taller than the whole
+  // viewport and gets cropped. Gated on a max-width query that can never match at lg+, so
+  // desktop keeps using its own zoom state untouched.
+  const [viewport, setViewport] = useState({ isNarrow: false, width: 0, height: 0 })
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)")
+    const update = () => setViewport({ isNarrow: mq.matches, width: window.innerWidth, height: window.innerHeight })
+    update()
+    mq.addEventListener("change", update)
+    window.addEventListener("resize", update)
+    return () => {
+      mq.removeEventListener("change", update)
+      window.removeEventListener("resize", update)
+    }
+  }, [])
+
+  const previewZoom = useMemo(() => {
+    if (!viewport.isNarrow) return zoom
+    // Page padding (16px each side) + preview panel padding (12px each side).
+    const available = Math.max(240, viewport.width - 56)
+    if (previewDevice === "desktop") return +(available / DESKTOP_MOCKUP_BASE_W).toFixed(3)
+    // Expanded hands the phone every pixel the surrounding chrome isn't using; otherwise
+    // it's capped so the tabs and panel below stay on screen.
+    const maxH = isPreviewExpanded
+      ? Math.max(MOBILE_PREVIEW_H_MIN, viewport.height - MOBILE_PREVIEW_CHROME_H)
+      : Math.min(
+          MOBILE_PREVIEW_H_MAX,
+          Math.max(MOBILE_PREVIEW_H_MIN, viewport.height * MOBILE_PREVIEW_H_RATIO),
+        )
+    // Fit whichever runs out first — width on a small phone, height on a tall one.
+    return +Math.min(available / VIEWPORT_W, maxH / VIEWPORT_H).toFixed(3)
+  }, [viewport, zoom, previewDevice, isPreviewExpanded])
   const dragIndexRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
   const previewRef = useRef<PreviewFrameHandle>(null)
@@ -734,7 +784,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   )
 
   return (
-    <div className="fixed inset-x-0 top-15 bottom-0 z-30 flex flex-col gap-4 overflow-hidden bg-zinc-50 p-4 sm:p-6 lg:left-24 lg:top-0">
+    // bottom-[90px]: the workspace layout's mobile nav is a 90px fixed bar at z-40, so
+    // without this the editor's own bottom row sits underneath it and can't be tapped.
+    <div className="fixed inset-x-0 top-15 bottom-[90px] z-30 flex flex-col gap-4 overflow-y-auto bg-zinc-50 p-4 sm:p-6 lg:left-24 lg:top-0 lg:bottom-0 lg:overflow-hidden">
       {/* ── Top bar ── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 pl-6">
@@ -769,8 +821,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         </div>
 
         {/* device toggle (center) — switches how the preview panel wraps the phone
-            mockup, not what gets saved; the invitation itself is always mobile-built. */}
-        <div className="flex items-center gap-1 rounded-xl bg-indigo-100 p-1">
+            mockup, not what gets saved; the invitation itself is always mobile-built.
+            Mobile shows this under the preview instead, where there's room for it. */}
+        <div className="hidden items-center gap-1 rounded-xl bg-indigo-100 p-1 lg:flex">
           <button
             onClick={() => setPreviewDevice("mobile")}
             className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -789,8 +842,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           </button>
         </div>
 
-        {/* actions */}
-        <div className="flex items-center gap-2">
+        {/* actions — undo/redo move under the preview on mobile, Preview/Save into the
+            bottom action bar, so this whole row is desktop-only. */}
+        <div className="hidden items-center gap-2 lg:flex">
           <button onClick={handleUndo} disabled={!canUndo} aria-label="Undo" title={canUndo ? "Undo" : "Nothing to undo"}
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed">
             <Undo2 className="h-4 w-4" />
@@ -815,16 +869,44 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         </div>
       </div>
 
-      {/* ── 3-column body ── */}
-      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[320px_minmax(0,1fr)_340px]">
+      {/* ── Body: stacked + tabbed on mobile, 3 columns from lg up ──
+          Panels are rendered once and repositioned with `order`, never duplicated per
+          breakpoint — a second copy would mount a second PreviewFrame, i.e. a second
+          iframe loading the whole invitation again and racing the first one's messages. */}
+      <div className="flex flex-col gap-4 lg:grid lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)_340px]">
+
+        {/* ── Mobile tab switch (Design | Content) ──
+            Desktop shows both panels at once, so this is mobile-only chrome. */}
+        {!isPreviewExpanded && (
+          <div className="order-2 flex shrink-0 gap-1 rounded-2xl border border-zinc-200 bg-white p-1 lg:hidden">
+            {(["design", "content"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setMobilePanel(tab)}
+                aria-pressed={mobilePanel === tab}
+                className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold capitalize transition-colors ${
+                  mobilePanel === tab ? "bg-indigo-100 text-indigo-700" : "text-zinc-500"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ── LEFT: Design ── */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <div className="border-b border-zinc-100 px-5 py-4">
+        <div
+          className={`order-3 min-h-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white lg:order-none lg:flex ${
+            !isPreviewExpanded && mobilePanel === "design" ? "flex" : "hidden"
+          }`}
+        >
+          {/* Header is redundant on mobile — the tab above already says "Design". */}
+          <div className="hidden border-b border-zinc-100 px-5 py-4 lg:block">
             <h2 className="text-lg font-bold text-zinc-900">Design</h2>
             <p className="text-sm text-zinc-400">Customize the look and feel</p>
           </div>
-          <div className="flex-1 space-y-3 overflow-y-auto p-4">
+          <div className="space-y-3 p-4 lg:flex-1 lg:overflow-y-auto">
             <Section title="Typography" icon={<Type className="h-4 w-4 text-indigo-500" />}>
               <div>
                 <FieldLabel>Heading Font</FieldLabel>
@@ -911,8 +993,8 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           </div>
         </div>
 
-        {/* ── CENTER: Preview ── */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
+        {/* ── CENTER: Preview ── (first on mobile, middle column from lg up) */}
+        <div className={`order-1 flex shrink-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 lg:order-none lg:min-h-0 lg:flex-1 lg:shrink ${isPreviewExpanded ? "flex-1" : ""}`}>
           {/* pager */}
           <div className="flex shrink-0 items-center justify-center gap-1 border-b border-zinc-100 bg-white py-3 text-sm">
             <button disabled={activePageIdx === 0} onClick={() => setActivePageIdx((i) => Math.max(0, i - 1))}
@@ -937,7 +1019,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               Mobile mode is unchanged: centered, padded, on the panel's plain gray. */}
           <div
             ref={previewScrollRef}
-            className="flex flex-1 items-center justify-center overflow-auto p-6"
+            className="flex items-center justify-center overflow-auto p-3 lg:flex-1 lg:p-6"
           >
             {previewDevice === "desktop" ? (
               // Outer box carries the *scaled* size so flex-centering and scrolling see
@@ -945,14 +1027,14 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               // size, which would push everything around it.
               <div
                 className="shrink-0"
-                style={{ width: DESKTOP_MOCKUP_BASE_W * zoom, height: DESKTOP_MOCKUP_BASE_H * zoom }}
+                style={{ width: DESKTOP_MOCKUP_BASE_W * previewZoom, height: DESKTOP_MOCKUP_BASE_H * previewZoom }}
               >
                 <div
                   className="relative"
                   style={{
                     width: DESKTOP_MOCKUP_BASE_W,
                     height: DESKTOP_MOCKUP_BASE_H,
-                    transform: `scale(${zoom})`,
+                    transform: `scale(${previewZoom})`,
                     transformOrigin: "top left",
                   }}
                 >
@@ -966,18 +1048,62 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                       backgroundRepeat: "no-repeat",
                     }}
                   >
-                    <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} device={previewDevice} onPageChange={handlePreviewPageChange} />
+                    <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={previewZoom} device={previewDevice} onPageChange={handlePreviewPageChange} />
                   </div>
                   <Image src={DesktopFrame} alt="" fill className="pointer-events-none object-contain" priority />
                 </div>
               </div>
             ) : (
-              <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={zoom} device={previewDevice} onPageChange={handlePreviewPageChange} />
+              <PreviewFrame ref={previewRef} html={html} userData={userData} theme={theme} activePage={activePage} zoom={previewZoom} device={previewDevice} onPageChange={handlePreviewPageChange} />
             )}
           </div>
 
+          {/* Mobile-only controls: the device toggle and undo/redo that live in the top
+              bar on desktop, plus a toggle that gives the preview the whole screen. */}
+          <div className="flex shrink-0 items-center justify-between gap-2 px-3 py-3 lg:hidden">
+            <div className="flex items-center gap-1 rounded-xl bg-indigo-100 p-1">
+              <button
+                onClick={() => setPreviewDevice("mobile")}
+                aria-label="Mobile preview"
+                className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                  previewDevice === "mobile" ? "bg-white text-indigo-700 shadow-sm" : "text-indigo-600/70"
+                }`}
+              >
+                <Smartphone className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setPreviewDevice("desktop")}
+                aria-label="Desktop preview"
+                className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                  previewDevice === "desktop" ? "bg-white text-indigo-700 shadow-sm" : "text-indigo-600/70"
+                }`}
+              >
+                <Monitor className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button onClick={handleUndo} disabled={!canUndo} aria-label="Undo"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 disabled:opacity-40">
+                <Undo2 className="h-4 w-4" />
+              </button>
+              <button onClick={handleRedo} disabled={!canRedo} aria-label="Redo"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 disabled:opacity-40">
+                <Redo2 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setIsPreviewExpanded((v) => !v)}
+                aria-label={isPreviewExpanded ? "Exit fullscreen preview" : "Fullscreen preview"}
+                aria-pressed={isPreviewExpanded}
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white"
+              >
+                {isPreviewExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
           {/* zoom — each device mode tracks (and remembers) its own level. */}
-          <div className="flex shrink-0 items-center justify-center py-3">
+          <div className="hidden shrink-0 items-center justify-center py-3 lg:flex">
             <div className="flex items-center gap-3 rounded-full border border-zinc-200 bg-white px-4 py-2 shadow-sm">
               <button onClick={() => setZoom((z) => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Plus className="h-4 w-4" /></button>
               <span className="flex items-center gap-1 text-sm font-medium text-zinc-600"><Search className="h-3.5 w-3.5" />{Math.round(zoom * 100)}%</span>
@@ -987,12 +1113,17 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         </div>
 
         {/* ── RIGHT: Content ── */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <div className="border-b border-zinc-100 px-5 py-4">
+        <div
+          className={`order-3 min-h-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white lg:order-none lg:flex ${
+            !isPreviewExpanded && mobilePanel === "content" ? "flex" : "hidden"
+          }`}
+        >
+          {/* Header is redundant on mobile — the tab above already says "Content". */}
+          <div className="hidden border-b border-zinc-100 px-5 py-4 lg:block">
             <h2 className="text-lg font-bold text-zinc-900">Content</h2>
             <p className="text-sm text-zinc-400">Update content and setting</p>
           </div>
-          <div className="flex-1 space-y-3 overflow-y-auto p-4">
+          <div className="space-y-3 p-4 lg:flex-1 lg:overflow-y-auto">
             {visibleGroups.map((group, gi) => (
               <Section
                 key={group.sectionId}
@@ -1045,6 +1176,30 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             )}
           </div>
         </div>
+
+        {/* ── Mobile action bar ──
+            Desktop keeps these in the top bar; on mobile that row has no space left, so
+            they move down here. Same handlers — only the placement differs. */}
+        {!isPreviewExpanded && (
+          <div className="order-4 flex shrink-0 items-center gap-3 lg:hidden">
+            <button
+              onClick={() =>
+                openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage })
+              }
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700"
+            >
+              <Eye className="h-4 w-4" />Preview
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {isSaving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Save className="h-4 w-4" />}
+              Save
+            </button>
+          </div>
+        )}
       </div>
 
       {unsavedState && (
