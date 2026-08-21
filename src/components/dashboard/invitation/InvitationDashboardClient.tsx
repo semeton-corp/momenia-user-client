@@ -354,8 +354,14 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
     <div className="space-y-6">
       <div className="grid gap-8 xl:gap-20 xl:grid-cols-[336px_minmax(0,1fr)] xl:mt-6">
 
+        {/* min-w-0 di kedua anak grid ini WAJIB ada: tanpa itu, grid/flex item secara
+            default punya min-width:auto (ikut lebar konten terdalamnya), jadi teks
+            panjang di manapun di dalam sini (mis. domain link undangan) bisa memaksa
+            kolom grid ini melebar dari viewport mobile — overflow-hidden di elemen
+            cucu jauh (span) TIDAK cukup menghentikan itu, harus di level anak grid
+            langsung seperti ini. */}
         {/* ── Left: Phone Preview ── */}
-        <div className="xl:ml-6">
+        <div className="min-w-0 xl:ml-6">
           <InvitationPhonePreview
             coverHtml={coverHtml}
             title={title}
@@ -376,7 +382,7 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
         </div>
 
         {/* ── Right: Content ── */}
-        <div className="flex flex-col gap-4 xl:gap-0">
+        <div className="min-w-0 flex flex-col gap-4 xl:gap-0">
 
           {/* Title — desktop only; di mobile judul & tanggal terwakili lewat foto preview.
               Pencil-nya dulu link ke halaman editor (redundan dengan kartu "Edit Template"
@@ -615,7 +621,13 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             {isEditingLink ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 whitespace-nowrap text-sm text-zinc-500">{invitationUrlPrefix}</span>
+                  {/* min-w-0/max-w/overflow-hidden HANYA untuk mobile — mencegah domain
+                      panjang (staging.momenia.id/...) memaksa row ini lebih lebar dari
+                      layar dan mendorong seluruh grid dashboard ke kanan (bug "ngezoom").
+                      Di xl: dibuka lagi jadi full-width tanpa terpotong, sesuai desktop. */}
+                  <span className="min-w-0 max-w-[40%] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-zinc-500 xl:max-w-none xl:overflow-visible xl:text-clip">
+                    {invitationUrlPrefix}
+                  </span>
                   <div className="relative flex-1">
                     <Input
                       value={slugDraft}
@@ -657,11 +669,18 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
               </div>
             ) : (
               <>
+                {/* Proporsi/border box balik seperti sebelumnya (domain max-w-[42%] +
+                    border-r, slug flex-1) — yang overflow-x-auto sekarang TEKSNYA
+                    masing-masing secara independen (di dalam box-nya sendiri), bukan
+                    seluruh row atau seluruh box ikut geser. Aman dari bug "ngezoom"
+                    karena overflow-x-auto (bukan visible) di tiap span + min-w-0 di dua
+                    anak grid utama (di atas) sama-sama menahan agar konten di sini
+                    tidak memaksa seluruh halaman melebar. */}
                 <div className="flex overflow-hidden rounded-xl border border-zinc-200 shadow-sm xl:h-[60px] xl:items-center xl:rounded-lg xl:px-3 xl:gap-3">
-                  <span className="flex shrink-0 items-center whitespace-nowrap border-r border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:px-3">
+                  <span className="flex min-w-0 max-w-[42%] shrink-0 items-center overflow-x-auto scrollbar-hide whitespace-nowrap border-r border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:max-w-none xl:overflow-visible xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:px-3">
                       {invitationUrlPrefix}
                   </span>
-                  <span className="flex min-w-0 flex-1 items-center truncate px-2 py-3 text-xs text-zinc-800 sm:px-3 sm:text-sm xl:text-base xl:font-normal xl:px-2">
+                  <span className="flex min-w-0 flex-1 items-center overflow-x-auto scrollbar-hide whitespace-nowrap px-2 py-3 text-xs text-zinc-800 sm:px-3 sm:text-sm xl:h-[44px] xl:overflow-visible xl:text-base xl:font-normal xl:px-2">
                     {slug}
                   </span>
                 </div>
