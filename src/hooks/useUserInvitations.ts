@@ -18,11 +18,11 @@ export const useUserInvitations = (params?: GetUserInvitationsParams) => {
     })
 }
 
-export const useUserInvitationDetail = (id: string) => {
+export const useUserInvitationDetail = (id: string, enabled = true) => {
     return useQuery({
         queryKey: ["user-invitation-detail", id],
         queryFn: () => getUserInvitationDetail(id),
-        enabled: !!id,
+        enabled: !!id && enabled,
     })
 }
 

@@ -585,6 +585,7 @@
         "invitationLink": "Invitation Link",
         "loadError": "Failed to load this invitation. Please check your connection.",
         "actionError": "Something went wrong. Please try again.",
+        "accessDeniedToast": "You don't have access to this invitation",
         "publishedToast": "Invitation published successfully",
         "activeUntilLabel": "Active until {date}",
         "slugRequired": "Invitation link is required",
@@ -593,6 +594,14 @@
         "slugAvailable": "This link is available",
         "linkUpdatedToast": "Invitation link updated successfully",
         "linkCopiedToast": "Link copied to clipboard",
+        "linkLockedToast": "This invitation is already published, the link can no longer be edited",
+        "linkLockedHint": "Published invitations can no longer change their link",
+        "publishDialog": {
+          "title": "Publish this invitation?",
+          "description": "Once published, the invitation link can no longer be edited. Make sure it's correct before continuing.",
+          "cancel": "Cancel",
+          "confirm": "Yes, Publish"
+        },
         "editEventDate": "Change Event Date",
         "eventDateTitle": "Event Date & Time",
         "eventDateLabel": "Event Date",

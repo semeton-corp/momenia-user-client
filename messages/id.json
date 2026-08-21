@@ -585,6 +585,7 @@
         "invitationLink": "Link Undangan",
         "loadError": "Gagal memuat undangan ini. Periksa koneksi kamu.",
         "actionError": "Terjadi kesalahan. Coba lagi.",
+        "accessDeniedToast": "Kamu tidak punya akses ke undangan ini",
         "publishedToast": "Undangan berhasil dipublish",
         "activeUntilLabel": "Aktif s/d {date}",
         "slugRequired": "Link undangan wajib diisi",
@@ -593,6 +594,14 @@
         "slugAvailable": "Link ini tersedia",
         "linkUpdatedToast": "Link undangan berhasil diperbarui",
         "linkCopiedToast": "Link berhasil disalin",
+        "linkLockedToast": "Undangan ini sudah dipublish, link tidak bisa diedit lagi",
+        "linkLockedHint": "Undangan yang sudah dipublish tidak bisa mengubah link lagi",
+        "publishDialog": {
+          "title": "Publish undangan ini?",
+          "description": "Setelah dipublish, link undangan tidak bisa diedit lagi. Pastikan sudah benar sebelum melanjutkan.",
+          "cancel": "Batal",
+          "confirm": "Ya, Publish"
+        },
         "editEventDate": "Ubah Tanggal Acara",
         "eventDateTitle": "Tanggal & Waktu Acara",
         "eventDateLabel": "Tanggal Acara",
