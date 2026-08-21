@@ -1,14 +1,16 @@
 "use client"
 
 import * as React from "react"
+import { notFound } from "next/navigation"
 import { BookOpenCheck, Check, Copy, Loader2, MessageSquareText, Palette, PencilLine, SquarePen, TableProperties, UserPlus, Users, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Link } from "@/i18n/navigation"
+import { Link, useRouter } from "@/i18n/navigation"
 import { DonutChart } from "@/components/dashboard/invitation/DonutChart"
 import { InvitationDashboardSkeleton } from "@/components/dashboard/invitation/InvitationDashboardSkeleton"
 import { InvitationPhonePreview } from "@/components/dashboard/invitation/InvitationPhonePreview"
+import { PublishConfirmDialog } from "@/components/dashboard/invitation/PublishConfirmDialog"
 import { WorkspaceActionCard } from "@/components/dashboard/invitation/WorkspaceActionCard"
 import { WorkspaceCard } from "@/components/dashboard/invitation/WorkspaceCard"
 import { typography } from "@/lib/typography"
@@ -16,6 +18,7 @@ import { cn, parseGoTimestamp } from "@/lib/utils"
 import { buildCoverPreviewHtml } from "@/lib/invitation-template/render-cover-preview"
 import { applyEventDateTime } from "@/lib/event-time"
 import { useCheckPathUrl, useUpdateUserInvitation, useUserInvitationDetail } from "@/hooks/useUserInvitations"
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { useToast } from "@/providers/ToastProvider"
 
 const INDIGO_DEEP = "#1F1B74"
@@ -39,17 +42,47 @@ type Props = {
 export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const t = useTranslations("dashboard.workspace")
   const { toast } = useToast()
+  const router = useRouter()
+  const { isLoggedIn, isLoading: isAuthLoading } = useCurrentUser()
 
-  const { data, isLoading, isError } = useUserInvitationDetail(invitationId)
+  // Belum login → lempar ke /login (rute ini sama sekali tidak dijaga sebelumnya).
+  // Tunggu isAuthLoading selesai dulu (localStorage baru dibaca setelah mount) supaya
+  // tidak salah redirect orang yang sebenarnya sudah login.
+  React.useEffect(() => {
+    if (!isAuthLoading && !isLoggedIn) {
+      router.replace("/login")
+    }
+  }, [isAuthLoading, isLoggedIn, router])
+
+  const { data, isLoading, isError, error } = useUserInvitationDetail(invitationId, !isAuthLoading && isLoggedIn)
   const publishMutation = useUpdateUserInvitation(invitationId)
   const linkMutation = useUpdateUserInvitation(invitationId)
   const eventDateMutation = useUpdateUserInvitation(invitationId)
   const titleMutation = useUpdateUserInvitation(invitationId)
   const checkPathUrlMutation = useCheckPathUrl()
 
+  // Kalau backend membedakan "ada tapi bukan milikmu" (403) dari "memang tidak ada"
+  // (404), tangani 403 di sini dengan redirect + toast. Selama backend belum
+  // membedakan (kemungkinan besar keduanya 404), cabang ini praktis tidak pernah
+  // kepakai dan semuanya jatuh ke notFound() di bawah — tapi sudah siap dipakai
+  // begitu backend menambah pembedaan itu, tanpa perlu ubah kode lagi.
+  // hasHandled403Ref mencegah toast dobel: `t`/`router` dari next-intl bukan
+  // reference stabil antar render, jadi tanpa guard ini efek bisa re-fire selama
+  // status errornya masih 403.
+  const hasHandled403Ref = React.useRef(false)
+  React.useEffect(() => {
+    const status = (error as (Error & { status?: number }) | null)?.status
+    if (isError && status === 403 && !hasHandled403Ref.current) {
+      hasHandled403Ref.current = true
+      toast(t("overview.accessDeniedToast"), "error")
+      router.replace("/dashboard/my-invitation")
+    }
+  }, [isError, error, router, toast, t])
+
   const [isEditingTitle, setIsEditingTitle] = React.useState(false)
   const [titleDraft, setTitleDraft] = React.useState("")
   const [isSavingTitle, setIsSavingTitle] = React.useState(false)
+  const [isPublishConfirmOpen, setIsPublishConfirmOpen] = React.useState(false)
   const [isEditingLink, setIsEditingLink] = React.useState(false)
   const [isEditingEventDate, setIsEditingEventDate] = React.useState(false)
   const [eventDateDraft, setEventDateDraft] = React.useState("")
@@ -112,14 +145,18 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSlugDraft, isEditingLink, data?.slug])
 
+  // Belum jelas status login-nya, atau memang belum login (efek di atas lagi
+  // memproses redirect ke /login) — tunggu, jangan render apa pun dulu.
+  if (isAuthLoading || !isLoggedIn) return <InvitationDashboardSkeleton />
   if (isLoading) return <InvitationDashboardSkeleton />
-  if (isError || !data) {
-    return (
-      <div className="flex h-64 items-center justify-center text-sm text-zinc-400">
-        {t("overview.loadError")}
-      </div>
-    )
+  if (isError) {
+    const status = (error as (Error & { status?: number }) | null)?.status
+    // 403 ditangani lewat efek di atas (redirect + toast) — biarkan skeleton
+    // tampil sebentar selagi itu jalan. Selain itu (404 & lainnya) → 404 asli.
+    if (status === 403) return <InvitationDashboardSkeleton />
+    notFound()
   }
+  if (!data) return <InvitationDashboardSkeleton />
 
   const fieldValues = data.fieldValues ?? {}
   const eventDateRaw = fieldValues.event_date
@@ -189,11 +226,20 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
     }
   }
 
+  // Publish sekarang tidak langsung jalan — buka dialog konfirmasi dulu (link tidak
+  // bisa diedit lagi setelah published), publish sungguhan cuma jalan lewat confirmPublish.
   const handlePublish = () => {
+    setIsPublishConfirmOpen(true)
+  }
+
+  const confirmPublish = () => {
     publishMutation.mutate(
       { name: data.name, slug: data.slug, fieldValues: data.fieldValues, status: "published", template: data.template },
       {
-        onSuccess: () => toast(t("overview.publishedToast"), "success"),
+        onSuccess: () => {
+          toast(t("overview.publishedToast"), "success")
+          setIsPublishConfirmOpen(false)
+        },
         onError: () => toast(t("overview.actionError"), "error"),
       }
     )
@@ -239,6 +285,12 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   }
 
   const startEditingLink = () => {
+    // Jaga-jaga kalau tombolnya somehow tetap ke-trigger walau sudah disabled
+    // (mis. isPublished berubah tepat setelah render tapi sebelum klik diproses).
+    if (isPublished) {
+      toast(t("overview.linkLockedToast"), "error")
+      return
+    }
     setSlugDraft(slug)
     setDebouncedSlugDraft(slug)
     setSlugAvailability("idle")
@@ -536,7 +588,15 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
               </h3>
               {!isEditingLink && (
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={startEditingLink} className="h-8 w-[118px] gap-1.5 rounded-md border border-zinc-200 px-3 text-sm font-medium" style={{ background: "var(--accent)" }}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={startEditingLink}
+                    disabled={isPublished}
+                    title={isPublished ? t("overview.linkLockedHint") : undefined}
+                    className="h-8 w-[118px] gap-1.5 rounded-md border border-zinc-200 px-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+                    style={{ background: "var(--accent)" }}
+                  >
                     <PencilLine className="h-3.5 w-3.5" />
                     {t("common.editLink")}
                   </Button>
@@ -607,7 +667,12 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 xl:hidden">
-                  <Button variant="outline" onClick={startEditingLink} className="h-12 gap-2 rounded-xl border-zinc-200">
+                  <Button
+                    variant="outline"
+                    onClick={startEditingLink}
+                    disabled={isPublished}
+                    className="h-12 gap-2 rounded-xl border-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
                     <PencilLine className="h-4 w-4" />
                     {t("common.editLink")}
                   </Button>
@@ -646,6 +711,13 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
 
         </div>
       </div>
+
+      <PublishConfirmDialog
+        open={isPublishConfirmOpen}
+        onOpenChange={setIsPublishConfirmOpen}
+        onConfirm={confirmPublish}
+        isPublishing={publishMutation.isPending}
+      />
     </div>
   )
 }
