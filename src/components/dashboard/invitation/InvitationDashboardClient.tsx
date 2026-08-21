@@ -44,8 +44,12 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const publishMutation = useUpdateUserInvitation(invitationId)
   const linkMutation = useUpdateUserInvitation(invitationId)
   const eventDateMutation = useUpdateUserInvitation(invitationId)
+  const titleMutation = useUpdateUserInvitation(invitationId)
   const checkPathUrlMutation = useCheckPathUrl()
 
+  const [isEditingTitle, setIsEditingTitle] = React.useState(false)
+  const [titleDraft, setTitleDraft] = React.useState("")
+  const [isSavingTitle, setIsSavingTitle] = React.useState(false)
   const [isEditingLink, setIsEditingLink] = React.useState(false)
   const [isEditingEventDate, setIsEditingEventDate] = React.useState(false)
   const [eventDateDraft, setEventDateDraft] = React.useState("")
@@ -195,6 +199,45 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
     )
   }
 
+  const startEditingTitle = () => {
+    setTitleDraft(title)
+    setIsEditingTitle(true)
+  }
+
+  const cancelEditingTitle = () => {
+    setIsEditingTitle(false)
+    setTitleDraft(title)
+  }
+
+  const saveTitle = async () => {
+    const trimmed = titleDraft.trim()
+    if (!trimmed) {
+      toast(t("overview.titleRequired"), "error")
+      return
+    }
+    if (trimmed === title) {
+      setIsEditingTitle(false)
+      return
+    }
+
+    setIsSavingTitle(true)
+    try {
+      await titleMutation.mutateAsync({
+        name: trimmed,
+        slug: data.slug,
+        fieldValues: data.fieldValues,
+        status: data.status,
+        template: data.template,
+      })
+      toast(t("overview.titleUpdatedToast"), "success")
+      setIsEditingTitle(false)
+    } catch {
+      toast(t("overview.actionError"), "error")
+    } finally {
+      setIsSavingTitle(false)
+    }
+  }
+
   const startEditingLink = () => {
     setSlugDraft(slug)
     setDebouncedSlugDraft(slug)
@@ -283,16 +326,47 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
         {/* ── Right: Content ── */}
         <div className="flex flex-col gap-4 xl:gap-0">
 
-          {/* Title — desktop only; di mobile judul & tanggal terwakili lewat foto preview */}
-          <div className="hidden items-start justify-between gap-2 xl:flex">
-            <h2 className={`${typography["5xl"].semibold} flex-1 text-zinc-900`}>
-              {title}
-            </h2>
-            <Button asChild variant="ghost" size="icon" className="h-9 w-9 shrink-0 rounded-full text-zinc-400 hover:text-zinc-600">
-              <Link href={`${basePath}/edit`} aria-label={t("overview.editTemplate")}>
-                <PencilLine className="h-4 w-4" />
-              </Link>
-            </Button>
+          {/* Title — desktop only; di mobile judul & tanggal terwakili lewat foto preview.
+              Pencil-nya dulu link ke halaman editor (redundan dengan kartu "Edit Template"
+              di bawah) — sekarang jadi rename inline: klik pensil, ketik, Enter buat simpan
+              (langsung PUT ke API, sama seperti alur Edit Link/Change Event Date). */}
+          <div className="hidden items-end gap-6 xl:flex">
+            {isEditingTitle ? (
+              <input
+                autoFocus
+                value={titleDraft}
+                disabled={isSavingTitle}
+                onChange={(e) => setTitleDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    saveTitle()
+                  } else if (e.key === "Escape") {
+                    e.preventDefault()
+                    cancelEditingTitle()
+                  }
+                }}
+                onBlur={cancelEditingTitle}
+                aria-label={t("overview.editTitle")}
+                className={`${typography["5xl"].semibold} leading-tight min-w-0 max-w-[75%] rounded-lg border border-indigo-300 bg-white px-2 py-1 text-zinc-900 outline-none focus:ring-2 focus:ring-indigo-100`}
+              />
+            ) : (
+              <>
+                <h2 className={`${typography["5xl"].semibold} leading-tight min-w-0 max-w-[75%] truncate text-zinc-900`}>
+                  {title}
+                </h2>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={startEditingTitle}
+                  aria-label={t("overview.editTitle")}
+                  className="size-11 shrink-0 rounded-full text-zinc-400 hover:text-zinc-600"
+                >
+                  <PencilLine className="size-6" />
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Tanggal event (desktop) — tepat di atas kartu countdown, sesuai referensi.
