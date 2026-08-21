@@ -615,7 +615,13 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             {isEditingLink ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 whitespace-nowrap text-sm text-zinc-500">{invitationUrlPrefix}</span>
+                  {/* min-w-0/max-w/overflow-hidden HANYA untuk mobile — mencegah domain
+                      panjang (staging.momenia.id/...) memaksa row ini lebih lebar dari
+                      layar dan mendorong seluruh grid dashboard ke kanan (bug "ngezoom").
+                      Di xl: dibuka lagi jadi full-width tanpa terpotong, sesuai desktop. */}
+                  <span className="min-w-0 max-w-[40%] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-zinc-500 xl:max-w-none xl:overflow-visible xl:text-clip">
+                    {invitationUrlPrefix}
+                  </span>
                   <div className="relative flex-1">
                     <Input
                       value={slugDraft}
@@ -658,7 +664,11 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             ) : (
               <>
                 <div className="flex overflow-hidden rounded-xl border border-zinc-200 shadow-sm xl:h-[60px] xl:items-center xl:rounded-lg xl:px-3 xl:gap-3">
-                  <span className="flex shrink-0 items-center whitespace-nowrap border-r border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:px-3">
+                  {/* min-w-0/max-w/overflow-hidden HANYA untuk mobile — mencegah domain
+                      panjang (staging.momenia.id/...) memaksa row ini lebih lebar dari
+                      layar dan mendorong seluruh grid dashboard ke kanan (bug "ngezoom").
+                      Di xl: dibuka lagi jadi full-width tanpa terpotong, sesuai desktop. */}
+                  <span className="flex min-w-0 max-w-[42%] shrink-0 items-center overflow-hidden text-ellipsis whitespace-nowrap border-r border-zinc-200 bg-zinc-50 px-2 py-3 text-xs text-zinc-400 sm:px-3 sm:text-sm xl:h-[44px] xl:max-w-none xl:overflow-visible xl:text-clip xl:rounded-[4px] xl:border xl:border-zinc-200 xl:bg-zinc-50 xl:text-base xl:font-normal xl:px-3">
                       {invitationUrlPrefix}
                   </span>
                   <span className="flex min-w-0 flex-1 items-center truncate px-2 py-3 text-xs text-zinc-800 sm:px-3 sm:text-sm xl:text-base xl:font-normal xl:px-2">
