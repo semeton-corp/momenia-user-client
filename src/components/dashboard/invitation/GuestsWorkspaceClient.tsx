@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { useToast } from "@/providers/ToastProvider"
 import { useCreateGuestInvitation, useDeleteGuestInvitations, useGuestInvitations, useUpdateGuestInvitation } from "@/hooks/useGuestInvitations"
 import {
@@ -11,10 +11,11 @@ import {
   useUpdateGuestInvitationCategory,
 } from "@/hooks/useGuestInvitationCategories"
 import { useInvitationMessage, useUpdateInvitationMessage } from "@/hooks/useInvitationMessage"
+import { useUserInvitationDetail } from "@/hooks/useUserInvitations"
 import type { GuestInvitation } from "@/lib/api/guest-invitation/guest-invitation.types"
 import { DeleteGuestConfirmDialog } from "./DeleteGuestConfirmDialog"
 import { GuestAddForm, type EditingGuest, type GuestFormValues } from "./GuestAddForm"
-import { GuestMessageTemplateCard } from "./GuestMessageTemplateCard"
+import { GuestMessageTemplateCard, stripLoneSurrogates, type TemplateVariable } from "./GuestMessageTemplateCard"
 import { GuestMessageTemplateCardSkeleton } from "./GuestMessageTemplateCardSkeleton"
 import { GuestsManagementTable } from "./GuestsManagementTable"
 import { GuestsManagementTableSkeleton } from "./GuestsManagementTableSkeleton"
@@ -27,7 +28,14 @@ type Props = {
 
 export function GuestsWorkspaceClient({ invitationId }: Props) {
   const t = useTranslations("dashboard.workspace")
+  const locale = useLocale()
   const { toast } = useToast()
+
+  // Kosong sampai mount lalu diisi dari window.location.origin — link undangan
+  // personal per-tamu (dipakai di Copy) harus ikut domain apa pun app-nya lagi
+  // jalan (staging/prod/localhost), sama seperti pola di InvitationDashboardClient.
+  const [origin, setOrigin] = React.useState("")
+  React.useEffect(() => { setOrigin(window.location.origin) }, [])
 
   const [keyword, setKeyword] = React.useState("")
   const [debouncedKeyword, setDebouncedKeyword] = React.useState("")
@@ -52,6 +60,7 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
   }, [debouncedKeyword, categoryFilter, pageSize, sortOrder])
 
   const { data: message, isLoading: isMessageLoading } = useInvitationMessage(invitationId)
+  const { data: invitationDetail } = useUserInvitationDetail(invitationId)
   const { data: categories = [] } = useGuestInvitationCategories(invitationId)
   const { data: guestList, isLoading: isListLoading, isError: isListError } = useGuestInvitations(invitationId, {
     pageSize,
@@ -154,7 +163,10 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
           isInvitationSent: !guest.isInvitationSent,
         },
       },
-      { onError: () => toast(t("guests.actionError"), "error") }
+      {
+        onSuccess: () => toast(t("guests.deliveredStatusToast"), "success"),
+        onError: () => toast(t("guests.actionError"), "error"),
+      }
     )
   }
 
@@ -177,6 +189,69 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
         onError: () => toast(t("guests.actionError"), "error"),
       }
     )
+  }
+
+  const templateVariables: TemplateVariable[] = [
+    { key: "guestName", label: t("guests.messageTemplate.variables.guestName") },
+    { key: "eventName", label: t("guests.messageTemplate.variables.eventName") },
+    { key: "eventDate", label: t("guests.messageTemplate.variables.eventDate") },
+    { key: "invitationLink", label: t("guests.messageTemplate.variables.invitationLink") },
+  ]
+
+  // Sama seperti InvitationDashboardClient: gabungkan event_date + event_time
+  // sebelum di-parse Date, supaya tidak salah geser tanggal di timezone dengan
+  // offset UTC negatif (date-only string di-parse sebagai tengah malam UTC).
+  const eventDateRaw = invitationDetail?.fieldValues?.event_date
+  const eventDateObj = eventDateRaw
+    ? new Date(`${eventDateRaw}T${invitationDetail?.fieldValues?.event_time || "00:00"}`)
+    : null
+  const eventDateLabel =
+    eventDateObj && !Number.isNaN(eventDateObj.getTime())
+      ? eventDateObj.toLocaleDateString(locale === "id" ? "id-ID" : "en-US", { day: "numeric", month: "long", year: "numeric" })
+      : ""
+
+  // WhatsApp pakai *teks* buat bold — bungkus nilai (kalau tidak kosong) supaya
+  // nama tamu/nama acara/tanggal tampil tebal di pesan yang di-copy/dikirim.
+  const bold = (value: string) => (value ? `*${value}*` : "")
+
+  // Substitusi tiap {{key}} di template tersimpan dengan data sungguhan tamu +
+  // undangan ini, plus link personal berbasis ID (bukan nama) — format ini yang
+  // sudah dibaca halaman publik lewat query param ?guestInvitationId=.
+  // Link SENGAJA tidak dibungkus *bold* — WhatsApp auto-detect & warnai URL polos
+  // jadi biru + bisa diklik; asterisk di sekitarnya berisiko mengganggu deteksi itu.
+  const buildGuestMessage = (guest: GuestInvitation) => {
+    const template = message?.invitationMessage || t("guests.messageTemplate.defaultBody")
+    const invitationLink = invitationDetail?.slug
+      ? `${origin}/${locale}/invitation/${invitationDetail.slug}?guestInvitationId=${guest.id}`
+      : ""
+    const substituted = template
+      .replace(/\{\{guestName\}\}/g, bold(guest.name))
+      .replace(/\{\{eventName\}\}/g, bold(invitationDetail?.name ?? ""))
+      .replace(/\{\{eventDate\}\}/g, bold(eventDateLabel))
+      .replace(/\{\{invitationLink\}\}/g, invitationLink)
+    return stripLoneSurrogates(substituted)
+  }
+
+  const handleCopyGuestMessage = async (guest: GuestInvitation) => {
+    try {
+      await navigator.clipboard.writeText(buildGuestMessage(guest))
+      toast(t("guests.messageTemplate.copiedToast"), "success")
+    } catch {
+      toast(t("guests.actionError"), "error")
+    }
+  }
+
+  // Format lokal Indonesia ("0812...") jadi format internasional wa.me ("62812...")
+  // — wa.me tidak menerima nomor berawalan 0.
+  const toWhatsAppNumber = (raw: string) => {
+    const digits = raw.replace(/\D/g, "")
+    return digits.startsWith("0") ? `62${digits.slice(1)}` : digits
+  }
+
+  const handleSendWhatsApp = (guest: GuestInvitation) => {
+    const text = buildGuestMessage(guest)
+    const phone = toWhatsAppNumber(guest.whatsAppNumber)
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer")
   }
 
   const handleCreateCategory = (name: string) => {
@@ -217,10 +292,11 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
           <GuestMessageTemplateCard
             title={t("guests.messageTemplate.title")}
             body={message?.invitationMessage || t("guests.messageTemplate.defaultBody")}
-            variableLabel={t("guests.messageTemplate.variables.guestName")}
+            variables={templateVariables}
             helperText={t("guests.messageTemplate.helperText")}
             saveLabel={t("guests.messageTemplate.save")}
             onSave={handleSaveTemplate}
+            onExceedsLimit={() => toast(t("guests.messageTemplate.tooLongToast"), "error")}
             isSaving={updateMessageMutation.isPending}
           />
         )}
@@ -296,6 +372,8 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
               onDeleteSelected={() => selectedIds.length > 0 && setBulkDeleteOpen(true)}
               onEditGuest={handleEditGuest}
               onToggleDelivered={handleToggleDelivered}
+              onCopyGuestMessage={handleCopyGuestMessage}
+              onSendWhatsApp={handleSendWhatsApp}
               togglingDeliveredId={updateMutation.isPending ? updateMutation.variables?.id : null}
               selectionLabel={t("common.selectedRows", { count: selectedIds.length, total: totalData })}
               rowsPerPageLabel={t("common.rowsPerPage")}

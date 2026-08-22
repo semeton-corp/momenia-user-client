@@ -167,7 +167,12 @@ export function GuestAddForm({
             <Input
               placeholder="08123456789"
               value={values.whatsAppNumber}
-              onChange={(e) => setField("whatsAppNumber", e.target.value)}
+              // Buang semua yang bukan digit — biar huruf/simbol tidak bisa masuk sama
+              // sekali (baik diketik maupun di-paste). inputMode="numeric" (bukan
+              // type="number") supaya keyboard mobile numerik tanpa menghapus angka 0
+              // di depan nomor Indonesia atau menampilkan spinner naik/turun.
+              inputMode="numeric"
+              onChange={(e) => setField("whatsAppNumber", e.target.value.replace(/\D/g, ""))}
               className={cn("h-11 rounded-xl border-zinc-200", errors.whatsAppNumber && "border-red-300")}
             />
             {errors.whatsAppNumber && <p className="text-xs text-red-500">{errors.whatsAppNumber}</p>}
