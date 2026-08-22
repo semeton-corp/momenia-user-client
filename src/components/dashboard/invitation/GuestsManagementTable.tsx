@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { CheckboxTile } from "@/components/ui/checkbox-tile"
 import type { GuestInvitation } from "@/lib/api/guest-invitation/guest-invitation.types"
 import WhatsAppIcon from "@/assets/logo/whatsapp.svg"
-import GoogleCalendarIcon from "@/assets/logo/google-calendar.svg"
 import { WorkspaceCard } from "./WorkspaceCard"
 import { WorkspaceTableFooter } from "./WorkspaceTableFooter"
 
@@ -139,6 +138,8 @@ type GuestsManagementTableProps = WorkspaceTableFooterPassthrough & {
   onDeleteSelected: () => void
   onEditGuest: (guest: GuestInvitation) => void
   onToggleDelivered: (guest: GuestInvitation) => void
+  onCopyGuestMessage: (guest: GuestInvitation) => void
+  onSendWhatsApp: (guest: GuestInvitation) => void
   togglingDeliveredId?: string | null
 }
 
@@ -169,6 +170,8 @@ export function GuestsManagementTable({
   onDeleteSelected,
   onEditGuest,
   onToggleDelivered,
+  onCopyGuestMessage,
+  onSendWhatsApp,
   togglingDeliveredId,
   selectionLabel,
   rowsPerPageLabel,
@@ -305,13 +308,18 @@ export function GuestsManagementTable({
                     </td>
                     <td className="border-b border-zinc-100 px-4 py-3 align-middle">
                       <div className="flex items-center gap-1.5">
-                        <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors">
+                        <button
+                          type="button"
+                          onClick={() => onSendWhatsApp(guest)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors"
+                        >
                           <Image src={WhatsAppIcon} alt="WhatsApp" className="h-4 w-4" />
                         </button>
-                        <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors">
-                          <Image src={GoogleCalendarIcon} alt="Google Calendar" className="h-4 w-4" />
-                        </button>
-                        <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors">
+                        <button
+                          type="button"
+                          onClick={() => onCopyGuestMessage(guest)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
+                        >
                           <Copy className="h-4 w-4" />
                         </button>
                       </div>
