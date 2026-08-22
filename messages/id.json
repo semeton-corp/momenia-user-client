@@ -726,10 +726,16 @@
         "messageLabel": "Ucapan",
         "messagePlaceholder": "Ketik pesan kamu di sini.",
         "messageHint": "Silakan sesuaikan isi catatan sebelum dibagikan ke tamu.",
+        "variables": {
+          "guestName": "Nama Tamu",
+          "onlineSouvenir": "Souvenir Online",
+          "eventName": "Nama Acara"
+        },
         "recipientTitle": "Pilih Tamu dan Kirim",
         "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan after party Anda.",
         "recipientsLoadError": "Gagal memuat daftar tamu. Periksa koneksi kamu.",
         "savedToast": "Catatan after party berhasil disimpan",
+        "copiedToast": "Pesan berhasil disalin",
         "actionError": "Terjadi kesalahan. Coba lagi."
       },
       "edit": {

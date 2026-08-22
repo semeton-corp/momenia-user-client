@@ -22,6 +22,10 @@ type AfterPartyRecipientsTableProps = {
   readonly rowsPerPageLabel: string
   readonly pageLabel: string
   readonly guests: GuestInvitation[]
+  readonly onCopyMessage: (guest: GuestInvitation) => void
+  readonly onSendWhatsApp: (guest: GuestInvitation) => void
+  readonly onToggleDelivered: (guest: GuestInvitation) => void
+  readonly togglingDeliveredId?: string | null
   readonly searchValue: string
   readonly onSearchChange: (value: string) => void
   readonly pageSize?: number
@@ -46,6 +50,10 @@ export function AfterPartyRecipientsTable({
   rowsPerPageLabel,
   pageLabel,
   guests,
+  onCopyMessage,
+  onSendWhatsApp,
+  onToggleDelivered,
+  togglingDeliveredId,
   searchValue,
   onSearchChange,
   pageSize,
@@ -123,17 +131,32 @@ export function AfterPartyRecipientsTable({
                     </td>
                     <td className="border-b border-zinc-100 px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors">
+                        <button
+                          type="button"
+                          onClick={() => onSendWhatsApp(guest)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors"
+                        >
                           <Image src={WhatsAppIcon} alt="WhatsApp" className="h-4 w-4" />
                         </button>
-                        <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors">
+                        <button
+                          type="button"
+                          onClick={() => onCopyMessage(guest)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
+                        >
                           <Copy className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
                     <td className="border-b border-zinc-100 px-4 py-3 text-center">
                       <div className="flex justify-center">
-                        <CheckboxTile checked={guest.isInvitationSent} className="h-5 w-5 rounded-md" />
+                        <button
+                          type="button"
+                          disabled={togglingDeliveredId === guest.id}
+                          onClick={() => onToggleDelivered(guest)}
+                          className="disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <CheckboxTile checked={guest.isInvitationSent} className="h-5 w-5 rounded-md" />
+                        </button>
                       </div>
                     </td>
                   </tr>
