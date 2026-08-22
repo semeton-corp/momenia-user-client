@@ -632,6 +632,7 @@
         "addedToast": "Guest added successfully",
         "updatedToast": "Guest updated successfully",
         "deletedToast": "Guest deleted successfully",
+        "deliveredStatusToast": "Delivery status updated",
         "categoryAddedToast": "Category added successfully",
         "categoryUpdatedToast": "Category updated successfully",
         "categoryDeletedToast": "Category deleted successfully",
@@ -666,9 +667,14 @@
           "helperText": "Click the variable to insert it into the message template.",
           "save": "Save",
           "savedToast": "Message template saved successfully",
+          "copiedToast": "Message copied to clipboard",
+          "tooLongToast": "Message exceeds 200 characters and can't be saved",
           "loadError": "Failed to load message template.",
           "variables": {
-            "guestName": "Guest Name"
+            "guestName": "Guest Name",
+            "eventName": "Event Name",
+            "eventDate": "Event Date",
+            "invitationLink": "Invitation Link"
           }
         },
         "deleteDialog": {
