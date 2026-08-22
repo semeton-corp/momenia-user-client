@@ -632,6 +632,7 @@
         "addedToast": "Tamu berhasil ditambahkan",
         "updatedToast": "Tamu berhasil diperbarui",
         "deletedToast": "Tamu berhasil dihapus",
+        "deliveredStatusToast": "Status pengiriman diperbarui",
         "categoryAddedToast": "Kategori berhasil ditambahkan",
         "categoryUpdatedToast": "Kategori berhasil diperbarui",
         "categoryDeletedToast": "Kategori berhasil dihapus",
@@ -666,9 +667,14 @@
           "helperText": "Klik variabel untuk menyisipkan ke dalam template pesan.",
           "save": "Simpan",
           "savedToast": "Template pesan berhasil disimpan",
+          "copiedToast": "Pesan berhasil disalin",
+          "tooLongToast": "Pesan melebihi 200 karakter dan tidak bisa disimpan",
           "loadError": "Gagal memuat template pesan.",
           "variables": {
-            "guestName": "Nama Tamu"
+            "guestName": "Nama Tamu",
+            "eventName": "Nama Acara",
+            "eventDate": "Tanggal Acara",
+            "invitationLink": "Link Undangan"
           }
         },
         "deleteDialog": {
