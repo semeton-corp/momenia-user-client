@@ -726,10 +726,16 @@
         "messageLabel": "Message",
         "messagePlaceholder": "Type your message here.",
         "messageHint": "Adjust the after party note before sharing it with guests.",
+        "variables": {
+          "guestName": "Guest Name",
+          "onlineSouvenir": "Online Souvenir",
+          "eventName": "Event Name"
+        },
         "recipientTitle": "Pick Guests and Send",
         "recipientSubtitle": "Select invitation guests and distribute your after party notes.",
         "recipientsLoadError": "Failed to load guests. Please check your connection.",
         "savedToast": "After party note saved successfully",
+        "copiedToast": "Message copied to clipboard",
         "actionError": "Something went wrong. Please try again."
       },
       "edit": {
