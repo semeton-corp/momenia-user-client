@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Link, useRouter } from "@/i18n/navigation"
 import { DonutChart } from "@/components/dashboard/invitation/DonutChart"
+import { EventDatePickerField } from "@/components/dashboard/invitation/EventDatePickerField"
+import { EventTimePickerField } from "@/components/dashboard/invitation/EventTimePickerField"
 import { InvitationDashboardSkeleton } from "@/components/dashboard/invitation/InvitationDashboardSkeleton"
 import { InvitationPhonePreview } from "@/components/dashboard/invitation/InvitationPhonePreview"
 import { PublishConfirmDialog } from "@/components/dashboard/invitation/PublishConfirmDialog"
@@ -431,7 +433,10 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
               Selalu dirender sekarang (bukan cuma kalau tanggalnya ada) supaya tombol ubah
               tanggal tetap terjangkau saat event_date masih kosong. */}
           <div className="hidden items-center gap-2 xl:mt-12 xl:flex">
-            <p className="text-lg font-normal" style={{ color: "var(--semantic-border)" }}>
+            {/* xl:text-2xl — disamakan dengan ukuran "Guest Statistics"/"Invitation
+                Link" di desktop (keduanya xl:text-2xl); text-lg dasar tetap dipakai
+                di mobile, tidak disentuh. */}
+            <p className="text-lg font-normal xl:text-2xl" style={{ color: "var(--semantic-border)" }}>
               {eventDateLabel || t("overview.eventDateEmpty")}
             </p>
             <button
@@ -468,24 +473,25 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                     <label htmlFor="event-date" className="mb-1.5 block text-xs font-medium text-zinc-600">
                       {t("overview.eventDateLabel")}
                     </label>
-                    <Input
+                    <EventDatePickerField
                       id="event-date"
-                      type="date"
                       value={eventDateDraft}
-                      onChange={(e) => { setEventDateDraft(e.target.value); setEventDateError(null) }}
+                      onChange={(value) => { setEventDateDraft(value); setEventDateError(null) }}
                       disabled={isSavingEventDate}
+                      locale={locale}
+                      placeholder={t("overview.eventDateLabel")}
                     />
                   </div>
                   <div>
                     <label htmlFor="event-time" className="mb-1.5 block text-xs font-medium text-zinc-600">
                       {t("overview.eventTimeLabel")}
                     </label>
-                    <Input
+                    <EventTimePickerField
                       id="event-time"
-                      type="time"
                       value={eventTimeDraft}
-                      onChange={(e) => setEventTimeDraft(e.target.value)}
+                      onChange={setEventTimeDraft}
                       disabled={isSavingEventDate}
+                      placeholder={t("overview.eventTimeLabel")}
                     />
                   </div>
                 </div>
