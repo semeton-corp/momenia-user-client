@@ -125,13 +125,21 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
       email: guest.email,
       guestInvitationCategoryId: guest.guestInvitationCategoryId,
       isInvitationSent: guest.isInvitationSent,
+      isAfterPartyNoteSent: guest.isAfterPartyNoteSent,
     })
   }
 
   const handleSubmitForm = (values: GuestFormValues) => {
     if (editingGuest) {
       updateMutation.mutate(
-        { id: editingGuest.id, data: { ...values, isInvitationSent: editingGuest.isInvitationSent } },
+        {
+          id: editingGuest.id,
+          data: {
+            ...values,
+            isInvitationSent: editingGuest.isInvitationSent,
+            isAfterPartyNoteSent: editingGuest.isAfterPartyNoteSent,
+          },
+        },
         {
           onSuccess: () => {
             toast(t("guests.updatedToast"), "success")
@@ -161,6 +169,7 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
           email: guest.email,
           guestInvitationCategoryId: guest.guestInvitationCategoryId,
           isInvitationSent: !guest.isInvitationSent,
+          isAfterPartyNoteSent: guest.isAfterPartyNoteSent,
         },
       },
       {

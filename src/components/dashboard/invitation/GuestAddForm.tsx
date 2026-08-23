@@ -22,6 +22,7 @@ export type EditingGuest = {
   email: string
   guestInvitationCategoryId: string
   isInvitationSent: boolean
+  isAfterPartyNoteSent: boolean
 }
 
 type GuestAddFormProps = {
