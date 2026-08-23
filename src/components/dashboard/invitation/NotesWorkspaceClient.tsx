@@ -88,9 +88,11 @@ export function NotesWorkspaceClient({ invitationId }: Props) {
     }
   }
 
-  // Checkbox "Delivered?" di sini sebelumnya cuma tampilan statis (tidak ada
-  // onClick/mutation sama sekali) — sekarang pakai endpoint yang sama dengan
-  // toggle Delivered di halaman Guests.
+  // PUT /guest-invitations/:id itu full-replace, jadi isInvitationSent (status
+  // undangan utama) ikut dikirim apa adanya — yang di-toggle di sini cuma
+  // isAfterPartyNoteSent, field terpisah dari isInvitationSent yang dipakai
+  // halaman Guests. Sebelumnya salah pakai isInvitationSent di sini juga,
+  // makanya toggle Delivered di Notes ikut nyentuh status Guests.
   const handleToggleDelivered = (guest: GuestInvitation) => {
     updateGuestMutation.mutate(
       {
@@ -100,7 +102,8 @@ export function NotesWorkspaceClient({ invitationId }: Props) {
           whatsAppNumber: guest.whatsAppNumber,
           email: guest.email,
           guestInvitationCategoryId: guest.guestInvitationCategoryId,
-          isInvitationSent: !guest.isInvitationSent,
+          isInvitationSent: guest.isInvitationSent,
+          isAfterPartyNoteSent: !guest.isAfterPartyNoteSent,
         },
       },
       {

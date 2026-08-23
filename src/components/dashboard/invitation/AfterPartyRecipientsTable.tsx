@@ -155,7 +155,7 @@ export function AfterPartyRecipientsTable({
                           onClick={() => onToggleDelivered(guest)}
                           className="disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          <CheckboxTile checked={guest.isInvitationSent} className="h-5 w-5 rounded-md" />
+                          <CheckboxTile checked={guest.isAfterPartyNoteSent} className="h-5 w-5 rounded-md" />
                         </button>
                       </div>
                     </td>
