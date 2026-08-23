@@ -8,6 +8,7 @@ export type GuestInvitation = {
   guestInvitationCategoryId: string
   guestInvitationCategory: string
   isInvitationSent: boolean
+  isAfterPartyNoteSent: boolean
 }
 
 // GET /api/v1/guest-invitations/:id — publik, dipakai halaman undangan buat
@@ -74,6 +75,7 @@ export type UpdateGuestInvitationRequest = {
   email: string
   guestInvitationCategoryId: string
   isInvitationSent: boolean
+  isAfterPartyNoteSent: boolean
 }
 
 export type UpdateGuestInvitationResponse = {
@@ -83,4 +85,5 @@ export type UpdateGuestInvitationResponse = {
   email: string
   guestInvitationCategoryId: string
   isInvitationSent: boolean
+  isAfterPartyNoteSent: boolean
 }
