@@ -629,6 +629,7 @@
         "empty": "No guests yet.",
         "noResults": "No guests match your search.",
         "actionError": "Something went wrong. Please try again.",
+        "linkCopiedToast": "Invitation link copied to clipboard",
         "addedToast": "Guest added successfully",
         "updatedToast": "Guest updated successfully",
         "deletedToast": "Guest deleted successfully",
