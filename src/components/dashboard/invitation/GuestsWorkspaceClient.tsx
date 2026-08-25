@@ -223,21 +223,21 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
   // nama tamu/nama acara/tanggal tampil tebal di pesan yang di-copy/dikirim.
   const bold = (value: string) => (value ? `*${value}*` : "")
 
-  // Substitusi tiap {{key}} di template tersimpan dengan data sungguhan tamu +
-  // undangan ini, plus link personal berbasis ID (bukan nama) — format ini yang
-  // sudah dibaca halaman publik lewat query param ?guestInvitationId=.
+  // Link personal berbasis ID tamu (bukan nama) — format ini yang sudah dibaca
+  // halaman publik lewat query param ?guestInvitationId=.
+  const buildGuestLink = (guest: GuestInvitation) =>
+    invitationDetail?.slug ? `${origin}/${locale}/invitation/${invitationDetail.slug}?guestInvitationId=${guest.id}` : ""
+
+  // Substitusi tiap {{key}} di template tersimpan dengan data sungguhan tamu + undangan ini.
   // Link SENGAJA tidak dibungkus *bold* — WhatsApp auto-detect & warnai URL polos
   // jadi biru + bisa diklik; asterisk di sekitarnya berisiko mengganggu deteksi itu.
   const buildGuestMessage = (guest: GuestInvitation) => {
     const template = message?.invitationMessage || t("guests.messageTemplate.defaultBody")
-    const invitationLink = invitationDetail?.slug
-      ? `${origin}/${locale}/invitation/${invitationDetail.slug}?guestInvitationId=${guest.id}`
-      : ""
     const substituted = template
       .replace(/\{\{guestName\}\}/g, bold(guest.name))
       .replace(/\{\{eventName\}\}/g, bold(invitationDetail?.name ?? ""))
       .replace(/\{\{eventDate\}\}/g, bold(eventDateLabel))
-      .replace(/\{\{invitationLink\}\}/g, invitationLink)
+      .replace(/\{\{invitationLink\}\}/g, buildGuestLink(guest))
     return stripLoneSurrogates(substituted)
   }
 
@@ -245,6 +245,15 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
     try {
       await navigator.clipboard.writeText(buildGuestMessage(guest))
       toast(t("guests.messageTemplate.copiedToast"), "success")
+    } catch {
+      toast(t("guests.actionError"), "error")
+    }
+  }
+
+  const handleCopyGuestLink = async (guest: GuestInvitation) => {
+    try {
+      await navigator.clipboard.writeText(buildGuestLink(guest))
+      toast(t("guests.linkCopiedToast"), "success")
     } catch {
       toast(t("guests.actionError"), "error")
     }
@@ -382,6 +391,7 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
               onEditGuest={handleEditGuest}
               onToggleDelivered={handleToggleDelivered}
               onCopyGuestMessage={handleCopyGuestMessage}
+              onCopyGuestLink={handleCopyGuestLink}
               onSendWhatsApp={handleSendWhatsApp}
               togglingDeliveredId={updateMutation.isPending ? updateMutation.variables?.id : null}
               selectionLabel={t("common.selectedRows", { count: selectedIds.length, total: totalData })}
