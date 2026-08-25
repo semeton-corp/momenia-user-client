@@ -247,21 +247,24 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
     window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
   }
 
+  // A guest who already answered has no use for the RSVP form. Hides the whole section
+  // it sits in (buildInvitationHtml wraps each one in [data-section-id]) rather than
+  // just the form, so they aren't left with a "Konfirmasi Kehadiran" heading standing
+  // over nothing. Called both for a returning guest (applyGuest, keyed off the status
+  // the host reported at load) and right after a fresh submission succeeds this session.
+  function setRsvpVisible(visible) {
+    document.querySelectorAll('[data-momenia-form="rsvp"]').forEach(function(form){
+      var container = form.closest('[data-section-id]') || form;
+      container.style.display = visible ? '' : 'none';
+    });
+  }
+
   function applyGuest() {
     when(document, 'guest', !!GUEST.id);
     when(document, 'no-guest', !GUEST.id);
 
-    /* A guest who already answered has no use for the RSVP form. Hide the whole
-       section it sits in (buildInvitationHtml wraps each one in [data-section-id])
-       rather than just the form, so they aren't left with a "Konfirmasi Kehadiran"
-       heading standing over nothing. Deliberately keyed off the status the host
-       reported at load, not off a submit in this session — that way the success
-       message still gets its moment before the section disappears on the next visit. */
     var answered = !!GUEST.id && !!GUEST.status && GUEST.status !== 'not-confirmed';
-    document.querySelectorAll('[data-momenia-form="rsvp"]').forEach(function(form){
-      var container = form.closest('[data-section-id]') || form;
-      container.style.display = answered ? 'none' : '';
-    });
+    setRsvpVisible(!answered);
     // Only overwrite when the name is actually known, so the template's own
     // fallback text ("Tamu Undangan") stays visible otherwise.
     if (GUEST.name) {
@@ -333,11 +336,16 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
       GUEST.status = e.data.guestStatus || '';
       applyGuest();
       resize();
+      // Acked back so the host knows the DOM mutation actually happened before it
+      // reveals the iframe — postMessage delivery is async, so "we called post()"
+      // and "the child applied it" are two different moments, not one.
+      window.parent.postMessage({type:'memoriaGuestApplied'},'*');
       return;
     }
 
     if (e.data.type === 'memoriaMessages') {
       renderMessages(e.data.messages || []);
+      window.parent.postMessage({type:'memoriaMessagesApplied'},'*');
       return;
     }
 
@@ -358,6 +366,16 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
           });
         }
       });
+
+      // A successful RSVP collapses the whole section, same as it would on a return
+      // visit — no reason to leave a "Konfirmasi Kehadiran" form sitting there once
+      // it's already answered. Delayed briefly so the "Terima kasih!" success message
+      // actually gets seen instead of being replaced by nothing the instant it appears.
+      if (e.data.form === 'rsvp' && e.data.ok) {
+        GUEST.status = 'confirmed';
+        setTimeout(function(){ setRsvpVisible(false); resize(); }, 1500);
+      }
+
       resize();
     }
   });
