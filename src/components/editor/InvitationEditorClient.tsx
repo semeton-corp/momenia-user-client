@@ -29,6 +29,7 @@ import {
 import { RestoreChangesModal } from "./RestoreChangesModal"
 import { ImageCropModal } from "./ImageCropModal"
 import { LocationField } from "./LocationField"
+import { SaveSuccessIcon } from "./SaveSuccessIcon"
 
 type UnsavedState = {
   name: string
@@ -388,6 +389,13 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return <label className="mb-1.5 block text-xs font-medium text-zinc-600">{children}</label>
 }
 
+// Per-field-key overrides for TextField's default 100-char cap — every template field
+// not listed here keeps that default. Add an entry when a specific field needs its own
+// limit instead of the shared one.
+const FIELD_MAX_LENGTH: Record<string, number> = {
+  venue_name: 50,
+}
+
 function TextField({ value, onChange, placeholder, max = 100 }: {
   value: string; onChange: (v: string) => void; placeholder?: string; max?: number
 }) {
@@ -459,6 +467,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   // these is ever read there — every consumer is guarded by an `lg:` class that wins.
   const [mobilePanel, setMobilePanel] = useState<"design" | "content">("design")
   const [isPreviewExpanded, setIsPreviewExpanded] = useState(false)
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false)
   const zoom = previewDevice === "desktop" ? desktopZoom : mobileZoom
   const setZoom = previewDevice === "desktop" ? setDesktopZoom : setMobileZoom
 
@@ -539,6 +548,32 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     setSectionOrder(state.sectionOrder)
     setHistoryIndex(newIndex)
   }, [canRedo, historyIndex, history])
+
+  // Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y redo — skipped while typing in an
+  // input/textarea/contentEditable (the template message editor) so the browser's own
+  // native text-undo isn't hijacked there.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z" && e.key.toLowerCase() !== "y") return
+      const target = e.target as HTMLElement | null
+      const isEditable = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable
+      if (isEditable) return
+
+      const key = e.key.toLowerCase()
+      if (key === "z" && e.shiftKey) {
+        e.preventDefault()
+        handleRedo()
+      } else if (key === "z") {
+        e.preventDefault()
+        handleUndo()
+      } else if (key === "y") {
+        e.preventDefault()
+        handleRedo()
+      }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [handleUndo, handleRedo])
 
   // Track state changes for undo/redo (debounced to avoid excessive history entries)
   const historyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -631,7 +666,20 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   }
 
   const activePage = template.pages[activePageIdx]?.id ?? "cover"
-  const html = useMemo(() => buildInvitationHtml(detail, userData, theme, sectionOrder), [detail, sectionOrder, template])
+  // Keyed on `template` (not the whole `detail`) on purpose. Saving invalidates the
+  // detail query, so a refetch lands right after every save with a fresh `lastUpdatedAt`
+  // — enough to make React Query hand back a new `detail` object. Depending on that
+  // rebuilt this entire ~50KB HTML string and reset the iframe's srcdoc, tearing the
+  // invitation down and re-parsing it (re-running template JS, re-fetching fonts) at the
+  // exact moment the save animation was trying to run. React Query's structural sharing
+  // keeps `detail.template`'s reference when its contents haven't actually changed, so
+  // this rebuilds only when the template genuinely differs. userData/theme are absent
+  // deliberately: those reach the iframe over postMessage instead of a full rebuild.
+  const html = useMemo(
+    () => buildInvitationHtml({ template }, userData, theme, sectionOrder),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [template, sectionOrder],
+  )
 
   // friendly label for a (possibly generated) section id, via its section_type_id
   const sectionLabel = useCallback((id: string) => {
@@ -706,8 +754,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         } catch {
           // ignore
         }
-        toast("Invitation saved successfully", "success")
-        router.push(`/dashboard/my-invitation/${invitationId}`)
+        // Stays on the editor rather than redirecting — the animation itself is the
+        // save confirmation, so a separate toast would be redundant.
+        setShowSaveSuccess(true)
       },
       onError: (err) => {
         toast(err instanceof Error ? err.message : "Failed to save invitation", "error")
@@ -860,12 +909,16 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               // Passes the live editor state, so the popup previews unsaved edits too.
               openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage })
             }
-            className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="flex h-12 items-center gap-2 rounded-lg border border-zinc-200 px-5 text-base font-medium text-zinc-700 hover:bg-zinc-50"
           >
-            <Eye className="h-4 w-4" />Preview
+            <Eye className="h-5 w-5" />Preview
           </button>
-          <button onClick={handleSave} disabled={isSaving} className="flex h-10 items-center gap-2 rounded-lg bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
-            {isSaving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Save className="h-4 w-4" />}
+          <button onClick={handleSave} disabled={isSaving || showSaveSuccess} className="flex h-12 items-center gap-2 rounded-lg bg-indigo-600 px-6 text-base font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
+            {showSaveSuccess
+              ? <SaveSuccessIcon onDone={() => setShowSaveSuccess(false)} />
+              : isSaving
+                ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                : <Save className="h-5 w-5" />}
             Save
           </button>
         </div>
@@ -1150,7 +1203,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                     ) : field.type === "location" ? (
                       <LocationField value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} />
                     ) : (
-                      <TextField value={userData[field.key] ?? ""} placeholder={field.placeholder} onChange={(v) => handleFieldChange(field.key, v)} />
+                      <TextField value={userData[field.key] ?? ""} placeholder={field.placeholder} onChange={(v) => handleFieldChange(field.key, v)} max={FIELD_MAX_LENGTH[field.key]} />
                     )}
                   </div>
                 ))}
@@ -1194,10 +1247,14 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             </button>
             <button
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={isSaving || showSaveSuccess}
               className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-semibold text-white disabled:opacity-60"
             >
-              {isSaving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Save className="h-4 w-4" />}
+              {showSaveSuccess
+                ? <SaveSuccessIcon onDone={() => setShowSaveSuccess(false)} />
+                : isSaving
+                  ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  : <Save className="h-4 w-4" />}
               Save
             </button>
           </div>
