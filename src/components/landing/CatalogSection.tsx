@@ -4,15 +4,21 @@ import * as React from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import Image from "next/image"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/navigation"
 import MobileDarkCatalogSVG from "@/assets/llandingpage/Mobile-dark-catalog.svg"
 import { LandingPageCatalog } from "@/lib/api/landing-page/landing-page.types"
+import { openInvitationPreview } from "@/lib/invitation-preview"
+import { useInvitationTemplateDetail } from "@/hooks/useInvitationTemplates"
 
 type TemplateBadge = "new" | "choice"
 
 type Template = {
   id: string | number
+  // ID template asli buat fetch detail + preview — beda dari `id` (itu ID baris
+  // katalog di landing page, bukan ID template). Kosong untuk dummy fallback,
+  // yang memang tidak punya template asli buat di-preview.
+  templateId: string
   title: string
   image: string
   badge?: TemplateBadge
@@ -21,30 +27,35 @@ type Template = {
 const DUMMY_CATALOGS: Template[] = [
   {
     id: "dummy-1",
+    templateId: "",
     title: "Ethereal Wedding",
     image: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=438&q=80",
     badge: "new",
   },
   {
     id: "dummy-2",
+    templateId: "",
     title: "Garden Romance",
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=438&q=80",
     badge: "choice",
   },
   {
     id: "dummy-3",
+    templateId: "",
     title: "Minimalist Chic",
     image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=438&q=80",
     badge: "new",
   },
   {
     id: "dummy-4",
+    templateId: "",
     title: "Floral Bliss",
     image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=438&q=80",
     badge: "choice",
   },
   {
     id: "dummy-5",
+    templateId: "",
     title: "Classic Elegance",
     image: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=438&q=80",
   },
@@ -57,6 +68,7 @@ type CatalogSectionProps = {
 export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
   const apiTemplates: Template[] = (apiCatalogs ?? []).map((c) => ({
     id: c.id,
+    templateId: c.invitationTemplateId,
     title: c.invitationTemplateName,
     image: c.invitationTemplateMobileThumbnail,
     badge: c.isNew ? ("new" as TemplateBadge) : undefined,
@@ -74,9 +86,23 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
   const [isDesktop, setIsDesktop] = React.useState(false)
   const scaleWrapperRef = React.useRef<HTMLDivElement>(null)
 
+  // Dihitung di sini (bukan di bawah early-return) supaya bisa dipakai buat
+  // key query di hook useInvitationTemplateDetail berikut — hook harus selalu
+  // dipanggil, tidak boleh setelah return kondisional.
+  const activeIdx =
+    displayTemplates.length > 0
+      ? ((activeVirtualIdx % displayTemplates.length) + displayTemplates.length) % displayTemplates.length
+      : 0
+  const activeTemplate = displayTemplates[activeIdx]
+
   const t = useTranslations("landing.catalog")
   const tCommon = useTranslations("common")
   const router = useRouter()
+  const locale = useLocale()
+  // Prefetch detail template yang lagi aktif di carousel — begitu "View Template"
+  // diklik, tinggal buka preview-nya tanpa nunggu request lagi (React Query cache-in
+  // per templateId, jadi balik ke kartu yang sama tidak fetch ulang).
+  const { data: activeTemplateDetail } = useInvitationTemplateDetail(activeTemplate?.templateId || null)
 
   // Detect browser zoom via devicePixelRatio
   React.useEffect(() => {
@@ -121,10 +147,10 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
 
   if (displayTemplates.length === 0) return null
 
-  const activeIdx =
-    ((activeVirtualIdx % displayTemplates.length) + displayTemplates.length) %
-    displayTemplates.length
-  const activeTemplate = displayTemplates[activeIdx]
+  const handleViewTemplate = () => {
+    if (!activeTemplateDetail?.template) return
+    openInvitationPreview({ template: activeTemplateDetail.template }, locale, { activePage: "cover" })
+  }
 
   const handleNext = () => {
     if (isAnimating) return
@@ -310,7 +336,12 @@ export function CatalogSection({ catalogs: apiCatalogs }: CatalogSectionProps) {
                       >
                         {activeTemplate.title}
                       </motion.h3>
-                      <button className="pointer-events-auto cursor-pointer w-full rounded-[8px] border border-primary py-1.5 text-[10px] font-medium text-zinc-900 outline-none transition-colors hover:bg-primary/5 md:rounded-[10px] md:py-2 md:text-xs">
+                      <button
+                        type="button"
+                        onClick={handleViewTemplate}
+                        disabled={!activeTemplateDetail?.template}
+                        className="pointer-events-auto cursor-pointer w-full rounded-[8px] border border-primary py-1.5 text-[10px] font-medium text-zinc-900 outline-none transition-colors hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50 md:rounded-[10px] md:py-2 md:text-xs"
+                      >
                         {t("viewTemplate")}
                       </button>
                     </div>
