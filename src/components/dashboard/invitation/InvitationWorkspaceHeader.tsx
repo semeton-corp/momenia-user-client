@@ -1,12 +1,19 @@
+"use client"
+
+import { useUserInvitationDetail } from "@/hooks/useUserInvitations"
+
 type InvitationWorkspaceHeaderProps = {
   title: string
-  subtitle?: string
+  invitationId: string
 }
 
 export function InvitationWorkspaceHeader({
   title,
-  subtitle,
+  invitationId,
 }: InvitationWorkspaceHeaderProps) {
+  const { data: invitationDetail } = useUserInvitationDetail(invitationId)
+  const subtitle = invitationDetail?.name
+
   return (
     <header className="space-y-1 lg:space-y-2">
       <h1 className="text-2xl font-semibold tracking-tight text-zinc-950 lg:text-4xl xl:text-5xl xl:font-semibold xl:leading-none xl:text-foreground">{title}</h1>
