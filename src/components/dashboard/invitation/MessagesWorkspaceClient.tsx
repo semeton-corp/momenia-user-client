@@ -1,9 +1,11 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { useTranslations } from "next-intl"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/providers/ToastProvider"
+import EmptyMessagesIllustration from "@/assets/empty-states/empty-messages.svg"
 import {
   useDeleteGuestInvitationMessage,
   useGuestInvitationMessages,
@@ -82,38 +84,53 @@ export function MessagesWorkspaceClient({ invitationId }: Props) {
         className="h-12 border-zinc-200"
       />
 
-      <div className="mt-6 xl:columns-2 xl:gap-4 space-y-4 xl:space-y-0">
+      <div className="mt-6">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="break-inside-avoid mb-4">
-              <GuestMessageCardSkeleton />
-            </div>
-          ))
+          <div className="xl:columns-2 xl:gap-4 space-y-4 xl:space-y-0">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="break-inside-avoid mb-4">
+                <GuestMessageCardSkeleton />
+              </div>
+            ))}
+          </div>
         ) : isError ? (
           <p className="text-sm text-zinc-400">{t("loadError")}</p>
         ) : !messages || messages.length === 0 ? (
-          <p className="text-sm text-zinc-400">{t("empty")}</p>
-        ) : (
-          messages.map((message) => (
-            <div key={message.id} className="break-inside-avoid mb-4">
-              <GuestMessageCard
-                name={message.name}
-                content={message.message}
-                dateLabel={formatMessageDate(message.messageAt)}
-                voiceNote={message.voiceNote || undefined}
-                voiceLabel={t("voiceNote", { name: message.name })}
-                isHidden={message.isMessageHidden}
-                hiddenBadgeLabel={t("hiddenBadge")}
-                hideLabel={tCommon("hide")}
-                showLabel={tCommon("show")}
-                deleteLabel={tCommon("delete")}
-                onToggleHide={() => handleToggleHide(message.id, !message.isMessageHidden)}
-                onDelete={() => setPendingDelete({ id: message.id, name: message.name })}
-                isToggling={updateMutation.isPending && updateMutation.variables?.id === message.id}
-                isDeleting={deleteMutation.isPending && deleteMutation.variables === message.id}
-              />
+          <div className="mx-auto flex w-full max-w-[448px] flex-col items-center gap-6 py-10 text-center">
+            <Image
+              src={EmptyMessagesIllustration}
+              alt=""
+              className="h-[209px] w-[260px] xl:h-auto xl:w-64"
+              priority
+            />
+            <div className="flex flex-col gap-3">
+              <h2 className="text-lg font-semibold text-gray-950 xl:text-2xl">{t("emptyTitle")}</h2>
+              <p className="text-xs font-normal text-muted-foreground xl:text-base">{t("emptySubtitle")}</p>
             </div>
-          ))
+          </div>
+        ) : (
+          <div className="xl:columns-2 xl:gap-4 space-y-4 xl:space-y-0">
+            {messages.map((message) => (
+              <div key={message.id} className="break-inside-avoid mb-4">
+                <GuestMessageCard
+                  name={message.name}
+                  content={message.message}
+                  dateLabel={formatMessageDate(message.messageAt)}
+                  voiceNote={message.voiceNote || undefined}
+                  voiceLabel={t("voiceNote", { name: message.name })}
+                  isHidden={message.isMessageHidden}
+                  hiddenBadgeLabel={t("hiddenBadge")}
+                  hideLabel={tCommon("hide")}
+                  showLabel={tCommon("show")}
+                  deleteLabel={tCommon("delete")}
+                  onToggleHide={() => handleToggleHide(message.id, !message.isMessageHidden)}
+                  onDelete={() => setPendingDelete({ id: message.id, name: message.name })}
+                  isToggling={updateMutation.isPending && updateMutation.variables?.id === message.id}
+                  isDeleting={deleteMutation.isPending && deleteMutation.variables === message.id}
+                />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
