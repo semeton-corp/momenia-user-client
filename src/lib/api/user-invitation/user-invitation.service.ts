@@ -35,7 +35,7 @@ export const getUserInvitationContent = async (pathUrl: string): Promise<UserInv
 }
 
 export const checkPathUrl = async (data: CheckPathUrlRequest): Promise<CheckPathUrlResponse> => {
-    return http("/api/v1/user-invitations/path-url", {
+    return http("/api/v1/user-invitations/slug", {
         method: "POST",
         body: JSON.stringify(data),
         headers: authHeader(),
