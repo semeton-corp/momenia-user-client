@@ -141,8 +141,10 @@ export function DashboardBanner({
     </div>
 
     {/* Kategori & Urutan versi mobile — di luar container banner, melebar penuh
-        rata kiri-kanan (flex-1 masing-masing) dengan konten di-center */}
-    <div className="mt-3 flex items-center gap-2 md:hidden">
+        rata kiri-kanan (flex-1 masing-masing) dengan konten di-center. mt-6 sama
+        dengan margin-top Style Tags di bawahnya (page.tsx) — biar jarak ke banner
+        di atas dan ke Style Tags di bawah simetris, tidak nempel ke salah satu. */}
+    <div className="mt-6 flex items-center gap-2 md:hidden">
       <BannerFilterDropdown
         icon={<ChevronDown className="h-4 w-4 shrink-0" />}
         label={t("category")}

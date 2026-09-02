@@ -134,6 +134,10 @@ export function useFavouriteTemplateTags() {
     queryKey: TEMPLATE_KEYS.favouriteTags,
     queryFn: getFavouriteTemplateTags,
     staleTime: 1000 * 60 * 5,
+    // Backend returns one tag row per favourited template that carries it, so the
+    // same tag id can repeat when several favourites share it — dedupe here so the
+    // filter chip row never renders two chips with the same id/key.
+    select: (tags) => Array.from(new Map(tags.map((tag) => [tag.id, tag])).values()),
   })
 }
 
