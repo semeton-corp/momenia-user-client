@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { format, parseISO } from "date-fns"
+import { format, parseISO, startOfDay } from "date-fns"
 import { enUS, id as idLocale } from "date-fns/locale"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -54,6 +54,9 @@ export function EventDatePickerField({ id, value, onChange, disabled, locale, pl
           mode="single"
           locale={dateLocale}
           selected={isValidSelected ? selected : undefined}
+          // An event date in the past isn't a valid choice — today itself stays pickable,
+          // startOfDay() so today isn't excluded by a same-day time-of-day comparison.
+          disabled={{ before: startOfDay(new Date()) }}
           onSelect={(date) => {
             if (!date) return
             onChange(format(date, "yyyy-MM-dd"))

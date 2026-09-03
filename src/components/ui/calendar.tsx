@@ -46,7 +46,7 @@ function Calendar({
         today: cn(defaultClassNames.today, "[&>button]:font-semibold [&>button]:text-primary"),
         selected: cn(
           defaultClassNames.selected,
-          "[&>button]:bg-primary [&>button]:text-primary-foreground [&>button]:hover:bg-primary/90",
+          "[&>button]:rounded-lg [&>button]:bg-primary [&>button]:text-primary-foreground [&>button]:hover:bg-primary/90",
         ),
         outside: cn(defaultClassNames.outside, "[&>button]:text-zinc-300"),
         disabled: cn(defaultClassNames.disabled, "[&>button]:cursor-not-allowed [&>button]:text-zinc-300 [&>button]:hover:bg-transparent"),
