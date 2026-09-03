@@ -26,6 +26,8 @@ import {
   openInvitationPreview,
   type ThemeDefaults,
 } from "@/lib/invitation-preview"
+import { EventDatePickerField } from "@/components/dashboard/invitation/EventDatePickerField"
+import { EventTimePickerField } from "@/components/dashboard/invitation/EventTimePickerField"
 import { RestoreChangesModal } from "./RestoreChangesModal"
 import { ImageCropModal } from "./ImageCropModal"
 import { LocationField } from "./LocationField"
@@ -1196,11 +1198,18 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                     {field.type === "image" ? (
                       <UploadDropzone value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} invitationId={invitationId} />
                     ) : field.type === "date" ? (
-                      <input type="date" value={userData[field.key] ?? ""} onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                        className="w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                      <EventDatePickerField
+                        value={userData[field.key] ?? ""}
+                        onChange={(v) => handleFieldChange(field.key, v)}
+                        locale={locale}
+                        placeholder={field.placeholder}
+                      />
                     ) : field.type === "time" ? (
-                      <input type="time" value={userData[field.key] ?? ""} onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                        className="w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                      <EventTimePickerField
+                        value={userData[field.key] ?? ""}
+                        onChange={(v) => handleFieldChange(field.key, v)}
+                        placeholder={field.placeholder}
+                      />
                     ) : field.type === "location" ? (
                       <LocationField value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} />
                     ) : (
