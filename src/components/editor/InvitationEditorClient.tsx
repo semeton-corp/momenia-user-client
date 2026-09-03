@@ -207,12 +207,30 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
   onPageChange?: (pageId: string) => void
 }>(function PreviewFrame({ html, userData, theme, activePage, zoom, device, onPageChange }, ref) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
   const loadedRef = useRef(false)
   const loadedFontsRef = useRef<Set<string>>(new Set())
   const userDataRef = useRef(userData); userDataRef.current = userData
   const themeRef = useRef(theme); themeRef.current = theme
   const activePageRef = useRef(activePage); activePageRef.current = activePage
   const onPageChangeRef = useRef(onPageChange); onPageChangeRef.current = onPageChange
+  const scrollCleanupRef = useRef<() => void>(() => {})
+
+  // Custom scrollbar's thumb, as fractions of the track: `top` is where it starts,
+  // `ratio` is how tall it is (== visible/total content, so a phone-height page with
+  // no overflow gets a full-height thumb). Kept in React state (not just DOM writes)
+  // so the thumb re-renders reactively as content or scroll position change.
+  const [scrollMetrics, setScrollMetrics] = useState({ top: 0, ratio: 1 })
+
+  const updateScrollMetrics = () => {
+    const body = iframeRef.current?.contentDocument?.body
+    if (!body) return
+    const { scrollTop, scrollHeight, clientHeight } = body
+    const ratio = scrollHeight > 0 ? Math.min(1, clientHeight / scrollHeight) : 1
+    const maxScrollTop = scrollHeight - clientHeight
+    const top = maxScrollTop > 0 ? (scrollTop / maxScrollTop) * (1 - ratio) : 0
+    setScrollMetrics({ top, ratio })
+  }
 
   // The invitation can navigate itself (its own in-page buttons), so mirror that back
   // to the editor. Read through a ref so the listener is attached exactly once.
@@ -229,10 +247,30 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
 
   // Makes the iframe's own <body> scroll internally instead of the document growing to fit
   // content — the html element clips at the fixed viewport, body carries the scrollbar.
+  // The native scrollbar itself is hidden (width:0 / scrollbar-width:none) — the visible
+  // one lives outside the bezel, driven by scrollMetrics below.
   const injectScrollContainment = (doc: Document) => {
     const style = doc.createElement("style")
-    style.textContent = `html{height:100%;overflow:hidden}body{height:100%;overflow-y:auto;overflow-x:hidden}`
+    style.textContent = `html{height:100%;overflow:hidden}body{height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}body::-webkit-scrollbar{display:none;width:0}`
     doc.head.appendChild(style)
+  }
+
+  // Keeps the external scrollbar's thumb in sync with the iframe's own body scroll — the
+  // body's native scrollbar is hidden (injectScrollContainment above), so this is the only
+  // thing driving the thumb the user actually sees.
+  const bindScrollTracking = (body: HTMLElement) => {
+    updateScrollMetrics()
+    body.addEventListener("scroll", updateScrollMetrics)
+    // Content height can change without a scroll event (a field edit, an image loading
+    // in, a page switch) — the thumb's own height/position both depend on scrollHeight,
+    // so those need to resync too, not just user-driven scrolling.
+    const observer = new ResizeObserver(updateScrollMetrics)
+    observer.observe(body)
+    scrollCleanupRef.current()
+    scrollCleanupRef.current = () => {
+      body.removeEventListener("scroll", updateScrollMetrics)
+      observer.disconnect()
+    }
   }
 
   useEffect(() => {
@@ -242,12 +280,16 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
       loadedRef.current = true
       const doc = iframe.contentDocument
       if (doc) injectScrollContainment(doc)
+      if (doc?.body) bindScrollTracking(doc.body)
       iframe.contentWindow?.postMessage({ type: "memoriaUpdate", userData: userDataRef.current, theme: themeRef.current }, "*")
       iframe.contentWindow?.postMessage({ type: "memoriaGoTo", pageId: activePageRef.current }, "*")
     }
     iframe.addEventListener("load", onLoad, { once: true })
     iframe.setAttribute("srcdoc", html)
-    return () => iframe.removeEventListener("load", onLoad)
+    return () => {
+      iframe.removeEventListener("load", onLoad)
+      scrollCleanupRef.current()
+    }
     // device is a dependency on purpose, not because it affects `html`: switching it
     // swaps in a structurally different iframe (bare vs. bezel-wrapped), which unmounts
     // the old element and mounts a fresh one with no srcdoc — since `html` itself didn't
@@ -288,6 +330,10 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
     iframeRef.current?.contentWindow?.postMessage({ type: "memoriaGoTo", pageId: activePage }, "*")
     // Switching cover/main should land at the top of that page, not wherever the previous page was scrolled to.
     resetIframeScroll(iframeRef.current)
+    // Immediate rough sync so the thumb jumps to the top right away rather than lagging
+    // one frame behind — the ResizeObserver in bindScrollTracking corrects it precisely
+    // once the page-switch's own display toggle (memoriaGoTo, async) actually lands.
+    updateScrollMetrics()
   }, [activePage])
 
   // scale = zoom directly, so 100% zoom renders the iframe at its true native
@@ -302,6 +348,47 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
       el?.scrollIntoView({ behavior: "smooth", block: "start" })
     },
   }), [])
+
+  // Drags the external thumb to scroll the iframe's body directly — same-origin access
+  // is already granted via the sandbox's allow-same-origin, so this reaches straight into
+  // contentDocument rather than round-tripping through postMessage.
+  const handleThumbPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const track = trackRef.current
+    const body = iframeRef.current?.contentDocument?.body
+    if (!track || !body) return
+
+    const trackHeight = track.clientHeight
+    const startY = e.clientY
+    const startScrollTop = body.scrollTop
+    const maxScrollTop = body.scrollHeight - body.clientHeight
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const deltaScroll = ((moveEvent.clientY - startY) / trackHeight) * body.scrollHeight
+      body.scrollTop = Math.max(0, Math.min(maxScrollTop, startScrollTop + deltaScroll))
+    }
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove)
+      window.removeEventListener("pointerup", onUp)
+    }
+    window.addEventListener("pointermove", onMove)
+    window.addEventListener("pointerup", onUp)
+  }
+
+  // Clicking the bare track (not the thumb itself) jumps straight to that position —
+  // standard scrollbar behavior.
+  const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return
+    const track = trackRef.current
+    const body = iframeRef.current?.contentDocument?.body
+    if (!track || !body) return
+
+    const rect = track.getBoundingClientRect()
+    const clickRatio = (e.clientY - rect.top) / rect.height
+    const maxScrollTop = body.scrollHeight - body.clientHeight
+    body.scrollTop = Math.max(0, Math.min(maxScrollTop, clickRatio * body.scrollHeight - body.clientHeight / 2))
+  }
 
   // Same content as the standalone /preview route: a narrow card (bare iframe, capped
   // under the 768px breakpoint) left-aligned over the wallpaper the parent draws behind
@@ -323,34 +410,55 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
     )
   }
 
+  const bezelHeight = VIEWPORT_H * scale + border * 2
+
   return (
-    <div
-      className="relative shrink-0 overflow-hidden bg-black shadow-2xl"
-      style={{
-        // box-sizing: border-box subtracts the border from `width`/`height`, so the
-        // border is added on top of the scaled content size here — otherwise the
-        // border eats into the visible area and clips the phone's edges.
-        width: VIEWPORT_W * scale + border * 2,
-        height: VIEWPORT_H * scale + border * 2,
-        borderRadius: 48 * zoom,
-        border: `${border}px solid #000`,
-      }}
-    >
-      <iframe
-        ref={iframeRef}
-        // allow-popups(-to-escape-sandbox): the embedded map's own "Buka di Maps" link
-        // opens a new tab; without escaping the sandbox that tab inherits our restrictions
-        // and Google refuses to render it (ERR_BLOCKED_BY_RESPONSE).
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        title="Invitation Preview"
+    <div className="flex shrink-0 items-stretch gap-2">
+      <div
+        className="relative shrink-0 overflow-hidden bg-black shadow-2xl"
         style={{
-          width: VIEWPORT_W,
-          height: VIEWPORT_H,
-          border: 0,
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
+          // box-sizing: border-box subtracts the border from `width`/`height`, so the
+          // border is added on top of the scaled content size here — otherwise the
+          // border eats into the visible area and clips the phone's edges.
+          width: VIEWPORT_W * scale + border * 2,
+          height: bezelHeight,
+          borderRadius: 48 * zoom,
+          border: `${border}px solid #000`,
         }}
-      />
+      >
+        <iframe
+          ref={iframeRef}
+          // allow-popups(-to-escape-sandbox): the embedded map's own "Buka di Maps" link
+          // opens a new tab; without escaping the sandbox that tab inherits our restrictions
+          // and Google refuses to render it (ERR_BLOCKED_BY_RESPONSE).
+          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          title="Invitation Preview"
+          style={{
+            width: VIEWPORT_W,
+            height: VIEWPORT_H,
+            border: 0,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        />
+      </div>
+
+      {/* Custom scrollbar, outside the bezel — the phone's own native one is hidden
+          (injectScrollContainment) since the bezel's rounded corners would clip it
+          into an unusable sliver. Always rendered, even with nothing to scroll, per
+          "always put it there" — it just ends up a full-height, non-draggable track. */}
+      <div
+        ref={trackRef}
+        onClick={handleTrackClick}
+        className="relative w-2 shrink-0 cursor-pointer rounded-full bg-zinc-200"
+        style={{ height: bezelHeight }}
+      >
+        <div
+          onPointerDown={handleThumbPointerDown}
+          className="absolute inset-x-0 cursor-grab rounded-full bg-zinc-400 transition-colors hover:bg-zinc-500 active:cursor-grabbing active:bg-zinc-500"
+          style={{ top: `${scrollMetrics.top * 100}%`, height: `${scrollMetrics.ratio * 100}%` }}
+        />
+      </div>
     </div>
   )
 })
