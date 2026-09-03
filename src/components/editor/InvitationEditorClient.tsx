@@ -28,6 +28,7 @@ import {
 } from "@/lib/invitation-preview"
 import { EventDatePickerField } from "@/components/dashboard/invitation/EventDatePickerField"
 import { EventTimePickerField } from "@/components/dashboard/invitation/EventTimePickerField"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RestoreChangesModal } from "./RestoreChangesModal"
 import { ImageCropModal } from "./ImageCropModal"
 import { LocationField } from "./LocationField"
@@ -1212,6 +1213,21 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                       />
                     ) : field.type === "location" ? (
                       <LocationField value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} />
+                    ) : field.type === "select" ? (
+                      <Select value={userData[field.key] ?? ""} onValueChange={(v) => handleFieldChange(field.key, v)}>
+                        <SelectTrigger className="w-full rounded-xl border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                          <SelectValue placeholder={field.placeholder || "Choose one"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {/* Admin hand-writes this schema as raw JSON — guard against an
+                              accidental "" entry (Radix reserves empty string to mean "no
+                              selection" and throws) and accidental duplicates (React key
+                              collision, ambiguous selection). */}
+                          {Array.from(new Set((field.options ?? []).map((o) => o.trim()).filter(Boolean))).map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ) : (
                       <TextField value={userData[field.key] ?? ""} placeholder={field.placeholder} onChange={(v) => handleFieldChange(field.key, v)} max={FIELD_MAX_LENGTH[field.key]} />
                     )}
