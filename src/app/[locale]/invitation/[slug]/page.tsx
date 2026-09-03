@@ -60,6 +60,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     fieldValues,
     template.theme_defaults,
     mainSections.map((s) => s.id),
+    locale,
   )
 
   return (

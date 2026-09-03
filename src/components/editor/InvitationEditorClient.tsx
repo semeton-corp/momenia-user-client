@@ -676,9 +676,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   // this rebuilds only when the template genuinely differs. userData/theme are absent
   // deliberately: those reach the iframe over postMessage instead of a full rebuild.
   const html = useMemo(
-    () => buildInvitationHtml({ template }, userData, theme, sectionOrder),
+    () => buildInvitationHtml({ template }, userData, theme, sectionOrder, locale),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [template, sectionOrder],
+    [template, sectionOrder, locale],
   )
 
   // friendly label for a (possibly generated) section id, via its section_type_id

@@ -50,13 +50,29 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
+// "2026-08-31" → "August 31, 2026" / "31 Agustus 2026", depending on the invitation
+// page's own /id or /en route — not the guest's browser language, which would make the
+// same link read differently for two guests. Falls back to the raw value on anything
+// unparseable, so a malformed date degrades to "wrong-looking" rather than blank.
+function formatDateForLocale(iso: string, locale: string): string {
+  if (!iso) return ""
+  const date = new Date(`${iso}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return iso
+  try {
+    return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", { dateStyle: "long" }).format(date)
+  } catch {
+    return iso
+  }
+}
+
 // Only the template is needed, so this also accepts the lighter public payload from
 // /user-invitations/content/:path_url — not just the full editor detail.
 export function buildInvitationHtml(
   invitation: Pick<UserInvitationDetail, "template">,
   userData: Record<string, string>,
   theme: ThemeDefaults,
-  sectionOrder: string[]
+  sectionOrder: string[],
+  locale: string
 ): string {
   const { template } = invitation
   const allCss = Object.values(template.sectionTypes).map((s) => s.css).join("\n")
@@ -70,6 +86,11 @@ export function buildInvitationHtml(
     if (field.placeholder) placeholders[field.key] = field.placeholder
   }
   const valueFor = (key: string) => userData[key] || placeholders[key] || ""
+
+  // Any schema field typed "date" (currently just event_date) gets its raw ISO value
+  // formatted for display — done by key rather than hardcoding "event_date" so a
+  // template adding a second date field (e.g. an RSVP deadline) gets this for free.
+  const dateFieldKeys = new Set(template.schema.fields.filter((f) => f.type === "date").map((f) => f.key))
 
   function renderSection(sectionId: string, page: typeof mainPage) {
     const sec = page?.sections.find((s) => s.id === sectionId)
@@ -98,7 +119,11 @@ export function buildInvitationHtml(
       // an <h1> would render with the label's small red type instead. Inline style beats
       // any stylesheet selector, and every inherited property still comes from the
       // parent, so the text looks exactly as the template intended.
-      return `<span data-field="${key}" style="all:unset">${escapeHtml(value)}</span>`
+      //
+      // Date fields are formatted only here, not in `value` above — an attribute use
+      // (e.g. a `datetime="{{event_date}}"` on a <time>) should stay machine-readable ISO.
+      const display = dateFieldKeys.has(key) ? formatDateForLocale(value, locale) : value
+      return `<span data-field="${key}" style="all:unset">${escapeHtml(display)}</span>`
     })
     return `<div data-section-id="${sec.id}">${html}</div>`
   }
@@ -108,7 +133,7 @@ export function buildInvitationHtml(
   const allJs = Object.values(template.sectionTypes).map((s) => s.js).filter(Boolean).join("\n;\n")
 
   return `<!DOCTYPE html>
-<html lang="id">
+<html lang="${escapeAttr(locale)}">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -182,6 +207,20 @@ ${allCss}
 // "<" is escaped so a placeholder can't emit a closing script tag and end this
 // block early. (Careful: writing that tag literally here would do exactly that.)
 window.__memoriaPlaceholders = ${JSON.stringify(placeholders).replace(/</g, "\\u003c")};
+window.__memoriaLocale = ${JSON.stringify(locale)};
+window.__memoriaDateFields = ${JSON.stringify(Array.from(dateFieldKeys))};
+// Mirrors formatDateForLocale() on the host side — needed here too since a live edit
+// in the editor updates data-field text via postMessage, not by rebuilding this HTML.
+window.__memoriaFormatDate = function(iso) {
+  if (!iso) return '';
+  var d = new Date(iso + 'T00:00:00');
+  if (isNaN(d.getTime())) return iso;
+  try {
+    return new Intl.DateTimeFormat(window.__memoriaLocale === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'long' }).format(d);
+  } catch (e) {
+    return iso;
+  }
+};
 window.__memoriaGoTo = function(pageId) {
   document.querySelectorAll('[data-page]').forEach(function(el){
     el.style.display = el.dataset.page === pageId ? '' : 'none';
@@ -202,7 +241,10 @@ window.addEventListener('message', function(e) {
       // Same fallback as the initial render, so clearing a field in the editor
       // reverts to its placeholder instead of leaving a blank gap.
       var v = ud[k] || window.__memoriaPlaceholders[k] || '';
-      document.querySelectorAll('[data-field="'+k+'"]').forEach(function(el){ el.textContent = v; });
+      // Same split as the initial render: the raw value (v) goes to img/map src, the
+      // display text gets locale-formatted if this key is a date field.
+      var display = window.__memoriaDateFields.indexOf(k) !== -1 ? window.__memoriaFormatDate(v) : v;
+      document.querySelectorAll('[data-field="'+k+'"]').forEach(function(el){ el.textContent = display; });
       document.querySelectorAll('[data-field-img="'+k+'"]').forEach(function(el){ if(v) el.src = v; });
       // The template's own static src="...?q={{field}}&output=embed" only renders once at
       // build time — this keeps the map preview live as the couple edits the location field,
@@ -412,7 +454,7 @@ export function openInvitationPreview(
     (detail.template.pages.find((p) => p.id === "main")?.sections ?? []).map((s) => s.id)
 
   const snapshot: PreviewSnapshot = {
-    html: buildInvitationHtml(detail, userData, theme, sectionOrder),
+    html: buildInvitationHtml(detail, userData, theme, sectionOrder, locale),
     userData,
     theme,
     activePage: opts?.activePage ?? "main",
