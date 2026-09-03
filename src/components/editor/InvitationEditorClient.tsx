@@ -937,12 +937,13 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   const swatch = (key: keyof ThemeDefaults, label: string) => (
     <div className="flex items-center justify-between">
       <span className="text-sm text-zinc-600">{label}</span>
-      <div className="flex items-center gap-2 rounded-lg border border-zinc-200 p-1 pr-2">
-        <label className="relative h-6 w-6 cursor-pointer overflow-hidden rounded-md" style={{ background: theme[key] }}>
-          <input type="color" value={theme[key]} onChange={(e) => setTheme((p) => ({ ...p, [key]: e.target.value }))} className="absolute inset-0 cursor-pointer opacity-0" />
-        </label>
+      {/* The input now covers the whole card (not just the small square), so clicking
+          anywhere in it — including the hex text — opens the native color picker. */}
+      <label className="relative flex w-32 cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 p-1 pr-2">
+        <input type="color" value={theme[key]} onChange={(e) => setTheme((p) => ({ ...p, [key]: e.target.value }))} className="absolute inset-0 cursor-pointer opacity-0" />
+        <span className="h-6 w-6 shrink-0 rounded-md" style={{ background: theme[key] }} />
         <span className="text-xs font-medium uppercase text-zinc-500">{theme[key]}</span>
-      </div>
+      </label>
     </div>
   )
 
