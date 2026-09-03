@@ -1187,7 +1187,13 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               Mobile mode is unchanged: centered, padded, on the panel's plain gray. */}
           <div
             ref={previewScrollRef}
-            className="flex items-center justify-center overflow-auto p-3 lg:flex-1 lg:p-6"
+            // "safe center" (not plain center): with plain center, a flex item taller
+            // than the container gets clipped symmetrically and the scroll range starts
+            // already offset — there's no way to scroll further up to reach its actual
+            // top edge. "safe" falls back to start-alignment once content overflows, so
+            // e.g. 130% zoom stays fully scrollable to the real top of the mockup, while
+            // still centering normally whenever it fits.
+            className="flex items-center-safe justify-center-safe overflow-auto p-3 lg:flex-1 lg:p-6"
           >
             {previewDevice === "desktop" ? (
               // Outer box carries the *scaled* size so flex-centering and scrolling see
