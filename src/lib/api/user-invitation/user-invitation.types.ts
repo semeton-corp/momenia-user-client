@@ -65,6 +65,9 @@ export type UserInvitationDetail = {
                 section: string
                 required: boolean
                 placeholder?: string
+                // Only meaningful when type === "select" — the choices the editor
+                // renders in the dropdown.
+                options?: string[]
             }>
         }
         sectionTypes: Record<string, {
