@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { getTransactionStatus } from "@/lib/api/transaction/transaction.service"
 import type { CreateTransactionResponse, TransactionStatusResponse } from "@/lib/api/transaction/transaction.types"
 import { useToast } from "@/providers/ToastProvider"
+import { PaymentSuccessOverlay } from "@/components/payment/PaymentSuccessOverlay"
 
 export function PaymentStatusContent() {
   const router = useRouter()
@@ -19,6 +20,7 @@ export function PaymentStatusContent() {
   const [status, setStatus] = useState<TransactionStatusResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [polling, setPolling] = useState(true)
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false)
 
   // Load transaction data from localStorage on mount
   useEffect(() => {
@@ -51,10 +53,12 @@ export function PaymentStatusContent() {
           toast("Payment successful!", "success")
           // Clear stored transaction
           localStorage.removeItem("pendingTransaction")
-          // Invalidate queries and redirect
+          // Invalidate queries, then hold on the success animation before redirecting —
+          // PaymentSuccessOverlay's onDone (below) fires the actual navigation once it's
+          // played through, not immediately here.
           await queryClient.invalidateQueries({ queryKey: ["user-invitations"] })
           await queryClient.invalidateQueries({ queryKey: ["user-invitation-overview"] })
-          router.push("/dashboard/my-invitation")
+          setShowSuccessAnimation(true)
         }
       } catch (err) {
         console.error("Failed to check status:", err)
@@ -80,6 +84,7 @@ export function PaymentStatusContent() {
   const qrImageUrl = transaction.qris.paymentUrl[0]?.url || ""
 
   return (
+    <>
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50 px-4 py-8">
       <div className="w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-8 shadow-xl">
         {/* Header */}
@@ -138,5 +143,9 @@ export function PaymentStatusContent() {
         </button>
       </div>
     </div>
+    {showSuccessAnimation && (
+      <PaymentSuccessOverlay onDone={() => router.push("/dashboard/my-invitation")} />
+    )}
+    </>
   )
 }
