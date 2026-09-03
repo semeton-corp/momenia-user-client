@@ -1279,9 +1279,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           {/* zoom — each device mode tracks (and remembers) its own level. */}
           <div className="hidden shrink-0 items-center justify-center py-3 lg:flex">
             <div className="flex items-center gap-3 rounded-full border border-zinc-200 bg-white px-4 py-2 shadow-sm">
-              <button onClick={() => setZoom((z) => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Plus className="h-4 w-4" /></button>
-              <span className="flex items-center gap-1 text-sm font-medium text-zinc-600"><Search className="h-3.5 w-3.5" />{Math.round(zoom * 100)}%</span>
               <button onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Minus className="h-4 w-4" /></button>
+              <span className="flex items-center gap-1 text-sm font-medium text-zinc-600"><Search className="h-3.5 w-3.5" />{Math.round(zoom * 100)}%</span>
+              <button onClick={() => setZoom((z) => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Plus className="h-4 w-4" /></button>
             </div>
           </div>
         </div>
