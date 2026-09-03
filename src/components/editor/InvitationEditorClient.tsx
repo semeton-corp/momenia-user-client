@@ -1041,7 +1041,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           Panels are rendered once and repositioned with `order`, never duplicated per
           breakpoint — a second copy would mount a second PreviewFrame, i.e. a second
           iframe loading the whole invitation again and racing the first one's messages. */}
-      <div className="flex flex-col gap-4 lg:grid lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)_340px]">
+      <div className="flex flex-col gap-4 lg:grid lg:min-h-0 lg:flex-1 lg:grid-cols-[420px_minmax(0,1fr)_420px]">
 
         {/* ── Mobile tab switch (Design | Content) ──
             Desktop shows both panels at once, so this is mobile-only chrome. */}
