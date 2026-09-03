@@ -754,9 +754,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         } catch {
           // ignore
         }
-        // Stays on the editor rather than redirecting — the animation itself is the
-        // save confirmation, so a separate toast would be redundant.
+        // Stays on the editor rather than redirecting — the checkmark animation is the
+        // primary confirmation; the toast is a second, harder-to-miss signal alongside it.
         setShowSaveSuccess(true)
+        toast("Invitation saved successfully", "success")
       },
       onError: (err) => {
         toast(err instanceof Error ? err.message : "Failed to save invitation", "error")
@@ -913,7 +914,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           >
             <Eye className="h-5 w-5" />Preview
           </button>
-          <button onClick={handleSave} disabled={isSaving || showSaveSuccess} className="flex h-12 items-center gap-2 rounded-lg bg-indigo-600 px-6 text-base font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
+          <button onClick={handleSave} disabled={!isDirty || isSaving || showSaveSuccess} className="flex h-12 items-center gap-2 rounded-lg bg-indigo-600 px-6 text-base font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
             {showSaveSuccess
               ? <SaveSuccessIcon onDone={() => setShowSaveSuccess(false)} />
               : isSaving
@@ -1247,7 +1248,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             </button>
             <button
               onClick={handleSave}
-              disabled={isSaving || showSaveSuccess}
+              disabled={!isDirty || isSaving || showSaveSuccess}
               className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-semibold text-white disabled:opacity-60"
             >
               {showSaveSuccess
