@@ -507,6 +507,13 @@ const FIELD_MAX_LENGTH: Record<string, number> = {
   venue_name: 50,
 }
 
+// Admin hand-writes the schema as raw JSON — guards against an accidental "" entry
+// (Radix reserves empty string to mean "no selection" and throws) and accidental
+// duplicates (React key collision, ambiguous selection).
+function sanitizeOptions(options: string[]): string[] {
+  return Array.from(new Set(options.map((o) => o.trim()).filter(Boolean)))
+}
+
 function TextField({ value, onChange, placeholder, max = 100 }: {
   value: string; onChange: (v: string) => void; placeholder?: string; max?: number
 }) {
@@ -1334,11 +1341,11 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                           <SelectValue placeholder={field.placeholder || "Choose one"} />
                         </SelectTrigger>
                         <SelectContent>
-                          {/* Admin hand-writes this schema as raw JSON — guard against an
-                              accidental "" entry (Radix reserves empty string to mean "no
-                              selection" and throws) and accidental duplicates (React key
-                              collision, ambiguous selection). */}
-                          {Array.from(new Set((field.options ?? []).map((o) => o.trim()).filter(Boolean))).map((option) => (
+                          {/* Admin hand-writes this schema as raw JSON — sanitizeOptions guards
+                              against an accidental "" entry (Radix reserves empty string to
+                              mean "no selection" and throws) and accidental duplicates
+                              (React key collision, ambiguous selection). */}
+                          {sanitizeOptions(field.options ?? []).map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                           ))}
                         </SelectContent>
