@@ -7,6 +7,7 @@ import { getTransactionStatus } from "@/lib/api/transaction/transaction.service"
 import type { CreateTransactionResponse, TransactionStatusResponse } from "@/lib/api/transaction/transaction.types"
 import { useToast } from "@/providers/ToastProvider"
 import { useRouter } from "@/i18n/navigation"
+import { PaymentSuccessOverlay } from "@/components/payment/PaymentSuccessOverlay"
 
 type PaymentModalProps = {
   transaction: CreateTransactionResponse
@@ -23,6 +24,7 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [showConfirmClose, setShowConfirmClose] = useState(false)
   const [showExpiredModal, setShowExpiredModal] = useState(false)
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false)
 
   // Initialize time left based on expireAt
   useEffect(() => {
@@ -71,11 +73,10 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
           localStorage.removeItem("pendingTransaction")
           await queryClient.invalidateQueries({ queryKey: ["user-invitations"] })
           await queryClient.invalidateQueries({ queryKey: ["user-invitation-overview"] })
-          onClose()
-          // Redirect to my-invitation after a short delay to show success
-          setTimeout(() => {
-            router.push("/dashboard/my-invitation")
-          }, 500)
+          // Modal stays mounted (no onClose() here) so PaymentSuccessOverlay below has
+          // something to render on top of — the actual close + redirect happen from its
+          // onDone, once the animation has actually played through.
+          setShowSuccessAnimation(true)
         }
       } catch (err) {
         console.error("Failed to check status:", err)
@@ -242,6 +243,15 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {showSuccessAnimation && (
+        <PaymentSuccessOverlay
+          onDone={() => {
+            onClose()
+            router.push("/dashboard/my-invitation")
+          }}
+        />
       )}
     </div>
   )
