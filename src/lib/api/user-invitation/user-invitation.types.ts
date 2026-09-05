@@ -97,6 +97,11 @@ export type UserInvitationContent = {
     pathUrl: string
     fieldValues: Record<string, string>
     template: InvitationTemplate
+    // Guests have no session (public endpoint, no Bearer token), so they can't resolve
+    // fieldValues.background_music_id against GET /musics/:id themselves — the backend
+    // needs to embed the resolved track here instead. Optional/absent until that ships;
+    // buildInvitationHtml() simply plays no music when it's missing.
+    music?: { id: string; title: string; artist: string; musicUrl: string } | null
 }
 
 // Endpoint-nya bernama ".../path-url", tapi backend-nya sendiri memvalidasi
