@@ -72,7 +72,8 @@ export function buildInvitationHtml(
   userData: Record<string, string>,
   theme: ThemeDefaults,
   sectionOrder: string[],
-  locale: string
+  locale: string,
+  musicUrl?: string
 ): string {
   const { template } = invitation
   const allCss = Object.values(template.sectionTypes).map((s) => s.css).join("\n")
@@ -203,6 +204,8 @@ ${allCss}
 <body>
 <div id="page-cover" data-page="cover">${coverSections}</div>
 <div id="page-main" data-page="main" style="display:none">${mainSections}</div>
+${musicUrl ? `<audio id="momenia-bgm" src="${escapeAttr(musicUrl)}" loop preload="auto"></audio>
+<button id="momenia-music-toggle" type="button" aria-label="Toggle music" style="position:fixed;bottom:16px;right:16px;z-index:9999;width:44px;height:44px;border-radius:9999px;border:none;background:rgba(0,0,0,0.55);color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;">🔊</button>` : ""}
 <script>
 // "<" is escaped so a placeholder can't emit a closing script tag and end this
 // block early. (Careful: writing that tag literally here would do exactly that.)
@@ -221,6 +224,30 @@ window.__memoriaFormatDate = function(iso) {
     return iso;
   }
 };
+${musicUrl ? `// Background music — host-drawn (button + <audio> above), not template markup, same
+// as the RSVP/guestbook bridge below. Autoplay-with-sound is blocked by browsers until a
+// real user gesture; tryAutoplay() is only ever called from __memoriaGoTo('main'), which
+// only fires from the cover's own "Let's Party" click, so it qualifies.
+window.__memoriaMusic = (function(){
+  var audio = document.getElementById('momenia-bgm');
+  var toggle = document.getElementById('momenia-music-toggle');
+  var userPaused = false;
+  function updateIcon(){
+    if (toggle) toggle.textContent = audio.paused ? '🔇' : '🔊';
+  }
+  if (toggle) {
+    toggle.addEventListener('click', function(){
+      if (audio.paused) { userPaused = false; audio.play().catch(function(){}); }
+      else { userPaused = true; audio.pause(); }
+    });
+  }
+  audio.addEventListener('play', updateIcon);
+  audio.addEventListener('pause', updateIcon);
+  updateIcon();
+  return {
+    tryAutoplay: function(){ if (!userPaused) audio.play().catch(function(){}); }
+  };
+})();` : ""}
 window.__memoriaGoTo = function(pageId) {
   document.querySelectorAll('[data-page]').forEach(function(el){
     el.style.display = el.dataset.page === pageId ? '' : 'none';
@@ -230,6 +257,7 @@ window.__memoriaGoTo = function(pageId) {
   // content list and field groups stay stuck on the previous page.
   window.parent.postMessage({type:'memoriaPageChange',pageId:pageId},'*');
   window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
+  if (pageId === 'main' && window.__memoriaMusic) window.__memoriaMusic.tryAutoplay();
 };
 window.addEventListener('message', function(e) {
   if (!e.data) return;
@@ -445,7 +473,7 @@ export function openInvitationPreview(
   // back to the schema placeholders, which is exactly what a demo should show.
   detail: Pick<UserInvitationDetail, "template"> & { fieldValues?: Record<string, string> },
   locale: string,
-  opts?: { userData?: Record<string, string>; theme?: ThemeDefaults; sectionOrder?: string[]; activePage?: string },
+  opts?: { userData?: Record<string, string>; theme?: ThemeDefaults; sectionOrder?: string[]; activePage?: string; musicUrl?: string },
 ): void {
   const userData = opts?.userData ?? detail.fieldValues ?? {}
   const theme = opts?.theme ?? detail.template.theme_defaults
@@ -454,7 +482,7 @@ export function openInvitationPreview(
     (detail.template.pages.find((p) => p.id === "main")?.sections ?? []).map((s) => s.id)
 
   const snapshot: PreviewSnapshot = {
-    html: buildInvitationHtml(detail, userData, theme, sectionOrder, locale),
+    html: buildInvitationHtml(detail, userData, theme, sectionOrder, locale, opts?.musicUrl),
     userData,
     theme,
     activePage: opts?.activePage ?? "main",

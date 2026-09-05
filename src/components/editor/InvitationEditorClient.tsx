@@ -8,9 +8,11 @@ import DesktopFrame from "@/assets/dashboard/laptop.png"
 import {
   Pencil, Type, Palette, Music, ListOrdered, GripVertical, ChevronDown,
   ChevronLeft, ChevronRight, Undo2, Redo2, Eye, Save, Smartphone, Monitor, Plus, Minus,
-  Search, Star, Users, Upload, Play, X, CheckCircle2, Check, Maximize2, Minimize2,
+  Search, Star, Users, Upload, Play, Pause, CheckCircle2, Check, Maximize2, Minimize2,
 } from "lucide-react"
 import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
+import { useMusic, useMusics } from "@/hooks/useMusics"
+import type { Music as MusicTrack } from "@/lib/api/music/music.types"
 import { uploadUserInvitationContent } from "@/lib/api/object-storage/object-storage.service"
 import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
@@ -532,6 +534,217 @@ function TextField({ value, onChange, placeholder, max = 100 }: {
   )
 }
 
+function formatTrackDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m}:${String(s).padStart(2, "0")}`
+}
+
+// Bar count for the placeholder shape below — unrelated to the admin CMS's own
+// WAVEFORM_POINT_COUNT (160), which only matters for ITS upload-time audio analysis.
+const FALLBACK_WAVEFORM_BARS = 40
+
+// Same idea as the admin CMS's fallbackWaveformBars: a track uploaded before waveform
+// generation existed has no real amplitude data, so this fills in a stable (not random —
+// reruns the same for the same id) placeholder shape rather than a flat line.
+function fallbackWaveformBars(seed: string): number[] {
+  const source = seed || "momenia-music"
+  return Array.from({ length: FALLBACK_WAVEFORM_BARS }, (_, i) => {
+    const code = source.charCodeAt(i % source.length)
+    return 10 + ((code + i * 13) % 62)
+  })
+}
+
+function normalizeWaveformBars(waveform: unknown): number[] {
+  if (!Array.isArray(waveform)) return []
+  return waveform.map((amplitude) => Math.min(100, Math.max(0, Math.round(Number(amplitude) || 0))))
+}
+
+// Mirrors the admin CMS's buildWaveformPath exactly (same 100x100 viewBox, same
+// centerY/maxHalfHeight), so a track looks the same silhouette in both places.
+function buildWaveformPath(amplitudes: number[]): string {
+  if (amplitudes.length === 0) return ""
+  const centerY = 50
+  const maxHalfHeight = 40
+  const barX = (index: number) => (amplitudes.length === 1 ? 0 : (index / (amplitudes.length - 1)) * 100)
+  const halfHeight = (amplitude: number) => (Math.min(92, Math.max(4, amplitude)) / 100) * maxHalfHeight
+  const top = amplitudes.map((a, i) => `${barX(i).toFixed(2)},${(centerY - halfHeight(a)).toFixed(2)}`)
+  const bottom = [...amplitudes]
+    .map((a, i) => ({ a, i }))
+    .reverse()
+    .map(({ a, i }) => `${barX(i).toFixed(2)},${(centerY + halfHeight(a)).toFixed(2)}`)
+  return `M ${top.join(" L ")} L ${bottom.join(" L ")} Z`
+}
+
+// Waveform silhouette + seek bar, click/drag anywhere along it to scrub. `progress`
+// (0-1) is rendered as a second, clipped copy of the same path drawn in the accent
+// color over the plain gray one, so the "played" portion reads as filled-in.
+function WaveformSeekBar({ amplitudes, progress, onSeek, clipId, selected }: {
+  amplitudes: number[]; progress: number; onSeek: (progress: number) => void; clipId: string; selected?: boolean
+}) {
+  const path = buildWaveformPath(amplitudes)
+  const progressWidth = Math.min(100, Math.max(0, progress * 100))
+
+  const seekFromPointer = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    if (rect.width <= 0) return
+    onSeek((e.clientX - rect.left) / rect.width)
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label="Seek audio"
+      onClick={(e) => e.stopPropagation()}
+      onPointerDown={(e) => { e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId); seekFromPointer(e) }}
+      onPointerMove={(e) => { if (e.buttons === 1) seekFromPointer(e) }}
+      // `w-full` (not flex-1/min-w-0) — this is used both inside a flex row (the
+      // selected-track summary) and inside a plain block div (each list row's title+wave
+      // stack), and flex-* utilities are no-ops without a flex parent.
+      className="block h-10 w-full cursor-pointer"
+    >
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full overflow-visible">
+        <path d={path} className={selected ? "fill-indigo-200" : "fill-zinc-200"} />
+        <clipPath id={clipId}><rect x="0" y="0" width={progressWidth} height="100" /></clipPath>
+        <path d={path} clipPath={`url(#${clipId})`} className="fill-indigo-500" />
+      </svg>
+    </button>
+  )
+}
+
+// Browse the admin's music catalog and pick a track — writes only the id into
+// fieldValues (handleFieldChange("background_music_id", ...)), never the track's own
+// data, so a later edit to that catalog entry (title fix, re-encoded file) is picked up
+// automatically rather than leaving invitations stuck with a stale snapshot.
+function MusicPickerSection({ selectedId, onSelect }: { selectedId: string; onSelect: (id: string) => void }) {
+  const { data: tracks = [], isLoading } = useMusics()
+  const [playingId, setPlayingId] = useState<string | null>(null)
+  const [progress, setProgress] = useState(0)
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const activeTracks = tracks.filter((t) => t.isActive)
+
+  // One shared <audio> for every preview in this list — starting a new preview just
+  // swaps its src, so only ever one track plays at a time.
+  const togglePreview = (track: { id: string; musicUrl: string }) => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (playingId === track.id) {
+      audio.pause()
+      setPlayingId(null)
+      return
+    }
+    audio.src = track.musicUrl
+    setProgress(0)
+    audio.play().catch(() => {})
+    setPlayingId(track.id)
+  }
+
+  const updateProgress = () => {
+    const audio = audioRef.current
+    if (!audio || !Number.isFinite(audio.duration) || audio.duration <= 0) return
+    setProgress(Math.min(1, Math.max(0, audio.currentTime / audio.duration)))
+  }
+
+  const seekTo = (track: MusicTrack, next: number) => {
+    const clamped = Math.min(1, Math.max(0, next))
+    if (playingId !== track.id) togglePreview(track)
+    const audio = audioRef.current
+    const duration = audio && Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : track.durationSeconds
+    if (!audio || !Number.isFinite(duration) || duration <= 0) return
+    audio.currentTime = duration * clamped
+    setProgress(clamped)
+  }
+
+  const waveformFor = (track: MusicTrack) => {
+    const bars = normalizeWaveformBars(track.waveform)
+    return bars.length > 0 ? bars : fallbackWaveformBars(track.id)
+  }
+
+  return (
+    <div className="space-y-2">
+      <audio
+        ref={audioRef}
+        onEnded={() => { setPlayingId(null); setProgress(0) }}
+        onLoadedMetadata={updateProgress}
+        onSeeked={updateProgress}
+        onTimeUpdate={updateProgress}
+        className="hidden"
+      />
+
+      {/* No separate "currently selected" summary card — the highlighted row in the
+          list below already shows that, so a second copy above it was redundant. This
+          is the only way left to pick "no music" (there's no such row in the catalog). */}
+      {selectedId && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => onSelect("")}
+            className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+          >
+            Clear selection
+          </button>
+        </div>
+      )}
+
+      {/* Capped so the sidebar doesn't just keep growing as the catalog grows —
+          scrolls internally past a handful of tracks instead. */}
+      <div className="max-h-72 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 p-1.5">
+        {isLoading ? (
+          <p className="p-2 text-xs text-zinc-400">Loading tracks...</p>
+        ) : activeTracks.length === 0 ? (
+          <p className="p-2 text-xs text-zinc-400">No tracks available.</p>
+        ) : (
+          activeTracks.map((track) => {
+            const isSelected = track.id === selectedId
+            return (
+              <div
+                key={track.id}
+                onClick={() => onSelect(track.id)}
+                className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-sm transition-colors ${
+                  isSelected ? "border-indigo-300 bg-indigo-50" : "border-transparent hover:bg-zinc-50"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); togglePreview(track) }}
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                    isSelected ? "bg-indigo-600 text-white" : "bg-indigo-100 text-indigo-500"
+                  }`}
+                >
+                  {playingId === track.id ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </button>
+                <div className="min-w-0 flex-1">
+                  <p className={`truncate text-sm font-medium ${isSelected ? "text-indigo-700" : "text-zinc-700"}`}>
+                    {track.title} — {track.artist}
+                  </p>
+                  <WaveformSeekBar
+                    amplitudes={waveformFor(track)}
+                    progress={playingId === track.id ? progress : 0}
+                    onSeek={(p) => seekTo(track, p)}
+                    clipId={`wf-${track.id}`}
+                    selected={isSelected}
+                  />
+                </div>
+                <p className="w-10 shrink-0 text-right text-xs text-zinc-400">{formatTrackDuration(track.durationSeconds)}</p>
+                {/* Purely a visual selection indicator — the whole row is already
+                    clickable, this isn't a second interactive control. */}
+                <span
+                  aria-hidden
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                    isSelected ? "border-indigo-600" : "border-zinc-300"
+                  }`}
+                >
+                  {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-indigo-600" />}
+                </span>
+              </div>
+            )
+          })
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Main Editor ───────────────────────────────────────────────────────────────
 
 // Month names for the "Last modified" stamp. (The event-date formatter that also used
@@ -784,6 +997,12 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   }
 
   const activePage = template.pages[activePageIdx]?.id ?? "cover"
+  // The <audio> element itself is baked into the HTML string at build time (like the
+  // template's own sections), not pushed live via postMessage the way text/image field
+  // edits are — so picking a different track is one of the few userData changes that
+  // does need to rebuild `html` below. Resolved here (not just the bare id) since
+  // buildInvitationHtml needs a real playable URL.
+  const { data: selectedMusic } = useMusic(userData.background_music_id ?? "")
   // Keyed on `template` (not the whole `detail`) on purpose. Saving invalidates the
   // detail query, so a refetch lands right after every save with a fresh `lastUpdatedAt`
   // — enough to make React Query hand back a new `detail` object. Depending on that
@@ -794,9 +1013,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   // this rebuilds only when the template genuinely differs. userData/theme are absent
   // deliberately: those reach the iframe over postMessage instead of a full rebuild.
   const html = useMemo(
-    () => buildInvitationHtml({ template }, userData, theme, sectionOrder, locale),
+    () => buildInvitationHtml({ template }, userData, theme, sectionOrder, locale, selectedMusic?.musicUrl),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [template, sectionOrder, locale],
+    [template, sectionOrder, locale, selectedMusic?.musicUrl],
   )
 
   // friendly label for a (possibly generated) section id, via its section_type_id
@@ -1027,7 +1246,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           <button
             onClick={() =>
               // Passes the live editor state, so the popup previews unsaved edits too.
-              openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage })
+              openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage, musicUrl: selectedMusic?.musicUrl })
             }
             className="flex h-12 items-center gap-2 rounded-lg border border-zinc-200 px-5 text-base font-medium text-zinc-700 hover:bg-zinc-50"
           >
@@ -1113,14 +1332,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
             {process.env.NEXT_PUBLIC_FEATURE_MUSIC === "true" && (
               <Section title="Music" icon={<Music className="h-4 w-4 text-indigo-500" />} defaultOpen={false}>
-                <div className="flex items-center gap-3 rounded-xl border border-zinc-200 p-2">
-                  <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white"><Play className="h-4 w-4" /></button>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-zinc-800">Promise - Laufey</p>
-                    <p className="text-xs text-zinc-400">03:54</p>
-                  </div>
-                  <button className="text-zinc-400 hover:text-zinc-600"><X className="h-4 w-4" /></button>
-                </div>
+                <MusicPickerSection
+                  selectedId={userData.background_music_id ?? ""}
+                  onSelect={(id) => handleFieldChange("background_music_id", id)}
+                />
               </Section>
             )}
 
@@ -1387,7 +1602,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           <div className="order-4 flex shrink-0 items-center gap-3 lg:hidden">
             <button
               onClick={() =>
-                openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage })
+                openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage, musicUrl: selectedMusic?.musicUrl })
               }
               className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700"
             >
