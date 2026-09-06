@@ -91,7 +91,7 @@ export type InvitationTemplate = UserInvitationDetail["template"]
 
 // GET /api/v1/user-invitations/content/:path_url — versi publik yang dipakai
 // halaman undangan (/invitation/[slug]). Endpoint ini TIDAK butuh bearer token,
-// cuma x-api-key, dan hanya mengembalikan yang perlu untuk merender undangan.
+// dan hanya mengembalikan yang perlu untuk merender undangan.
 export type UserInvitationContent = {
     id: string
     pathUrl: string
