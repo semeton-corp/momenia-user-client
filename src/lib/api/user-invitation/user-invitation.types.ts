@@ -104,8 +104,9 @@ export type UserInvitationContent = {
     music?: { id: string; title: string; artist: string; musicUrl: string } | null
 }
 
-// Endpoint-nya bernama ".../path-url", tapi backend-nya sendiri memvalidasi
-// body dengan field "slug" (bukan "pathUrl" seperti di contoh dokumentasi Postman).
+// POST /api/v1/user-invitations/slug — nama fungsi/tipe "PathUrl" dipertahankan
+// biar konsisten dengan pemakaiannya di kode (slug === path URL undangan), tapi
+// endpoint aslinya bernama ".../slug", bukan ".../path-url".
 export type CheckPathUrlRequest = {
     slug: string
 }
