@@ -26,11 +26,15 @@ export type InvitationTemplateCategory = {
 
 export type TemplateSchemaField = {
   key: string
-  type: "text" | "image" | "date" | "time"
+  type: "text" | "image" | "date" | "time" | "select"
   label: string
   section: string
   required: boolean
   placeholder?: string
+  // Only meaningful when type === "select" — the choices the editor renders in the
+  // dropdown. The couple's pick is saved into fieldValues as that exact string, same
+  // as any text field, so `{{key}}` substitution needs no special handling for it.
+  options?: string[]
 }
 
 export type TemplateSectionType = {

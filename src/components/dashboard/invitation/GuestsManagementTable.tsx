@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
-import { ChevronDown, Copy, GripVertical, Settings2, Trash2 } from "lucide-react"
+import { ChevronDown, Copy, GripVertical, Link2, Settings2, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { CheckboxTile } from "@/components/ui/checkbox-tile"
 import type { GuestInvitation } from "@/lib/api/guest-invitation/guest-invitation.types"
@@ -139,6 +139,7 @@ type GuestsManagementTableProps = WorkspaceTableFooterPassthrough & {
   onEditGuest: (guest: GuestInvitation) => void
   onToggleDelivered: (guest: GuestInvitation) => void
   onCopyGuestMessage: (guest: GuestInvitation) => void
+  onCopyGuestLink: (guest: GuestInvitation) => void
   onSendWhatsApp: (guest: GuestInvitation) => void
   togglingDeliveredId?: string | null
 }
@@ -171,6 +172,7 @@ export function GuestsManagementTable({
   onEditGuest,
   onToggleDelivered,
   onCopyGuestMessage,
+  onCopyGuestLink,
   onSendWhatsApp,
   togglingDeliveredId,
   selectionLabel,
@@ -321,6 +323,13 @@ export function GuestsManagementTable({
                           className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
                         >
                           <Copy className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onCopyGuestLink(guest)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors"
+                        >
+                          <Link2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>

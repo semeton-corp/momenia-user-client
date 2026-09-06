@@ -50,13 +50,30 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
+// "2026-08-31" → "August 31, 2026" / "31 Agustus 2026", depending on the invitation
+// page's own /id or /en route — not the guest's browser language, which would make the
+// same link read differently for two guests. Falls back to the raw value on anything
+// unparseable, so a malformed date degrades to "wrong-looking" rather than blank.
+function formatDateForLocale(iso: string, locale: string): string {
+  if (!iso) return ""
+  const date = new Date(`${iso}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return iso
+  try {
+    return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", { dateStyle: "long" }).format(date)
+  } catch {
+    return iso
+  }
+}
+
 // Only the template is needed, so this also accepts the lighter public payload from
 // /user-invitations/content/:path_url — not just the full editor detail.
 export function buildInvitationHtml(
   invitation: Pick<UserInvitationDetail, "template">,
   userData: Record<string, string>,
   theme: ThemeDefaults,
-  sectionOrder: string[]
+  sectionOrder: string[],
+  locale: string,
+  musicUrl?: string
 ): string {
   const { template } = invitation
   const allCss = Object.values(template.sectionTypes).map((s) => s.css).join("\n")
@@ -70,6 +87,11 @@ export function buildInvitationHtml(
     if (field.placeholder) placeholders[field.key] = field.placeholder
   }
   const valueFor = (key: string) => userData[key] || placeholders[key] || ""
+
+  // Any schema field typed "date" (currently just event_date) gets its raw ISO value
+  // formatted for display — done by key rather than hardcoding "event_date" so a
+  // template adding a second date field (e.g. an RSVP deadline) gets this for free.
+  const dateFieldKeys = new Set(template.schema.fields.filter((f) => f.type === "date").map((f) => f.key))
 
   function renderSection(sectionId: string, page: typeof mainPage) {
     const sec = page?.sections.find((s) => s.id === sectionId)
@@ -98,7 +120,11 @@ export function buildInvitationHtml(
       // an <h1> would render with the label's small red type instead. Inline style beats
       // any stylesheet selector, and every inherited property still comes from the
       // parent, so the text looks exactly as the template intended.
-      return `<span data-field="${key}" style="all:unset">${escapeHtml(value)}</span>`
+      //
+      // Date fields are formatted only here, not in `value` above — an attribute use
+      // (e.g. a `datetime="{{event_date}}"` on a <time>) should stay machine-readable ISO.
+      const display = dateFieldKeys.has(key) ? formatDateForLocale(value, locale) : value
+      return `<span data-field="${key}" style="all:unset">${escapeHtml(display)}</span>`
     })
     return `<div data-section-id="${sec.id}">${html}</div>`
   }
@@ -108,7 +134,7 @@ export function buildInvitationHtml(
   const allJs = Object.values(template.sectionTypes).map((s) => s.js).filter(Boolean).join("\n;\n")
 
   return `<!DOCTYPE html>
-<html lang="id">
+<html lang="${escapeAttr(locale)}">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -178,10 +204,50 @@ ${allCss}
 <body>
 <div id="page-cover" data-page="cover">${coverSections}</div>
 <div id="page-main" data-page="main" style="display:none">${mainSections}</div>
+${musicUrl ? `<audio id="momenia-bgm" src="${escapeAttr(musicUrl)}" loop preload="auto"></audio>
+<button id="momenia-music-toggle" type="button" aria-label="Toggle music" style="position:fixed;bottom:16px;right:16px;z-index:9999;width:44px;height:44px;border-radius:9999px;border:none;background:rgba(0,0,0,0.55);color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;">🔊</button>` : ""}
 <script>
 // "<" is escaped so a placeholder can't emit a closing script tag and end this
 // block early. (Careful: writing that tag literally here would do exactly that.)
 window.__memoriaPlaceholders = ${JSON.stringify(placeholders).replace(/</g, "\\u003c")};
+window.__memoriaLocale = ${JSON.stringify(locale)};
+window.__memoriaDateFields = ${JSON.stringify(Array.from(dateFieldKeys))};
+// Mirrors formatDateForLocale() on the host side — needed here too since a live edit
+// in the editor updates data-field text via postMessage, not by rebuilding this HTML.
+window.__memoriaFormatDate = function(iso) {
+  if (!iso) return '';
+  var d = new Date(iso + 'T00:00:00');
+  if (isNaN(d.getTime())) return iso;
+  try {
+    return new Intl.DateTimeFormat(window.__memoriaLocale === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'long' }).format(d);
+  } catch (e) {
+    return iso;
+  }
+};
+${musicUrl ? `// Background music — host-drawn (button + <audio> above), not template markup, same
+// as the RSVP/guestbook bridge below. Autoplay-with-sound is blocked by browsers until a
+// real user gesture; tryAutoplay() is only ever called from __memoriaGoTo('main'), which
+// only fires from the cover's own "Let's Party" click, so it qualifies.
+window.__memoriaMusic = (function(){
+  var audio = document.getElementById('momenia-bgm');
+  var toggle = document.getElementById('momenia-music-toggle');
+  var userPaused = false;
+  function updateIcon(){
+    if (toggle) toggle.textContent = audio.paused ? '🔇' : '🔊';
+  }
+  if (toggle) {
+    toggle.addEventListener('click', function(){
+      if (audio.paused) { userPaused = false; audio.play().catch(function(){}); }
+      else { userPaused = true; audio.pause(); }
+    });
+  }
+  audio.addEventListener('play', updateIcon);
+  audio.addEventListener('pause', updateIcon);
+  updateIcon();
+  return {
+    tryAutoplay: function(){ if (!userPaused) audio.play().catch(function(){}); }
+  };
+})();` : ""}
 window.__memoriaGoTo = function(pageId) {
   document.querySelectorAll('[data-page]').forEach(function(el){
     el.style.display = el.dataset.page === pageId ? '' : 'none';
@@ -191,6 +257,7 @@ window.__memoriaGoTo = function(pageId) {
   // content list and field groups stay stuck on the previous page.
   window.parent.postMessage({type:'memoriaPageChange',pageId:pageId},'*');
   window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
+  if (pageId === 'main' && window.__memoriaMusic) window.__memoriaMusic.tryAutoplay();
 };
 window.addEventListener('message', function(e) {
   if (!e.data) return;
@@ -202,7 +269,10 @@ window.addEventListener('message', function(e) {
       // Same fallback as the initial render, so clearing a field in the editor
       // reverts to its placeholder instead of leaving a blank gap.
       var v = ud[k] || window.__memoriaPlaceholders[k] || '';
-      document.querySelectorAll('[data-field="'+k+'"]').forEach(function(el){ el.textContent = v; });
+      // Same split as the initial render: the raw value (v) goes to img/map src, the
+      // display text gets locale-formatted if this key is a date field.
+      var display = window.__memoriaDateFields.indexOf(k) !== -1 ? window.__memoriaFormatDate(v) : v;
+      document.querySelectorAll('[data-field="'+k+'"]').forEach(function(el){ el.textContent = display; });
       document.querySelectorAll('[data-field-img="'+k+'"]').forEach(function(el){ if(v) el.src = v; });
       // The template's own static src="...?q={{field}}&output=embed" only renders once at
       // build time — this keeps the map preview live as the couple edits the location field,
@@ -247,21 +317,24 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
     window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeight},'*');
   }
 
+  // A guest who already answered has no use for the RSVP form. Hides the whole section
+  // it sits in (buildInvitationHtml wraps each one in [data-section-id]) rather than
+  // just the form, so they aren't left with a "Konfirmasi Kehadiran" heading standing
+  // over nothing. Called both for a returning guest (applyGuest, keyed off the status
+  // the host reported at load) and right after a fresh submission succeeds this session.
+  function setRsvpVisible(visible) {
+    document.querySelectorAll('[data-momenia-form="rsvp"]').forEach(function(form){
+      var container = form.closest('[data-section-id]') || form;
+      container.style.display = visible ? '' : 'none';
+    });
+  }
+
   function applyGuest() {
     when(document, 'guest', !!GUEST.id);
     when(document, 'no-guest', !GUEST.id);
 
-    /* A guest who already answered has no use for the RSVP form. Hide the whole
-       section it sits in (buildInvitationHtml wraps each one in [data-section-id])
-       rather than just the form, so they aren't left with a "Konfirmasi Kehadiran"
-       heading standing over nothing. Deliberately keyed off the status the host
-       reported at load, not off a submit in this session — that way the success
-       message still gets its moment before the section disappears on the next visit. */
     var answered = !!GUEST.id && !!GUEST.status && GUEST.status !== 'not-confirmed';
-    document.querySelectorAll('[data-momenia-form="rsvp"]').forEach(function(form){
-      var container = form.closest('[data-section-id]') || form;
-      container.style.display = answered ? 'none' : '';
-    });
+    setRsvpVisible(!answered);
     // Only overwrite when the name is actually known, so the template's own
     // fallback text ("Tamu Undangan") stays visible otherwise.
     if (GUEST.name) {
@@ -333,11 +406,16 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
       GUEST.status = e.data.guestStatus || '';
       applyGuest();
       resize();
+      // Acked back so the host knows the DOM mutation actually happened before it
+      // reveals the iframe — postMessage delivery is async, so "we called post()"
+      // and "the child applied it" are two different moments, not one.
+      window.parent.postMessage({type:'memoriaGuestApplied'},'*');
       return;
     }
 
     if (e.data.type === 'memoriaMessages') {
       renderMessages(e.data.messages || []);
+      window.parent.postMessage({type:'memoriaMessagesApplied'},'*');
       return;
     }
 
@@ -358,6 +436,16 @@ window.parent.postMessage({type:'memoriaResize',height:document.body.scrollHeigh
           });
         }
       });
+
+      // A successful RSVP collapses the whole section, same as it would on a return
+      // visit — no reason to leave a "Konfirmasi Kehadiran" form sitting there once
+      // it's already answered. Delayed briefly so the "Terima kasih!" success message
+      // actually gets seen instead of being replaced by nothing the instant it appears.
+      if (e.data.form === 'rsvp' && e.data.ok) {
+        GUEST.status = 'confirmed';
+        setTimeout(function(){ setRsvpVisible(false); resize(); }, 1500);
+      }
+
       resize();
     }
   });
@@ -385,7 +473,7 @@ export function openInvitationPreview(
   // back to the schema placeholders, which is exactly what a demo should show.
   detail: Pick<UserInvitationDetail, "template"> & { fieldValues?: Record<string, string> },
   locale: string,
-  opts?: { userData?: Record<string, string>; theme?: ThemeDefaults; sectionOrder?: string[]; activePage?: string },
+  opts?: { userData?: Record<string, string>; theme?: ThemeDefaults; sectionOrder?: string[]; activePage?: string; musicUrl?: string },
 ): void {
   const userData = opts?.userData ?? detail.fieldValues ?? {}
   const theme = opts?.theme ?? detail.template.theme_defaults
@@ -394,7 +482,7 @@ export function openInvitationPreview(
     (detail.template.pages.find((p) => p.id === "main")?.sections ?? []).map((s) => s.id)
 
   const snapshot: PreviewSnapshot = {
-    html: buildInvitationHtml(detail, userData, theme, sectionOrder),
+    html: buildInvitationHtml(detail, userData, theme, sectionOrder, locale, opts?.musicUrl),
     userData,
     theme,
     activePage: opts?.activePage ?? "main",

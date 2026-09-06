@@ -629,6 +629,7 @@
         "empty": "Belum ada tamu.",
         "noResults": "Tidak ada tamu yang cocok dengan pencarian.",
         "actionError": "Terjadi kesalahan. Coba lagi.",
+        "linkCopiedToast": "Tautan undangan berhasil disalin",
         "addedToast": "Tamu berhasil ditambahkan",
         "updatedToast": "Tamu berhasil diperbarui",
         "deletedToast": "Tamu berhasil dihapus",

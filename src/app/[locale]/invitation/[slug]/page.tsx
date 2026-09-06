@@ -1,10 +1,8 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
 import { setRequestLocale } from "next-intl/server"
-import { InvitationViewer } from "@/components/invitation/InvitationViewer"
 import { getUserInvitationContent } from "@/lib/api/user-invitation/user-invitation.service"
-import { buildInvitationHtml, DEFAULT_DESKTOP_BACKGROUND, DESKTOP_BACKGROUND_FIELD_KEY } from "@/lib/invitation-preview"
 import type { UserInvitationContent } from "@/lib/api/user-invitation/user-invitation.types"
+import { InvitationPageClient } from "./InvitationPageClient"
 
 // Guests must always see the couple's latest published content, so this is never
 // served from a cached render.
@@ -44,31 +42,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+// The actual fetch + music resolution happens client-side (InvitationPageClient) — see
+// the comment there for why: resolving fieldValues.background_music_id without the
+// backend's real `music` embed needs localStorage, which only exists in the browser.
 export default async function InvitationPage({ params, searchParams }: Props) {
   const { locale, slug } = await params
   const { guestInvitationId } = await searchParams
   setRequestLocale(locale)
 
-  const invitation = await fetchInvitation(slug)
-  if (!invitation) notFound()
-
-  const { template, fieldValues } = invitation
-  const mainSections = template.pages.find((p) => p.id === "main")?.sections ?? []
-
-  const html = buildInvitationHtml(
-    invitation,
-    fieldValues,
-    template.theme_defaults,
-    mainSections.map((s) => s.id),
-  )
-
-  return (
-    <InvitationViewer
-      html={html}
-      background={fieldValues[DESKTOP_BACKGROUND_FIELD_KEY] || DEFAULT_DESKTOP_BACKGROUND}
-      userInvitationId={invitation.id}
-      guestInvitationId={guestInvitationId}
-      locale={locale}
-    />
-  )
+  return <InvitationPageClient locale={locale} slug={slug} guestInvitationId={guestInvitationId} />
 }
