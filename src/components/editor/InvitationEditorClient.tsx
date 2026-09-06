@@ -8,9 +8,11 @@ import DesktopFrame from "@/assets/dashboard/laptop.png"
 import {
   Pencil, Type, Palette, Music, ListOrdered, GripVertical, ChevronDown,
   ChevronLeft, ChevronRight, Undo2, Redo2, Eye, Save, Smartphone, Monitor, Plus, Minus,
-  Search, Star, Users, Upload, Play, X, CheckCircle2, Check, Maximize2, Minimize2,
+  Search, Star, Users, Upload, Play, Pause, CheckCircle2, Check, Maximize2, Minimize2,
 } from "lucide-react"
 import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
+import { useMusic, useMusics } from "@/hooks/useMusics"
+import type { Music as MusicTrack } from "@/lib/api/music/music.types"
 import { uploadUserInvitationContent } from "@/lib/api/object-storage/object-storage.service"
 import { useToast } from "@/providers/ToastProvider"
 import { UserInvitationDetail } from "@/lib/api/user-invitation/user-invitation.types"
@@ -26,9 +28,13 @@ import {
   openInvitationPreview,
   type ThemeDefaults,
 } from "@/lib/invitation-preview"
+import { EventDatePickerField } from "@/components/dashboard/invitation/EventDatePickerField"
+import { EventTimePickerField } from "@/components/dashboard/invitation/EventTimePickerField"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RestoreChangesModal } from "./RestoreChangesModal"
 import { ImageCropModal } from "./ImageCropModal"
 import { LocationField } from "./LocationField"
+import { SaveSuccessIcon } from "./SaveSuccessIcon"
 
 type UnsavedState = {
   name: string
@@ -203,12 +209,30 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
   onPageChange?: (pageId: string) => void
 }>(function PreviewFrame({ html, userData, theme, activePage, zoom, device, onPageChange }, ref) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
   const loadedRef = useRef(false)
   const loadedFontsRef = useRef<Set<string>>(new Set())
   const userDataRef = useRef(userData); userDataRef.current = userData
   const themeRef = useRef(theme); themeRef.current = theme
   const activePageRef = useRef(activePage); activePageRef.current = activePage
   const onPageChangeRef = useRef(onPageChange); onPageChangeRef.current = onPageChange
+  const scrollCleanupRef = useRef<() => void>(() => {})
+
+  // Custom scrollbar's thumb, as fractions of the track: `top` is where it starts,
+  // `ratio` is how tall it is (== visible/total content, so a phone-height page with
+  // no overflow gets a full-height thumb). Kept in React state (not just DOM writes)
+  // so the thumb re-renders reactively as content or scroll position change.
+  const [scrollMetrics, setScrollMetrics] = useState({ top: 0, ratio: 1 })
+
+  const updateScrollMetrics = () => {
+    const body = iframeRef.current?.contentDocument?.body
+    if (!body) return
+    const { scrollTop, scrollHeight, clientHeight } = body
+    const ratio = scrollHeight > 0 ? Math.min(1, clientHeight / scrollHeight) : 1
+    const maxScrollTop = scrollHeight - clientHeight
+    const top = maxScrollTop > 0 ? (scrollTop / maxScrollTop) * (1 - ratio) : 0
+    setScrollMetrics({ top, ratio })
+  }
 
   // The invitation can navigate itself (its own in-page buttons), so mirror that back
   // to the editor. Read through a ref so the listener is attached exactly once.
@@ -225,10 +249,30 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
 
   // Makes the iframe's own <body> scroll internally instead of the document growing to fit
   // content — the html element clips at the fixed viewport, body carries the scrollbar.
+  // The native scrollbar itself is hidden (width:0 / scrollbar-width:none) — the visible
+  // one lives outside the bezel, driven by scrollMetrics below.
   const injectScrollContainment = (doc: Document) => {
     const style = doc.createElement("style")
-    style.textContent = `html{height:100%;overflow:hidden}body{height:100%;overflow-y:auto;overflow-x:hidden}`
+    style.textContent = `html{height:100%;overflow:hidden}body{height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}body::-webkit-scrollbar{display:none;width:0}`
     doc.head.appendChild(style)
+  }
+
+  // Keeps the external scrollbar's thumb in sync with the iframe's own body scroll — the
+  // body's native scrollbar is hidden (injectScrollContainment above), so this is the only
+  // thing driving the thumb the user actually sees.
+  const bindScrollTracking = (body: HTMLElement) => {
+    updateScrollMetrics()
+    body.addEventListener("scroll", updateScrollMetrics)
+    // Content height can change without a scroll event (a field edit, an image loading
+    // in, a page switch) — the thumb's own height/position both depend on scrollHeight,
+    // so those need to resync too, not just user-driven scrolling.
+    const observer = new ResizeObserver(updateScrollMetrics)
+    observer.observe(body)
+    scrollCleanupRef.current()
+    scrollCleanupRef.current = () => {
+      body.removeEventListener("scroll", updateScrollMetrics)
+      observer.disconnect()
+    }
   }
 
   useEffect(() => {
@@ -238,12 +282,16 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
       loadedRef.current = true
       const doc = iframe.contentDocument
       if (doc) injectScrollContainment(doc)
+      if (doc?.body) bindScrollTracking(doc.body)
       iframe.contentWindow?.postMessage({ type: "memoriaUpdate", userData: userDataRef.current, theme: themeRef.current }, "*")
       iframe.contentWindow?.postMessage({ type: "memoriaGoTo", pageId: activePageRef.current }, "*")
     }
     iframe.addEventListener("load", onLoad, { once: true })
     iframe.setAttribute("srcdoc", html)
-    return () => iframe.removeEventListener("load", onLoad)
+    return () => {
+      iframe.removeEventListener("load", onLoad)
+      scrollCleanupRef.current()
+    }
     // device is a dependency on purpose, not because it affects `html`: switching it
     // swaps in a structurally different iframe (bare vs. bezel-wrapped), which unmounts
     // the old element and mounts a fresh one with no srcdoc — since `html` itself didn't
@@ -284,6 +332,10 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
     iframeRef.current?.contentWindow?.postMessage({ type: "memoriaGoTo", pageId: activePage }, "*")
     // Switching cover/main should land at the top of that page, not wherever the previous page was scrolled to.
     resetIframeScroll(iframeRef.current)
+    // Immediate rough sync so the thumb jumps to the top right away rather than lagging
+    // one frame behind — the ResizeObserver in bindScrollTracking corrects it precisely
+    // once the page-switch's own display toggle (memoriaGoTo, async) actually lands.
+    updateScrollMetrics()
   }, [activePage])
 
   // scale = zoom directly, so 100% zoom renders the iframe at its true native
@@ -298,6 +350,47 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
       el?.scrollIntoView({ behavior: "smooth", block: "start" })
     },
   }), [])
+
+  // Drags the external thumb to scroll the iframe's body directly — same-origin access
+  // is already granted via the sandbox's allow-same-origin, so this reaches straight into
+  // contentDocument rather than round-tripping through postMessage.
+  const handleThumbPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const track = trackRef.current
+    const body = iframeRef.current?.contentDocument?.body
+    if (!track || !body) return
+
+    const trackHeight = track.clientHeight
+    const startY = e.clientY
+    const startScrollTop = body.scrollTop
+    const maxScrollTop = body.scrollHeight - body.clientHeight
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const deltaScroll = ((moveEvent.clientY - startY) / trackHeight) * body.scrollHeight
+      body.scrollTop = Math.max(0, Math.min(maxScrollTop, startScrollTop + deltaScroll))
+    }
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove)
+      window.removeEventListener("pointerup", onUp)
+    }
+    window.addEventListener("pointermove", onMove)
+    window.addEventListener("pointerup", onUp)
+  }
+
+  // Clicking the bare track (not the thumb itself) jumps straight to that position —
+  // standard scrollbar behavior.
+  const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return
+    const track = trackRef.current
+    const body = iframeRef.current?.contentDocument?.body
+    if (!track || !body) return
+
+    const rect = track.getBoundingClientRect()
+    const clickRatio = (e.clientY - rect.top) / rect.height
+    const maxScrollTop = body.scrollHeight - body.clientHeight
+    body.scrollTop = Math.max(0, Math.min(maxScrollTop, clickRatio * body.scrollHeight - body.clientHeight / 2))
+  }
 
   // Same content as the standalone /preview route: a narrow card (bare iframe, capped
   // under the 768px breakpoint) left-aligned over the wallpaper the parent draws behind
@@ -319,34 +412,55 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
     )
   }
 
+  const bezelHeight = VIEWPORT_H * scale + border * 2
+
   return (
-    <div
-      className="relative shrink-0 overflow-hidden bg-black shadow-2xl"
-      style={{
-        // box-sizing: border-box subtracts the border from `width`/`height`, so the
-        // border is added on top of the scaled content size here — otherwise the
-        // border eats into the visible area and clips the phone's edges.
-        width: VIEWPORT_W * scale + border * 2,
-        height: VIEWPORT_H * scale + border * 2,
-        borderRadius: 48 * zoom,
-        border: `${border}px solid #000`,
-      }}
-    >
-      <iframe
-        ref={iframeRef}
-        // allow-popups(-to-escape-sandbox): the embedded map's own "Buka di Maps" link
-        // opens a new tab; without escaping the sandbox that tab inherits our restrictions
-        // and Google refuses to render it (ERR_BLOCKED_BY_RESPONSE).
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        title="Invitation Preview"
+    <div className="flex shrink-0 items-stretch gap-2">
+      <div
+        className="relative shrink-0 overflow-hidden bg-black shadow-2xl"
         style={{
-          width: VIEWPORT_W,
-          height: VIEWPORT_H,
-          border: 0,
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
+          // box-sizing: border-box subtracts the border from `width`/`height`, so the
+          // border is added on top of the scaled content size here — otherwise the
+          // border eats into the visible area and clips the phone's edges.
+          width: VIEWPORT_W * scale + border * 2,
+          height: bezelHeight,
+          borderRadius: 48 * zoom,
+          border: `${border}px solid #000`,
         }}
-      />
+      >
+        <iframe
+          ref={iframeRef}
+          // allow-popups(-to-escape-sandbox): the embedded map's own "Buka di Maps" link
+          // opens a new tab; without escaping the sandbox that tab inherits our restrictions
+          // and Google refuses to render it (ERR_BLOCKED_BY_RESPONSE).
+          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          title="Invitation Preview"
+          style={{
+            width: VIEWPORT_W,
+            height: VIEWPORT_H,
+            border: 0,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        />
+      </div>
+
+      {/* Custom scrollbar, outside the bezel — the phone's own native one is hidden
+          (injectScrollContainment) since the bezel's rounded corners would clip it
+          into an unusable sliver. Always rendered, even with nothing to scroll, per
+          "always put it there" — it just ends up a full-height, non-draggable track. */}
+      <div
+        ref={trackRef}
+        onClick={handleTrackClick}
+        className="relative w-2 shrink-0 cursor-pointer rounded-full bg-zinc-200"
+        style={{ height: bezelHeight }}
+      >
+        <div
+          onPointerDown={handleThumbPointerDown}
+          className="absolute inset-x-0 cursor-grab rounded-full bg-zinc-400 transition-colors hover:bg-zinc-500 active:cursor-grabbing active:bg-zinc-500"
+          style={{ top: `${scrollMetrics.top * 100}%`, height: `${scrollMetrics.ratio * 100}%` }}
+        />
+      </div>
     </div>
   )
 })
@@ -388,6 +502,20 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return <label className="mb-1.5 block text-xs font-medium text-zinc-600">{children}</label>
 }
 
+// Per-field-key overrides for TextField's default 100-char cap — every template field
+// not listed here keeps that default. Add an entry when a specific field needs its own
+// limit instead of the shared one.
+const FIELD_MAX_LENGTH: Record<string, number> = {
+  venue_name: 50,
+}
+
+// Admin hand-writes the schema as raw JSON — guards against an accidental "" entry
+// (Radix reserves empty string to mean "no selection" and throws) and accidental
+// duplicates (React key collision, ambiguous selection).
+function sanitizeOptions(options: string[]): string[] {
+  return Array.from(new Set(options.map((o) => o.trim()).filter(Boolean)))
+}
+
 function TextField({ value, onChange, placeholder, max = 100 }: {
   value: string; onChange: (v: string) => void; placeholder?: string; max?: number
 }) {
@@ -402,6 +530,217 @@ function TextField({ value, onChange, placeholder, max = 100 }: {
         className="w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
       />
       <p className="mt-1 text-right text-[11px] text-zinc-400">{value.length}/{max}</p>
+    </div>
+  )
+}
+
+function formatTrackDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m}:${String(s).padStart(2, "0")}`
+}
+
+// Bar count for the placeholder shape below — unrelated to the admin CMS's own
+// WAVEFORM_POINT_COUNT (160), which only matters for ITS upload-time audio analysis.
+const FALLBACK_WAVEFORM_BARS = 40
+
+// Same idea as the admin CMS's fallbackWaveformBars: a track uploaded before waveform
+// generation existed has no real amplitude data, so this fills in a stable (not random —
+// reruns the same for the same id) placeholder shape rather than a flat line.
+function fallbackWaveformBars(seed: string): number[] {
+  const source = seed || "momenia-music"
+  return Array.from({ length: FALLBACK_WAVEFORM_BARS }, (_, i) => {
+    const code = source.charCodeAt(i % source.length)
+    return 10 + ((code + i * 13) % 62)
+  })
+}
+
+function normalizeWaveformBars(waveform: unknown): number[] {
+  if (!Array.isArray(waveform)) return []
+  return waveform.map((amplitude) => Math.min(100, Math.max(0, Math.round(Number(amplitude) || 0))))
+}
+
+// Mirrors the admin CMS's buildWaveformPath exactly (same 100x100 viewBox, same
+// centerY/maxHalfHeight), so a track looks the same silhouette in both places.
+function buildWaveformPath(amplitudes: number[]): string {
+  if (amplitudes.length === 0) return ""
+  const centerY = 50
+  const maxHalfHeight = 40
+  const barX = (index: number) => (amplitudes.length === 1 ? 0 : (index / (amplitudes.length - 1)) * 100)
+  const halfHeight = (amplitude: number) => (Math.min(92, Math.max(4, amplitude)) / 100) * maxHalfHeight
+  const top = amplitudes.map((a, i) => `${barX(i).toFixed(2)},${(centerY - halfHeight(a)).toFixed(2)}`)
+  const bottom = [...amplitudes]
+    .map((a, i) => ({ a, i }))
+    .reverse()
+    .map(({ a, i }) => `${barX(i).toFixed(2)},${(centerY + halfHeight(a)).toFixed(2)}`)
+  return `M ${top.join(" L ")} L ${bottom.join(" L ")} Z`
+}
+
+// Waveform silhouette + seek bar, click/drag anywhere along it to scrub. `progress`
+// (0-1) is rendered as a second, clipped copy of the same path drawn in the accent
+// color over the plain gray one, so the "played" portion reads as filled-in.
+function WaveformSeekBar({ amplitudes, progress, onSeek, clipId, selected }: {
+  amplitudes: number[]; progress: number; onSeek: (progress: number) => void; clipId: string; selected?: boolean
+}) {
+  const path = buildWaveformPath(amplitudes)
+  const progressWidth = Math.min(100, Math.max(0, progress * 100))
+
+  const seekFromPointer = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    if (rect.width <= 0) return
+    onSeek((e.clientX - rect.left) / rect.width)
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label="Seek audio"
+      onClick={(e) => e.stopPropagation()}
+      onPointerDown={(e) => { e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId); seekFromPointer(e) }}
+      onPointerMove={(e) => { if (e.buttons === 1) seekFromPointer(e) }}
+      // `w-full` (not flex-1/min-w-0) — this is used both inside a flex row (the
+      // selected-track summary) and inside a plain block div (each list row's title+wave
+      // stack), and flex-* utilities are no-ops without a flex parent.
+      className="block h-10 w-full cursor-pointer"
+    >
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full overflow-visible">
+        <path d={path} className={selected ? "fill-indigo-200" : "fill-zinc-200"} />
+        <clipPath id={clipId}><rect x="0" y="0" width={progressWidth} height="100" /></clipPath>
+        <path d={path} clipPath={`url(#${clipId})`} className="fill-indigo-500" />
+      </svg>
+    </button>
+  )
+}
+
+// Browse the admin's music catalog and pick a track — writes only the id into
+// fieldValues (handleFieldChange("background_music_id", ...)), never the track's own
+// data, so a later edit to that catalog entry (title fix, re-encoded file) is picked up
+// automatically rather than leaving invitations stuck with a stale snapshot.
+function MusicPickerSection({ selectedId, onSelect }: { selectedId: string; onSelect: (id: string) => void }) {
+  const { data: tracks = [], isLoading } = useMusics()
+  const [playingId, setPlayingId] = useState<string | null>(null)
+  const [progress, setProgress] = useState(0)
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const activeTracks = tracks.filter((t) => t.isActive)
+
+  // One shared <audio> for every preview in this list — starting a new preview just
+  // swaps its src, so only ever one track plays at a time.
+  const togglePreview = (track: { id: string; musicUrl: string }) => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (playingId === track.id) {
+      audio.pause()
+      setPlayingId(null)
+      return
+    }
+    audio.src = track.musicUrl
+    setProgress(0)
+    audio.play().catch(() => {})
+    setPlayingId(track.id)
+  }
+
+  const updateProgress = () => {
+    const audio = audioRef.current
+    if (!audio || !Number.isFinite(audio.duration) || audio.duration <= 0) return
+    setProgress(Math.min(1, Math.max(0, audio.currentTime / audio.duration)))
+  }
+
+  const seekTo = (track: MusicTrack, next: number) => {
+    const clamped = Math.min(1, Math.max(0, next))
+    if (playingId !== track.id) togglePreview(track)
+    const audio = audioRef.current
+    const duration = audio && Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : track.durationSeconds
+    if (!audio || !Number.isFinite(duration) || duration <= 0) return
+    audio.currentTime = duration * clamped
+    setProgress(clamped)
+  }
+
+  const waveformFor = (track: MusicTrack) => {
+    const bars = normalizeWaveformBars(track.waveform)
+    return bars.length > 0 ? bars : fallbackWaveformBars(track.id)
+  }
+
+  return (
+    <div className="space-y-2">
+      <audio
+        ref={audioRef}
+        onEnded={() => { setPlayingId(null); setProgress(0) }}
+        onLoadedMetadata={updateProgress}
+        onSeeked={updateProgress}
+        onTimeUpdate={updateProgress}
+        className="hidden"
+      />
+
+      {/* No separate "currently selected" summary card — the highlighted row in the
+          list below already shows that, so a second copy above it was redundant. This
+          is the only way left to pick "no music" (there's no such row in the catalog). */}
+      {selectedId && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => onSelect("")}
+            className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+          >
+            Clear selection
+          </button>
+        </div>
+      )}
+
+      {/* Capped so the sidebar doesn't just keep growing as the catalog grows —
+          scrolls internally past a handful of tracks instead. */}
+      <div className="max-h-72 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 p-1.5">
+        {isLoading ? (
+          <p className="p-2 text-xs text-zinc-400">Loading tracks...</p>
+        ) : activeTracks.length === 0 ? (
+          <p className="p-2 text-xs text-zinc-400">No tracks available.</p>
+        ) : (
+          activeTracks.map((track) => {
+            const isSelected = track.id === selectedId
+            return (
+              <div
+                key={track.id}
+                onClick={() => onSelect(track.id)}
+                className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-sm transition-colors ${
+                  isSelected ? "border-indigo-300 bg-indigo-50" : "border-transparent hover:bg-zinc-50"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); togglePreview(track) }}
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                    isSelected ? "bg-indigo-600 text-white" : "bg-indigo-100 text-indigo-500"
+                  }`}
+                >
+                  {playingId === track.id ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </button>
+                <div className="min-w-0 flex-1">
+                  <p className={`truncate text-sm font-medium ${isSelected ? "text-indigo-700" : "text-zinc-700"}`}>
+                    {track.title} — {track.artist}
+                  </p>
+                  <WaveformSeekBar
+                    amplitudes={waveformFor(track)}
+                    progress={playingId === track.id ? progress : 0}
+                    onSeek={(p) => seekTo(track, p)}
+                    clipId={`wf-${track.id}`}
+                    selected={isSelected}
+                  />
+                </div>
+                <p className="w-10 shrink-0 text-right text-xs text-zinc-400">{formatTrackDuration(track.durationSeconds)}</p>
+                {/* Purely a visual selection indicator — the whole row is already
+                    clickable, this isn't a second interactive control. */}
+                <span
+                  aria-hidden
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                    isSelected ? "border-indigo-600" : "border-zinc-300"
+                  }`}
+                >
+                  {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-indigo-600" />}
+                </span>
+              </div>
+            )
+          })
+        )}
+      </div>
     </div>
   )
 }
@@ -459,6 +798,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   // these is ever read there — every consumer is guarded by an `lg:` class that wins.
   const [mobilePanel, setMobilePanel] = useState<"design" | "content">("design")
   const [isPreviewExpanded, setIsPreviewExpanded] = useState(false)
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false)
   const zoom = previewDevice === "desktop" ? desktopZoom : mobileZoom
   const setZoom = previewDevice === "desktop" ? setDesktopZoom : setMobileZoom
 
@@ -539,6 +879,32 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     setSectionOrder(state.sectionOrder)
     setHistoryIndex(newIndex)
   }, [canRedo, historyIndex, history])
+
+  // Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y redo — skipped while typing in an
+  // input/textarea/contentEditable (the template message editor) so the browser's own
+  // native text-undo isn't hijacked there.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z" && e.key.toLowerCase() !== "y") return
+      const target = e.target as HTMLElement | null
+      const isEditable = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable
+      if (isEditable) return
+
+      const key = e.key.toLowerCase()
+      if (key === "z" && e.shiftKey) {
+        e.preventDefault()
+        handleRedo()
+      } else if (key === "z") {
+        e.preventDefault()
+        handleUndo()
+      } else if (key === "y") {
+        e.preventDefault()
+        handleRedo()
+      }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [handleUndo, handleRedo])
 
   // Track state changes for undo/redo (debounced to avoid excessive history entries)
   const historyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -631,7 +997,26 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   }
 
   const activePage = template.pages[activePageIdx]?.id ?? "cover"
-  const html = useMemo(() => buildInvitationHtml(detail, userData, theme, sectionOrder), [detail, sectionOrder, template])
+  // The <audio> element itself is baked into the HTML string at build time (like the
+  // template's own sections), not pushed live via postMessage the way text/image field
+  // edits are — so picking a different track is one of the few userData changes that
+  // does need to rebuild `html` below. Resolved here (not just the bare id) since
+  // buildInvitationHtml needs a real playable URL.
+  const { data: selectedMusic } = useMusic(userData.background_music_id ?? "")
+  // Keyed on `template` (not the whole `detail`) on purpose. Saving invalidates the
+  // detail query, so a refetch lands right after every save with a fresh `lastUpdatedAt`
+  // — enough to make React Query hand back a new `detail` object. Depending on that
+  // rebuilt this entire ~50KB HTML string and reset the iframe's srcdoc, tearing the
+  // invitation down and re-parsing it (re-running template JS, re-fetching fonts) at the
+  // exact moment the save animation was trying to run. React Query's structural sharing
+  // keeps `detail.template`'s reference when its contents haven't actually changed, so
+  // this rebuilds only when the template genuinely differs. userData/theme are absent
+  // deliberately: those reach the iframe over postMessage instead of a full rebuild.
+  const html = useMemo(
+    () => buildInvitationHtml({ template }, userData, theme, sectionOrder, locale, selectedMusic?.musicUrl),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [template, sectionOrder, locale, selectedMusic?.musicUrl],
+  )
 
   // friendly label for a (possibly generated) section id, via its section_type_id
   const sectionLabel = useCallback((id: string) => {
@@ -706,8 +1091,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         } catch {
           // ignore
         }
+        // Stays on the editor rather than redirecting — the checkmark animation is the
+        // primary confirmation; the toast is a second, harder-to-miss signal alongside it.
+        setShowSaveSuccess(true)
         toast("Invitation saved successfully", "success")
-        router.push(`/dashboard/my-invitation/${invitationId}`)
       },
       onError: (err) => {
         toast(err instanceof Error ? err.message : "Failed to save invitation", "error")
@@ -776,12 +1163,13 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   const swatch = (key: keyof ThemeDefaults, label: string) => (
     <div className="flex items-center justify-between">
       <span className="text-sm text-zinc-600">{label}</span>
-      <div className="flex items-center gap-2 rounded-lg border border-zinc-200 p-1 pr-2">
-        <label className="relative h-6 w-6 cursor-pointer overflow-hidden rounded-md" style={{ background: theme[key] }}>
-          <input type="color" value={theme[key]} onChange={(e) => setTheme((p) => ({ ...p, [key]: e.target.value }))} className="absolute inset-0 cursor-pointer opacity-0" />
-        </label>
+      {/* The input now covers the whole card (not just the small square), so clicking
+          anywhere in it — including the hex text — opens the native color picker. */}
+      <label className="relative flex w-32 cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 p-1 pr-2">
+        <input type="color" value={theme[key]} onChange={(e) => setTheme((p) => ({ ...p, [key]: e.target.value }))} className="absolute inset-0 cursor-pointer opacity-0" />
+        <span className="h-6 w-6 shrink-0 rounded-md" style={{ background: theme[key] }} />
         <span className="text-xs font-medium uppercase text-zinc-500">{theme[key]}</span>
-      </div>
+      </label>
     </div>
   )
 
@@ -858,14 +1246,18 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           <button
             onClick={() =>
               // Passes the live editor state, so the popup previews unsaved edits too.
-              openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage })
+              openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage, musicUrl: selectedMusic?.musicUrl })
             }
-            className="flex h-10 items-center gap-2 rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="flex h-12 items-center gap-2 rounded-lg border border-zinc-200 px-5 text-base font-medium text-zinc-700 hover:bg-zinc-50"
           >
-            <Eye className="h-4 w-4" />Preview
+            <Eye className="h-5 w-5" />Preview
           </button>
-          <button onClick={handleSave} disabled={isSaving} className="flex h-10 items-center gap-2 rounded-lg bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
-            {isSaving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Save className="h-4 w-4" />}
+          <button onClick={handleSave} disabled={!isDirty || isSaving || showSaveSuccess} className="flex h-12 items-center gap-2 rounded-lg bg-indigo-600 px-6 text-base font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
+            {showSaveSuccess
+              ? <SaveSuccessIcon onDone={() => setShowSaveSuccess(false)} />
+              : isSaving
+                ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                : <Save className="h-5 w-5" />}
             Save
           </button>
         </div>
@@ -875,7 +1267,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           Panels are rendered once and repositioned with `order`, never duplicated per
           breakpoint — a second copy would mount a second PreviewFrame, i.e. a second
           iframe loading the whole invitation again and racing the first one's messages. */}
-      <div className="flex flex-col gap-4 lg:grid lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)_340px]">
+      <div className="flex flex-col gap-4 lg:grid lg:min-h-0 lg:flex-1 lg:grid-cols-[420px_minmax(0,1fr)_420px]">
 
         {/* ── Mobile tab switch (Design | Content) ──
             Desktop shows both panels at once, so this is mobile-only chrome. */}
@@ -940,14 +1332,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
             {process.env.NEXT_PUBLIC_FEATURE_MUSIC === "true" && (
               <Section title="Music" icon={<Music className="h-4 w-4 text-indigo-500" />} defaultOpen={false}>
-                <div className="flex items-center gap-3 rounded-xl border border-zinc-200 p-2">
-                  <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white"><Play className="h-4 w-4" /></button>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-zinc-800">Promise - Laufey</p>
-                    <p className="text-xs text-zinc-400">03:54</p>
-                  </div>
-                  <button className="text-zinc-400 hover:text-zinc-600"><X className="h-4 w-4" /></button>
-                </div>
+                <MusicPickerSection
+                  selectedId={userData.background_music_id ?? ""}
+                  onSelect={(id) => handleFieldChange("background_music_id", id)}
+                />
               </Section>
             )}
 
@@ -1021,7 +1409,13 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               Mobile mode is unchanged: centered, padded, on the panel's plain gray. */}
           <div
             ref={previewScrollRef}
-            className="flex items-center justify-center overflow-auto p-3 lg:flex-1 lg:p-6"
+            // "safe center" (not plain center): with plain center, a flex item taller
+            // than the container gets clipped symmetrically and the scroll range starts
+            // already offset — there's no way to scroll further up to reach its actual
+            // top edge. "safe" falls back to start-alignment once content overflows, so
+            // e.g. 130% zoom stays fully scrollable to the real top of the mockup, while
+            // still centering normally whenever it fits.
+            className="flex items-center-safe justify-center-safe overflow-auto p-3 lg:flex-1 lg:p-6"
           >
             {previewDevice === "desktop" ? (
               // Outer box carries the *scaled* size so flex-centering and scrolling see
@@ -1107,9 +1501,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           {/* zoom — each device mode tracks (and remembers) its own level. */}
           <div className="hidden shrink-0 items-center justify-center py-3 lg:flex">
             <div className="flex items-center gap-3 rounded-full border border-zinc-200 bg-white px-4 py-2 shadow-sm">
-              <button onClick={() => setZoom((z) => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Plus className="h-4 w-4" /></button>
-              <span className="flex items-center gap-1 text-sm font-medium text-zinc-600"><Search className="h-3.5 w-3.5" />{Math.round(zoom * 100)}%</span>
               <button onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Minus className="h-4 w-4" /></button>
+              <span className="flex items-center gap-1 text-sm font-medium text-zinc-600"><Search className="h-3.5 w-3.5" />{Math.round(zoom * 100)}%</span>
+              <button onClick={() => setZoom((z) => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Plus className="h-4 w-4" /></button>
             </div>
           </div>
         </div>
@@ -1142,15 +1536,37 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                     {field.type === "image" ? (
                       <UploadDropzone value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} invitationId={invitationId} />
                     ) : field.type === "date" ? (
-                      <input type="date" value={userData[field.key] ?? ""} onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                        className="w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                      <EventDatePickerField
+                        value={userData[field.key] ?? ""}
+                        onChange={(v) => handleFieldChange(field.key, v)}
+                        locale={locale}
+                        placeholder={field.placeholder}
+                      />
                     ) : field.type === "time" ? (
-                      <input type="time" value={userData[field.key] ?? ""} onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                        className="w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                      <EventTimePickerField
+                        value={userData[field.key] ?? ""}
+                        onChange={(v) => handleFieldChange(field.key, v)}
+                        placeholder={field.placeholder}
+                      />
                     ) : field.type === "location" ? (
                       <LocationField value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} />
+                    ) : field.type === "select" ? (
+                      <Select value={userData[field.key] ?? ""} onValueChange={(v) => handleFieldChange(field.key, v)}>
+                        <SelectTrigger className="w-full rounded-xl border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                          <SelectValue placeholder={field.placeholder || "Choose one"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {/* Admin hand-writes this schema as raw JSON — sanitizeOptions guards
+                              against an accidental "" entry (Radix reserves empty string to
+                              mean "no selection" and throws) and accidental duplicates
+                              (React key collision, ambiguous selection). */}
+                          {sanitizeOptions(field.options ?? []).map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ) : (
-                      <TextField value={userData[field.key] ?? ""} placeholder={field.placeholder} onChange={(v) => handleFieldChange(field.key, v)} />
+                      <TextField value={userData[field.key] ?? ""} placeholder={field.placeholder} onChange={(v) => handleFieldChange(field.key, v)} max={FIELD_MAX_LENGTH[field.key]} />
                     )}
                   </div>
                 ))}
@@ -1186,7 +1602,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           <div className="order-4 flex shrink-0 items-center gap-3 lg:hidden">
             <button
               onClick={() =>
-                openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage })
+                openInvitationPreview(detail, locale, { userData, theme, sectionOrder, activePage, musicUrl: selectedMusic?.musicUrl })
               }
               className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700"
             >
@@ -1194,10 +1610,14 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             </button>
             <button
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={!isDirty || isSaving || showSaveSuccess}
               className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-semibold text-white disabled:opacity-60"
             >
-              {isSaving ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Save className="h-4 w-4" />}
+              {showSaveSuccess
+                ? <SaveSuccessIcon onDone={() => setShowSaveSuccess(false)} />
+                : isSaving
+                  ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  : <Save className="h-4 w-4" />}
               Save
             </button>
           </div>

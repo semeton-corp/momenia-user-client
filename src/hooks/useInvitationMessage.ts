@@ -16,8 +16,12 @@ export const useUpdateInvitationMessage = (userInvitationId: string) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: UpdateInvitationMessageRequest) => updateInvitationMessage(userInvitationId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["invitation-message", userInvitationId] })
+    onSuccess: (data) => {
+      // Write the saved response straight into the cache instead of only invalidating —
+      // invalidate alone leaves a window where the guest list's WhatsApp/Copy buttons
+      // (read from this same query) can still fire on the old text until the background
+      // refetch resolves.
+      queryClient.setQueryData(["invitation-message", userInvitationId], data)
     },
   })
 }

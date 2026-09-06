@@ -169,6 +169,29 @@ export function InvitationViewer({
       () => [] as PublicGuestInvitationMessage[],
     )
 
+    // postMessage delivery into the iframe is asynchronous — calling post() here does
+    // NOT mean the child has applied it yet. Revealing the page as soon as we've *sent*
+    // the guest/messages data (rather than once the iframe confirms it actually mutated
+    // its DOM) is what caused the "loading screen ends, then things visibly change a
+    // beat later" bug: the RSVP section collapsing or the guestbook filling in after
+    // the page was already shown. So the iframe acks each message back, and isReady only
+    // flips once both acks are in.
+    let guestApplied = false
+    let messagesApplied = false
+    const maybeReveal = () => {
+      if (cancelled || !guestApplied || !messagesApplied) return
+      clearTimeout(timeoutId)
+      setIsReady(true)
+    }
+
+    const onAck = (e: MessageEvent) => {
+      if (e.source !== iframe.contentWindow || !e.data) return
+      if (e.data.type === "memoriaGuestApplied") guestApplied = true
+      else if (e.data.type === "memoriaMessagesApplied") messagesApplied = true
+      else return
+      maybeReveal()
+    }
+
     const applyResults = async () => {
       const [guest, messages] = await Promise.all([guestPromise, messagesPromise])
       if (cancelled) return
@@ -181,20 +204,18 @@ export function InvitationViewer({
         guestStatus: guest?.status ?? "",
       })
       sendMessages(messages)
-      if (!cancelled) {
-        clearTimeout(timeoutId)
-        setIsReady(true)
-      }
     }
 
     const onLoad = () => { void applyResults() }
 
+    window.addEventListener("message", onAck)
     iframe.addEventListener("load", onLoad, { once: true })
     iframe.setAttribute("srcdoc", html)
     return () => {
       cancelled = true
       clearTimeout(timeoutId)
       iframe.removeEventListener("load", onLoad)
+      window.removeEventListener("message", onAck)
     }
   }, [html, guestInvitationId, userInvitationId, post, sendMessages])
 

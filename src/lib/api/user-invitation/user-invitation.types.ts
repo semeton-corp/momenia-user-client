@@ -65,6 +65,9 @@ export type UserInvitationDetail = {
                 section: string
                 required: boolean
                 placeholder?: string
+                // Only meaningful when type === "select" — the choices the editor
+                // renders in the dropdown.
+                options?: string[]
             }>
         }
         sectionTypes: Record<string, {
@@ -94,6 +97,11 @@ export type UserInvitationContent = {
     pathUrl: string
     fieldValues: Record<string, string>
     template: InvitationTemplate
+    // Guests have no session (public endpoint, no Bearer token), so they can't resolve
+    // fieldValues.background_music_id against GET /musics/:id themselves — the backend
+    // needs to embed the resolved track here instead. Optional/absent until that ships;
+    // buildInvitationHtml() simply plays no music when it's missing.
+    music?: { id: string; title: string; artist: string; musicUrl: string } | null
 }
 
 // POST /api/v1/user-invitations/slug — nama fungsi/tipe "PathUrl" dipertahankan
