@@ -11,7 +11,7 @@ export async function createPresignedUpload(data: CreatePresignedUploadRequest):
 }
 
 // Upload langsung ke S3 pakai presigned URL — SENGAJA tidak lewat http():
-// - ini URL pihak ketiga; header tambahan dari http() (Authorization/x-api-key/
+// - ini URL pihak ketiga; header tambahan dari http() (Authorization/
 //   X-Idempotency-Key) akan merusak signature AWS (403 SignatureDoesNotMatch)
 //   karena presigned URL cuma menerima header yang persis ada di X-Amz-SignedHeaders
 // - body-nya file mentah (biner), bukan JSON, dan response-nya kosong (bukan JSON)

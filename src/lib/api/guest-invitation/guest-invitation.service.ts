@@ -38,7 +38,7 @@ export async function getGuestInvitations(
 }
 
 // Dua fungsi berikut dipakai tamu di halaman undangan publik — TANPA authHeader(),
-// karena tamu tidak punya akun. Backend hanya butuh x-api-key dari http().
+// karena tamu tidak punya akun. Endpoint-nya publik sepenuhnya.
 export async function getGuestInvitationById(id: string): Promise<GuestInvitationInfo> {
   return http(`/api/v1/guest-invitations/${id}`)
 }

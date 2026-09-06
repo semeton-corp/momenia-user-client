@@ -2,7 +2,6 @@ import { sanitizeToken } from "./auth-header"
 import { routing } from "@/i18n/routing"
 
 const BASE_URL = typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_API_URL
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY
 
 // POST/PUT/PATCH butuh X-Idempotency-Key supaya backend bisa dedupe kalau client
 // kirim request yang sama dua kali bersamaan (mis. double-click).
@@ -49,7 +48,6 @@ async function tryRefreshSession(): Promise<boolean> {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": API_KEY!,
                     "X-Idempotency-Key": crypto.randomUUID(),
                 },
                 body: JSON.stringify({ refreshToken, userAgent: navigator.userAgent }),
@@ -82,7 +80,6 @@ export async function http<T>(
 ): Promise<T> {
     const buildHeaders = (): Record<string, string> => ({
         "Content-Type": "application/json",
-        "x-api-key": API_KEY!,
         ...(needsIdempotencyKey(options?.method) ? { "X-Idempotency-Key": crypto.randomUUID() } : {}),
         ...((options?.headers as Record<string, string>) || {}),
     })

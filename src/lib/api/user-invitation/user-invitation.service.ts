@@ -29,7 +29,7 @@ export const updateUserInvitation = async (id: string, data: UpdateUserInvitatio
 }
 
 // Halaman undangan publik — sengaja TANPA authHeader(): tamu yang membuka link
-// undangan tidak punya akun, endpoint ini cuma butuh x-api-key dari http().
+// undangan tidak punya akun, endpoint ini publik sepenuhnya.
 export const getUserInvitationContent = async (pathUrl: string): Promise<UserInvitationContent> => {
     return http(`/api/v1/user-invitations/content/${encodeURIComponent(pathUrl)}`)
 }

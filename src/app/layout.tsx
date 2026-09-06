@@ -17,6 +17,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Momenia",
   description: "Momenia",
+  // Served as a plain static asset (public/icon.svg) rather than the app/icon.svg
+  // file-convention — Next.js's webpack build (needed for the Cloudflare/OpenNext
+  // deploy, since Turbopack's own middleware trace output isn't what OpenNext reads)
+  // has a bug where its metadata-image loader can't process SVG icons and crashes
+  // the whole build. This sidesteps that pipeline entirely; same icon, no bug.
+  icons: {
+    icon: "/icon.svg",
+  },
 }
 
 export default function RootLayout({
