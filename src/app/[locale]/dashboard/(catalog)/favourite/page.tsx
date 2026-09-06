@@ -181,7 +181,10 @@ export default function FavouritePage() {
       </div>
 
       {/* ── Mobile: chips ── */}
-      <div className="mt-[14px] -mx-5 overflow-x-auto pb-0.5 scrollbar-hide md:-mx-8 xl:hidden">
+      {/* mt-6 disamakan dengan margin-top Grid di bawah (baris ~223) — biar jarak
+          ke search/sort di atas dan ke grid card di bawah simetris, tidak mepet
+          ke salah satunya. */}
+      <div className="mt-6 -mx-5 overflow-x-auto pb-0.5 scrollbar-hide md:-mx-8 xl:hidden">
         <div className="flex w-max gap-2 px-5 md:px-8">
           <StyleTag label={t("chips.allSaved")} active={selectedTagId === null} onClick={() => setSelectedTagId(null)} />
           {tags.map((tag) => (

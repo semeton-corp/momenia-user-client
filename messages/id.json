@@ -703,7 +703,8 @@
         "title": "Pesan dari Tamu",
         "searchPlaceholder": "Cari nama tamu...",
         "voiceNote": "Voice Note dari {name}",
-        "empty": "Belum ada ucapan.",
+        "emptyTitle": "Belum ada pesan",
+        "emptySubtitle": "Kamu belum menerima pesan dari tamu. Pesan dari tamu akan muncul di sini begitu mereka mulai mengirimnya.",
         "loadError": "Gagal memuat pesan. Periksa koneksi kamu.",
         "hiddenBadge": "Disembunyikan",
         "hiddenToast": "Pesan disembunyikan",
@@ -717,11 +718,11 @@
         }
       },
       "notes": {
-        "title": "After Party Notes",
+        "title": "Catatan Acara",
         "stepOne": "Langkah 1: Buat Catatan",
         "stepTwo": "Langkah 2: Pilih Tamu dan Kirim",
         "formTitle": "Buat Catatan",
-        "formSubtitle": "Buat catatan after party untuk dibagikan kepada tamu undangan.",
+        "formSubtitle": "Buat catatan acara untuk dibagikan kepada tamu undangan.",
         "souvenirLabel": "Souvenir Online",
         "souvenirPlaceholder": "https://...",
         "messageLabel": "Ucapan",
@@ -733,9 +734,9 @@
           "eventName": "Nama Acara"
         },
         "recipientTitle": "Pilih Tamu dan Kirim",
-        "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan after party Anda.",
+        "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan acara Anda.",
         "recipientsLoadError": "Gagal memuat daftar tamu. Periksa koneksi kamu.",
-        "savedToast": "Catatan after party berhasil disimpan",
+        "savedToast": "Catatan acara berhasil disimpan",
         "copiedToast": "Pesan berhasil disalin",
         "actionError": "Terjadi kesalahan. Coba lagi."
       },
