@@ -14,8 +14,8 @@ export function MyInvitationStatCard({
   desc,
 }: MyInvitationStatCardProps) {
   return (
-    <div className="rounded-[8px] border border-zinc-200 bg-white p-[10px] xl:px-6 xl:py-[22px]">
-      <div className="flex items-center gap-1 xl:gap-3">
+    <div className="rounded-[8px] border border-zinc-200 bg-white p-[10px] text-center xl:px-6 xl:py-[22px] xl:text-left">
+      <div className="flex flex-col items-center gap-1 xl:flex-row xl:gap-3">
         <span
           className="h-[5px] w-[5px] shrink-0 rounded-full xl:h-2.5 xl:w-2.5"
           style={{ background: color }}
