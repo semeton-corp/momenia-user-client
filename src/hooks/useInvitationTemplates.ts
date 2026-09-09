@@ -218,6 +218,12 @@ export function useToggleFavourite() {
         refetchType: "none",
         predicate: (q) => q.queryKey[1] === "favourites",
       })
+      // Chip tag di halaman favorit TIDAK di-tulis optimistic di atas (beda dari
+      // list/detail/favouriteIds) — jadi aman direfetch aktif di sini, tidak ada
+      // race dengan write manual manapun. Ini yang bikin chip-nya otomatis
+      // muncul/hilang begitu suatu tag sudah tidak dipakai template favorit
+      // manapun, tanpa perlu refresh halaman.
+      queryClient.invalidateQueries({ queryKey: TEMPLATE_KEYS.favouriteTags })
       // isFavourite = status SEBELUM toggle: true berarti baru saja dihapus,
       // false berarti baru saja ditambahkan.
       toast(isFavourite ? t("removedToast") : t("addedToast"), "success")
