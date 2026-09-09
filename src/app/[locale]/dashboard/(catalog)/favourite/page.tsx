@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl"
 import { formatLabel } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
+import { DragScrollRow } from "@/components/dashboard/DragScrollRow"
 import { SortFilterDropdown, type SortFilterOption } from "@/components/dashboard/SortFilterDropdown"
 import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
@@ -183,8 +184,9 @@ export default function FavouritePage() {
       {/* ── Mobile: chips ── */}
       {/* mt-6 disamakan dengan margin-top Grid di bawah (baris ~223) — biar jarak
           ke search/sort di atas dan ke grid card di bawah simetris, tidak mepet
-          ke salah satunya. */}
-      <div className="mt-6 -mx-5 overflow-x-auto pb-0.5 scrollbar-hide md:-mx-8 xl:hidden">
+          ke salah satunya. DragScrollRow yang sama dengan Style Tags di Dashboard
+          Template Catalog — biar fade putih di tepi kiri/kanan konsisten. */}
+      <DragScrollRow className="mt-6 -mx-5 md:-mx-8 xl:hidden" innerClassName="pb-0.5">
         <div className="flex w-max gap-2 px-5 md:px-8">
           <StyleTag label={t("chips.allSaved")} active={selectedTagId === null} onClick={() => setSelectedTagId(null)} />
           {tags.map((tag) => (
@@ -196,7 +198,7 @@ export default function FavouritePage() {
             />
           ))}
         </div>
-      </div>
+      </DragScrollRow>
 
       {/* ── Desktop: chips left + search/sort right ── */}
       <div className="mt-8 hidden items-center justify-between gap-4 xl:flex">
