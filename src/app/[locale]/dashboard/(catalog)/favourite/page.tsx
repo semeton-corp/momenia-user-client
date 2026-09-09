@@ -7,7 +7,6 @@ import { formatLabel } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
 import { DragScrollRow } from "@/components/dashboard/DragScrollRow"
-import { SortFilterDropdown, type SortFilterOption } from "@/components/dashboard/SortFilterDropdown"
 import { StyleTag } from "@/components/dashboard/StyleTag"
 import { TemplateCard } from "@/components/dashboard/TemplateCard"
 import { TemplateCardSkeleton } from "@/components/dashboard/TemplateCardSkeleton"
@@ -20,18 +19,8 @@ import {
   useTemplateTagsByIds,
   useToggleFavourite,
 } from "@/hooks/useInvitationTemplates"
-import { templateCategoryName, type GetFavouritesParams, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import { templateCategoryName, type TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
 import EmptyFolderIllustration from "@/assets/empty-states/empty-folder.svg"
-
-// Sama seperti dropdown sort di katalog utama dashboard: "Time/Price" + "Ascending/Descending".
-const SORT_FIELD_OPTIONS: { value: NonNullable<GetFavouritesParams["sortField"]>; key: string }[] = [
-  { value: "createdAt", key: "time" },
-  { value: "price", key: "price" },
-]
-const SORT_ORDER_OPTIONS: { value: NonNullable<GetFavouritesParams["sortOrder"]>; key: string }[] = [
-  { value: "asc", key: "ascending" },
-  { value: "desc", key: "descending" },
-]
 
 type FavCard = {
   id: string
@@ -61,32 +50,28 @@ function mapToTemplateDetail(data: TemplateDetailResponse, locale: string): Temp
 
 export default function FavouritePage() {
   const t = useTranslations("dashboard.favourite")
-  const tBanner = useTranslations("dashboard.banner")
   const locale = useLocale()
-  const [selectedTagId, setSelectedTagId] = React.useState<number | null>(null)
-  const [search, setSearch] = React.useState("")
-  const [debouncedSearch, setDebouncedSearch] = React.useState("")
-  const [sortField, setSortField] = React.useState<NonNullable<GetFavouritesParams["sortField"]>>("createdAt")
-  const [sortOrder, setSortOrder] = React.useState<NonNullable<GetFavouritesParams["sortOrder"]>>("desc")
+  // Kosong = "All saved". Bisa pilih lebih dari satu tag sekaligus, sama seperti
+  // Style Tags di katalog utama dashboard.
+  const [selectedTagIds, setSelectedTagIds] = React.useState<number[]>([])
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
   // Item yang menunggu konfirmasi hapus dari favorit (null = dialog tertutup).
   const [pendingUnfav, setPendingUnfav] = React.useState<{ id: string; name: string } | null>(null)
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 400)
-    return () => clearTimeout(timer)
-  }, [search])
+  const toggleTag = (tagId: number) => {
+    setSelectedTagIds((prev) => (prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]))
+  }
 
-  const { data: tags = [] } = useFavouriteTemplateTags()
+  const { data: tags = [], isLoading: isTagsLoading } = useFavouriteTemplateTags()
 
-  // Keyword & sort tetap server-side (endpoint mendukungnya). Filter tag TIDAK
-  // dikirim ke server — backend bilang endpoint /favourites belum bisa filter tag,
-  // jadi itu ditangani manual di bawah lewat useTemplateTagsByIds.
+  // Tidak ada search/sort lagi di UI — selalu diurutkan berdasarkan kapan
+  // di-favoritkan, terbaru duluan. Filter tag TIDAK dikirim ke server — backend
+  // bilang endpoint /favourites belum bisa filter tag, jadi itu ditangani manual
+  // di bawah lewat useTemplateTagsByIds.
   const { data: favouritesData, isLoading, isError } = useFavouriteTemplates({
     pageSize: 100,
-    sortField,
-    sortOrder,
-    keyword: debouncedSearch || undefined,
+    sortField: "createdAt",
+    sortOrder: "desc",
   })
   const { data: detailData, isLoading: isDetailLoading } = useInvitationTemplateDetail(selectedId)
   const { mutate: toggleFavourite } = useToggleFavourite()
@@ -103,14 +88,16 @@ export default function FavouritePage() {
 
   // Filter tag di FE: ambil detail (yang membawa `tags`) tiap kartu yang sedang
   // tampil, cuma waktu ada tag terpilih (biar tidak boros request pas "All saved").
-  const isTagFilterActive = selectedTagId !== null
+  // Kartu ikut tampil kalau tag-nya cocok SALAH SATU dari tag yang dipilih (OR),
+  // sama seperti filter multi-tag di katalog utama dashboard.
+  const isTagFilterActive = selectedTagIds.length > 0
   const tagQueries = useTemplateTagsByIds(
     realCards.map((c) => c.id),
     isTagFilterActive,
   )
   const isTagFilterLoading = isTagFilterActive && tagQueries.some((q) => q.isLoading)
   const cards = isTagFilterActive
-    ? realCards.filter((_, idx) => tagQueries[idx]?.data?.tags.some((tag) => tag.id === selectedTagId) ?? false)
+    ? realCards.filter((_, idx) => tagQueries[idx]?.data?.tags.some((tag) => selectedTagIds.includes(tag.id)) ?? false)
     : realCards
 
   const selectedTemplate = detailData ? mapToTemplateDetail(detailData, locale) : null
@@ -133,29 +120,6 @@ export default function FavouritePage() {
     setPendingUnfav(null)
   }
 
-  const sortFieldOptions: SortFilterOption[] = SORT_FIELD_OPTIONS.map((o) => ({
-    value: o.value,
-    label: tBanner(`sortFieldOptions.${o.key}`),
-  }))
-  const sortOrderOptions: SortFilterOption[] = SORT_ORDER_OPTIONS.map((o) => ({
-    value: o.value,
-    label: tBanner(`sortOrderOptions.${o.key}`),
-  }))
-
-  const sortControl = (triggerClassName: string) => (
-    <SortFilterDropdown
-      label={tBanner("sort")}
-      title={tBanner("sortBy")}
-      fieldValue={sortField}
-      fieldOptions={sortFieldOptions}
-      onFieldChange={(v) => setSortField(v as NonNullable<GetFavouritesParams["sortField"]>)}
-      orderValue={sortOrder}
-      orderOptions={sortOrderOptions}
-      onOrderChange={(v) => setSortOrder(v as NonNullable<GetFavouritesParams["sortOrder"]>)}
-      triggerClassName={triggerClassName}
-    />
-  )
-
   const gridClass =
     "grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 md:gap-x-6 md:gap-y-7 lg:grid-cols-4 xl:grid-cols-[repeat(6,minmax(0,1fr))] xl:gap-7"
 
@@ -170,59 +134,32 @@ export default function FavouritePage() {
         <p className="text-sm font-normal text-zinc-500 xl:hidden">{t("subtitleShort")}</p>
       </header>
 
-      {/* ── Mobile: search + sort ── */}
-      <div className="mt-[14px] flex items-center gap-3 xl:hidden">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t("search")}
-          className="h-12 min-w-0 flex-1 rounded-lg border border-[#E5E7EB] bg-white px-4 text-sm text-zinc-700 outline-none placeholder:text-zinc-400 focus:ring-2 focus:ring-indigo-200"
-        />
-        {sortControl("h-12 w-[140px]")}
-      </div>
-
-      {/* ── Mobile: chips ── */}
-      {/* mt-6 disamakan dengan margin-top Grid di bawah (baris ~223) — biar jarak
-          ke search/sort di atas dan ke grid card di bawah simetris, tidak mepet
-          ke salah satunya. DragScrollRow yang sama dengan Style Tags di Dashboard
-          Template Catalog — biar fade putih di tepi kiri/kanan konsisten. */}
-      <DragScrollRow className="mt-6 -mx-5 md:-mx-8 xl:hidden" innerClassName="pb-0.5">
-        <div className="flex w-max gap-2 px-5 md:px-8">
-          <StyleTag label={t("chips.allSaved")} active={selectedTagId === null} onClick={() => setSelectedTagId(null)} />
-          {tags.map((tag) => (
-            <StyleTag
-              key={tag.id}
-              label={formatLabel(tag.name)}
-              active={selectedTagId === tag.id}
-              onClick={() => setSelectedTagId(tag.id)}
-            />
-          ))}
+      {/* ── Style Tags ── */}
+      {/* Satu DragScrollRow buat semua breakpoint, persis pola Style Tags di
+          katalog utama dashboard (fade putih di tepi + drag-scroll), dan bisa
+          pilih lebih dari satu tag sekaligus. Tanpa search/sort lagi — card
+          selalu terurut dari yang paling baru di-favoritkan. */}
+      <DragScrollRow className="mt-6 -mx-5 md:-mx-8 xl:mx-0 xl:mt-8" innerClassName="pb-1">
+        <div className="flex w-max items-center gap-[14px] px-5 md:px-8 xl:px-0">
+          {isTagsLoading ? (
+            Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-[35px] w-24 shrink-0 animate-pulse rounded-[30px] bg-zinc-100" />
+            ))
+          ) : (
+            <>
+              <StyleTag label={t("chips.allSaved")} active={selectedTagIds.length === 0} onClick={() => setSelectedTagIds([])} />
+              {tags.map((tag) => (
+                <StyleTag
+                  key={tag.id}
+                  label={formatLabel(tag.name)}
+                  active={selectedTagIds.includes(tag.id)}
+                  onClick={() => toggleTag(tag.id)}
+                />
+              ))}
+            </>
+          )}
         </div>
       </DragScrollRow>
-
-      {/* ── Desktop: chips left + search/sort right ── */}
-      <div className="mt-8 hidden items-center justify-between gap-4 xl:flex">
-        <div className="flex flex-wrap items-center gap-3">
-          <StyleTag label={t("chips.allSaved")} active={selectedTagId === null} onClick={() => setSelectedTagId(null)} />
-          {tags.map((tag) => (
-            <StyleTag
-              key={tag.id}
-              label={formatLabel(tag.name)}
-              active={selectedTagId === tag.id}
-              onClick={() => setSelectedTagId(tag.id)}
-            />
-          ))}
-        </div>
-        <div className="flex items-center gap-3">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("search")}
-            className="h-[56px] w-[420px] rounded-lg border border-[#E5E7EB] bg-white px-4 text-base font-normal text-zinc-700 outline-none placeholder:text-zinc-400 focus:ring-2 focus:ring-indigo-200"
-          />
-          {sortControl("h-[56px] w-[180px]")}
-        </div>
-      </div>
 
       {/* ── Grid ── */}
       <div className="mt-6 xl:mt-8">
