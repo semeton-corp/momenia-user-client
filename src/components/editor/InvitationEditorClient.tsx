@@ -1176,10 +1176,14 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
   return (
     // bottom-[90px]: the workspace layout's mobile nav is a 90px fixed bar at z-40, so
     // without this the editor's own bottom row sits underneath it and can't be tapped.
-    <div className="fixed inset-x-0 top-15 bottom-[90px] z-30 flex flex-col gap-4 overflow-y-auto bg-zinc-50 p-4 sm:p-6 lg:left-24 lg:top-0 lg:bottom-0 lg:overflow-hidden">
+    // lg:left-[108px]: sits 8px underneath the 116px workspace sidebar (z-40 over
+    // this z-30 layer) so its rounded corners never expose the white page
+    // background as a seam. The 8px stays inside the container's own padding
+    // (p-4 = 16px), so no content is ever hidden — it only covers empty space.
+    <div className="fixed inset-x-0 top-15 bottom-[90px] z-30 flex flex-col gap-4 overflow-y-auto bg-zinc-50 p-4 sm:p-6 lg:left-[108px] lg:top-0 lg:bottom-0 lg:overflow-hidden">
       {/* ── Top bar ── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0 pl-6">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
             {isEditingName ? (
               <input
