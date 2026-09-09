@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
 import { CalendarDays } from "lucide-react"
 import { Link } from "@/i18n/navigation"
@@ -66,20 +65,18 @@ export function MyInvitationCard({ inv }: { inv: MyInvitationItem }) {
     <div className="rounded-[8px] border border-zinc-200 bg-white p-[10px] xl:h-[188px] xl:p-5">
       {/* ── Mobile ── */}
       <div className="xl:hidden">
-        <div className="flex gap-3">
-          <div className="relative h-[60px] w-[50px] shrink-0 overflow-hidden rounded-lg bg-zinc-100">
-            <Image src={inv.thumbnail} alt={inv.title} fill sizes="50px" className="object-cover" />
+        {/* Thumbnail sengaja tidak ditampilkan — backend belum punya field gambar
+            per-invitation di GET /user-invitations, jadi semua card kalau dikasih
+            gambar bakal kelihatan pakai placeholder yang sama persis. */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-[15px] font-semibold leading-snug text-[#111111]">{inv.title}</h3>
+            {statusBadge}
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="text-[15px] font-semibold leading-snug text-[#111111]">{inv.title}</h3>
-              {statusBadge}
-            </div>
-            <p className="mt-1 text-[12px] font-normal text-[#6B7280]">{inv.category}</p>
-            <p className="mt-1 text-[12px] font-normal text-[#4B5563]">
-              {inv.guests} {t("guests").toLowerCase()} • {inv.rsvp} RSVP
-            </p>
-          </div>
+          <p className="mt-1 text-[12px] font-normal text-[#6B7280]">{inv.category}</p>
+          <p className="mt-1 text-[12px] font-normal text-[#4B5563]">
+            {inv.guests} {t("guests").toLowerCase()} • {inv.rsvp} RSVP
+          </p>
         </div>
         <div className="mt-2 flex items-center justify-between gap-2">
           {isDraft ? (

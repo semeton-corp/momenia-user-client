@@ -79,5 +79,4 @@ export type MyInvitationItem = {
   slug: string | null
   guests: number
   rsvp: number
-  thumbnail: string
 }
