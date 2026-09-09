@@ -50,8 +50,6 @@ const EMPTY_KEYS: Record<Tab, { title: string; subtitle: string }> = {
   expired: { title: "emptyExpiredTitle", subtitle: "emptyExpiredSubtitle" },
 }
 
-const FALLBACK_THUMBNAIL = "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&q=80"
-
 function mapToMyInvitationItem(
   inv: UserInvitation,
   locale: string,
@@ -77,7 +75,6 @@ function mapToMyInvitationItem(
     slug: inv.slug || null,
     guests: inv.totalGuest ?? 0,
     rsvp: inv.totalRSVP ?? 0,
-    thumbnail: FALLBACK_THUMBNAIL,
   }
 }
 
