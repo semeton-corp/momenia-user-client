@@ -596,6 +596,7 @@
         "linkCopiedToast": "Link berhasil disalin",
         "linkLockedToast": "Undangan ini sudah dipublish, link tidak bisa diedit lagi",
         "linkLockedHint": "Undangan yang sudah dipublish tidak bisa mengubah link lagi",
+        "linkLockedBanner": "Setelah undangan dipublish, link tidak bisa diubah atau diedit lagi.",
         "publishDialog": {
           "title": "Publish undangan ini?",
           "description": "Setelah dipublish, link undangan tidak bisa diedit lagi. Pastikan sudah benar sebelum melanjutkan.",
