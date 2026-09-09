@@ -68,3 +68,39 @@ export function extractRawText(root: HTMLElement): string {
   const raw = Array.from(root.childNodes).map(nodeToRaw).join("")
   return stripLoneSurrogates(raw.startsWith("\n") ? raw.slice(1) : raw)
 }
+
+// Kalau titik awal/akhir seleksi jatuh di dalam sebuah chip (mis. teks node
+// "Nama Tamu" di dalam <span data-variable>), geser batas range itu ke tepat
+// sebelum (start) atau sesudah (end) elemen chip-nya — supaya chip yang
+// kesenggol seleksi ikut terhapus UTUH, bukan cuma sebagian teksnya yang
+// terpotong (chip jadi rusak, mis. "Nama Tamu" tersisa "N" doang).
+function snapBoundaryOutsideChip(root: HTMLElement, node: Node, toBeforeChip: boolean) {
+  const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : (node as Element)
+  const chip = el?.closest("[data-variable]")
+  if (!chip || !root.contains(chip) || !chip.parentNode) return null
+  const index = Array.from(chip.parentNode.childNodes).indexOf(chip as ChildNode)
+  return { node: chip.parentNode, offset: toBeforeChip ? index : index + 1 }
+}
+
+// Chip span pakai contenteditable="false" (biar tidak bisa diketik di dalamnya) —
+// tapi itu bikin Backspace/Delete jadi no-op di Chrome kalau seleksinya melewati
+// batas chip itu (mis. blok teks yang mencakup sebagian chip + teks di sekitarnya).
+// Browser-nya sendiri menolak menghapus lintas "pulau" non-editable itu, jadi
+// dihapus manual lewat Range API. Dipanggil dari onKeyDown kedua editor
+// (GuestMessageTemplateCard & VariableMessageField) — return false kalau tidak
+// ada seleksi (biar Backspace/Delete normal, kursor-collapsed, tetap jalan biasa).
+export function deleteSelectionAcrossChips(root: HTMLElement): boolean {
+  const selection = window.getSelection()
+  if (!selection || selection.isCollapsed || selection.rangeCount === 0) return false
+  const range = selection.getRangeAt(0)
+  if (!root.contains(range.commonAncestorContainer)) return false
+
+  const startFix = snapBoundaryOutsideChip(root, range.startContainer, true)
+  if (startFix) range.setStart(startFix.node, startFix.offset)
+  const endFix = snapBoundaryOutsideChip(root, range.endContainer, false)
+  if (endFix) range.setEnd(endFix.node, endFix.offset)
+
+  range.deleteContents()
+  selection.collapseToStart()
+  return true
+}

@@ -670,7 +670,7 @@
           "save": "Save",
           "savedToast": "Message template saved successfully",
           "copiedToast": "Message copied to clipboard",
-          "tooLongToast": "Message exceeds 200 characters and can't be saved",
+          "tooLongToast": "Message exceeds 1000 characters and can't be saved",
           "loadError": "Failed to load message template.",
           "variables": {
             "guestName": "Guest Name",
@@ -738,6 +738,7 @@
         "recipientSubtitle": "Select invitation guests and distribute your post-event notes.",
         "recipientsLoadError": "Failed to load guests. Please check your connection.",
         "savedToast": "Post-event note saved successfully",
+        "tooLongToast": "Message exceeds 1000 characters and can't be saved",
         "copiedToast": "Message copied to clipboard",
         "actionError": "Something went wrong. Please try again."
       },

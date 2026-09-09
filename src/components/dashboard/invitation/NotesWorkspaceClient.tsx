@@ -168,6 +168,10 @@ export function NotesWorkspaceClient({ invitationId }: Props) {
   }
 
   const handleSave = () => {
+    if (messageFieldRef.current?.isOverLimit()) {
+      toast(t("tooLongToast"), "error")
+      return
+    }
     const rawMessage = messageFieldRef.current?.getRawText() ?? ""
     updateMutation.mutate(
       { afterPartyNote: rawMessage, onlineSouvenir: souvenir },
