@@ -596,6 +596,7 @@
         "linkCopiedToast": "Link copied to clipboard",
         "linkLockedToast": "This invitation is already published, the link can no longer be edited",
         "linkLockedHint": "Published invitations can no longer change their link",
+        "linkLockedBanner": "Once you publish the invitation, the link cannot be changed or edited.",
         "publishDialog": {
           "title": "Publish this invitation?",
           "description": "Once published, the invitation link can no longer be edited. Make sure it's correct before continuing.",

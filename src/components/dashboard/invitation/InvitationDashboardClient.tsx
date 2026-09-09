@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { notFound } from "next/navigation"
-import { BookOpenCheck, Check, Copy, Loader2, MessageSquareText, Palette, PencilLine, SquarePen, TableProperties, UserPlus, Users, X } from "lucide-react"
+import { BookOpenCheck, Check, Copy, Info, Loader2, MessageSquareText, Palette, PencilLine, SquarePen, TableProperties, UserPlus, Users, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -708,6 +708,18 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
                 </div>
               </>
             )}
+          </div>
+
+          {/* Info banner: link dikunci begitu undangan dipublish — selalu tampil,
+              bukan cuma pas hover tombol Edit Link yang sudah disabled. */}
+          <div
+            className="mt-4 flex items-center gap-3 rounded-xl p-3 xl:mt-6 xl:gap-4 xl:rounded-xl xl:p-4"
+            style={{ background: "var(--muted)" }}
+          >
+            <Info className="h-5 w-5 shrink-0 xl:h-6 xl:w-6" style={{ color: "var(--primary)" }} />
+            <p className="text-xs font-normal xl:text-sm" style={{ color: "var(--muted-foreground)" }}>
+              {t("overview.linkLockedBanner")}
+            </p>
           </div>
 
           {/* Edit Template / Kelola Tamu — dulu tombol ini ada di kolom kiri
