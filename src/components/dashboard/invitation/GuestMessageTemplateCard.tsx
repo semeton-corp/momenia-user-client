@@ -7,6 +7,7 @@ import { typography } from "@/lib/typography"
 import {
   buildHtml,
   chipHtml,
+  deleteSelectionAcrossChips,
   extractRawText,
   type TemplateVariable,
 } from "@/lib/template-editor"
@@ -49,7 +50,7 @@ export function GuestMessageTemplateCard({
   onSave,
   onExceedsLimit,
   isSaving,
-  maxLength = 200,
+  maxLength = 1000,
 }: GuestMessageTemplateCardProps) {
   const editorRef = React.useRef<HTMLDivElement>(null)
   const [length, setLength] = React.useState(0)
@@ -132,6 +133,14 @@ export function GuestMessageTemplateCard({
           contentEditable
           suppressContentEditableWarning
           onInput={syncState}
+          onKeyDown={(e) => {
+            if (e.key !== "Backspace" && e.key !== "Delete") return
+            const el = editorRef.current
+            if (el && deleteSelectionAcrossChips(el)) {
+              e.preventDefault()
+              syncState()
+            }
+          }}
           role="textbox"
           aria-multiline="true"
           aria-label={title}
