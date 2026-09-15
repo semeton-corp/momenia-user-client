@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { useUserInvitationDetail, useUpdateUserInvitation } from "@/hooks/useUserInvitations"
 import { useMusic, useMusics } from "@/hooks/useMusics"
+import { InvitationEditorSkeleton } from "@/components/editor/InvitationEditorSkeleton"
 import type { Music as MusicTrack } from "@/lib/api/music/music.types"
 import { uploadUserInvitationContent } from "@/lib/api/object-storage/object-storage.service"
 import { useToast } from "@/providers/ToastProvider"
@@ -1656,7 +1657,7 @@ export default function InvitationEditorClient({ invitationId }: { invitationId:
   }, [status, router])
 
   if (isLoading) {
-    return <div className="flex h-96 items-center justify-center text-sm text-zinc-400">Loading editor...</div>
+    return <InvitationEditorSkeleton />
   }
   if (status === 404) {
     return null
