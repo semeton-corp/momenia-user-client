@@ -35,6 +35,12 @@ RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack 
     /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 
 ENV NODE_ENV=production
+# Docker always injects HOSTNAME=<container-id> into every container, which
+# pre-empts standalone server.js's own `process.env.HOSTNAME || '0.0.0.0'`
+# fallback — without this override the server binds to the container-id
+# hostname instead of all interfaces and nothing (not even localhost) can
+# reach it.
+ENV HOSTNAME="0.0.0.0"
 
 # Standalone output only traces production-runtime deps, so dev-only tooling
 # (shadcn CLI, msw, etc.) and their vulnerable transitive deps never ship.
