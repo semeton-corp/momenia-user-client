@@ -2,8 +2,8 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --frozen-lockfile --ignore-scripts && pnpm approve-builds --all && pnpm rebuild
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # 2. Build stage
 FROM node:20-alpine AS builder
@@ -19,7 +19,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_FEATURE_MUSIC=$NEXT_PUBLIC_FEATURE_MUSIC
 ENV NEXT_PUBLIC_FEATURE_PAYMENT_ADDONS=$NEXT_PUBLIC_FEATURE_PAYMENT_ADDONS
 
-RUN npm install -g pnpm && pnpm exec next build
+RUN npx next build
 
 # 3. Run stage
 FROM node:20-alpine AS runner
@@ -27,10 +27,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN npm install -g pnpm
-
 COPY --from=builder /app ./
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]
