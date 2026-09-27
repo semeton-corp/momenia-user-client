@@ -12,11 +12,14 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# choose env file
-ARG ENV_FILE
-COPY ${ENV_FILE} .env
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_FEATURE_MUSIC
+ARG NEXT_PUBLIC_FEATURE_PAYMENT_ADDONS
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_FEATURE_MUSIC=$NEXT_PUBLIC_FEATURE_MUSIC
+ENV NEXT_PUBLIC_FEATURE_PAYMENT_ADDONS=$NEXT_PUBLIC_FEATURE_PAYMENT_ADDONS
 
-RUN npm install -g pnpm && pnpm build:staging
+RUN npm install -g pnpm && pnpm exec next build
 
 # 3. Run stage
 FROM node:20-alpine AS runner
