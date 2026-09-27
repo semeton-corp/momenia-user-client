@@ -25,10 +25,17 @@ RUN npx next build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
+# Patch OS packages (e.g. openssl) to latest fixed version for this alpine release.
+RUN apk upgrade --no-cache
+
 ENV NODE_ENV=production
 
-COPY --from=builder /app ./
+# Standalone output only traces production-runtime deps, so dev-only tooling
+# (shadcn CLI, msw, etc.) and their vulnerable transitive deps never ship.
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

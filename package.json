@@ -36,6 +36,7 @@
     "react-dom": "19.2.3",
     "react-image-crop": "^11.1.2",
     "react-markdown": "^10.1.0",
+    "sharp": "^0.35.4",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
