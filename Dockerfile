@@ -28,6 +28,12 @@ WORKDIR /app
 # Patch OS packages (e.g. openssl) to latest fixed version for this alpine release.
 RUN apk upgrade --no-cache
 
+# node:20-alpine ships npm's own CLI preinstalled; its bundled deps (tar, sigstore,
+# glob, minimatch, ...) show up in image scans even though `node server.js` never
+# invokes npm/npx at runtime, so drop them.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
+
 ENV NODE_ENV=production
 
 # Standalone output only traces production-runtime deps, so dev-only tooling
