@@ -3,7 +3,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install
+RUN npm install -g pnpm && pnpm install --frozen-lockfile --ignore-scripts && pnpm approve-builds --all && pnpm rebuild
 
 # 2. Build stage
 FROM node:20-alpine AS builder
