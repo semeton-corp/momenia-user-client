@@ -1,8 +1,9 @@
 name: Deployment Production
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -18,12 +19,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name }}
 
-      - name: Resolve release image
+      - name: Resolve image tags
         id: image
-        run: echo "target=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "latest=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> "$GITHUB_OUTPUT"
+          echo "sha=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -37,7 +38,9 @@ jobs:
         with:
           context: .
           load: true
-          tags: ${{ steps.image.outputs.target }}
+          tags: |
+            ${{ steps.image.outputs.latest }}
+            ${{ steps.image.outputs.sha }}
           build-args: |
             NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_FEATURE_MUSIC=${{ vars.NEXT_PUBLIC_FEATURE_MUSIC }}
@@ -51,7 +54,7 @@ jobs:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
-          image-ref: ${{ steps.image.outputs.target }}
+          image-ref: ${{ steps.image.outputs.sha }}
           format: table
           output: trivy-image-results.txt
           vuln-type: os,library
@@ -86,13 +89,19 @@ jobs:
           exit 1
 
       - name: Push image
-        run: docker push "${{ steps.image.outputs.target }}"
+        run: |
+          docker push "${{ steps.image.outputs.latest }}"
+          docker push "${{ steps.image.outputs.sha }}"
 
       - name: Write image artifact
-        run: echo "${{ steps.image.outputs.target }}" > image.txt
+        run: |
+          {
+            echo "${{ steps.image.outputs.latest }}"
+            echo "${{ steps.image.outputs.sha }}"
+          } > image.txt
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: momenia-user-client-image-${{ github.event.release.tag_name }}
+          name: momenia-user-client-image-${{ github.sha }}
           path: image.txt
