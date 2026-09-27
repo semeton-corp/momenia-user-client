@@ -45,6 +45,7 @@ jobs:
             NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_FEATURE_MUSIC=${{ vars.NEXT_PUBLIC_FEATURE_MUSIC }}
             NEXT_PUBLIC_FEATURE_PAYMENT_ADDONS=${{ vars.NEXT_PUBLIC_FEATURE_PAYMENT_ADDONS }}
+            NEXT_PUBLIC_PROMOTIONAL_PAGE=${{ vars.NEXT_PUBLIC_PROMOTIONAL_PAGE }}
 
       - name: Run Trivy image scan
         id: trivy
