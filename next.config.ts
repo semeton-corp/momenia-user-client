@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "nos.wv-1.neo.id",
+        hostname: "nos.wjv-1.neo.id",
         pathname: "/**",
       },
       {
