@@ -41,7 +41,7 @@ export default async function HomePage({ params, searchParams }: Props) {
 
   const landingPage = await getLandingPage().catch(() => null)
 
-  if (process.env.PROMOTIONAL_PAGE === "true") {
+  if (process.env.NEXT_PUBLIC_PROMOTIONAL_PAGE === "true") {
     const tPromo = await getTranslations("promo")
     const tCommon = await getTranslations("common")
     const siteName = tCommon("siteName").toUpperCase()
