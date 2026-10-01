@@ -84,8 +84,14 @@ export async function http<T>(
         ...((options?.headers as Record<string, string>) || {}),
     })
 
+    // Tanpa timeout, request yang macet (mis. backend tidak reachable saat SSG build)
+    // akan menggantung sampai worker timeout Next.js (60s x beberapa retry) baru gagal.
     const doFetch = (headers: Record<string, string>) =>
-        fetch(`${BASE_URL}${endpoint}`, { ...options, headers })
+        fetch(`${BASE_URL}${endpoint}`, {
+            ...options,
+            headers,
+            signal: options?.signal ?? AbortSignal.timeout(10_000),
+        })
 
     let headers = buildHeaders()
     let res = await doFetch(headers)

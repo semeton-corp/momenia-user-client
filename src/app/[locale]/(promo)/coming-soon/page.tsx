@@ -5,6 +5,8 @@ import { PromoHeroSection } from "@/components/promo/PromoHeroSection"
 import { PromoFeatureSection } from "@/components/promo/PromoFeatureSection"
 import { Footer } from "@/components/Footer"
 
+export const dynamic = "force-dynamic"
+
 type Props = { params: Promise<{ locale: string }> }
 
 export default async function ComingSoonPage({ params }: Props) {

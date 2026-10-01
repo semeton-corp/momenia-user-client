@@ -5,7 +5,7 @@ import { routing } from "@/i18n/routing"
 const handleI18nRouting = createMiddleware(routing)
 
 export function middleware(request: NextRequest) {
-  const isPromoMode = process.env.PROMOTIONAL_PAGE === "true"
+  const isPromoMode = process.env.NEXT_PUBLIC_PROMOTIONAL_PAGE === "true"
 
   if (isPromoMode) {
     const { pathname } = request.nextUrl
