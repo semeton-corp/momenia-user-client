@@ -3,11 +3,13 @@
 import * as React from "react"
 import { Check, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { buildHtml, chipHtml, extractRawText, type TemplateVariable } from "@/lib/template-editor"
+import { buildHtml, chipHtml, deleteSelectionAcrossChips, extractRawText, type TemplateVariable } from "@/lib/template-editor"
 
 export type VariableMessageFieldHandle = {
   /** Baca isi editor sekarang jadi raw text "...{{key}}..." — dipanggil saat Simpan. */
   getRawText: () => string
+  /** Dicek parent sebelum Simpan — true kalau isinya sudah melebihi maxLength. */
+  isOverLimit: () => boolean
 }
 
 type VariableMessageFieldProps = {
@@ -17,6 +19,7 @@ type VariableMessageFieldProps = {
   ariaLabel: string
   placeholder?: string
   className?: string
+  maxLength?: number
 }
 
 /**
@@ -29,9 +32,11 @@ type VariableMessageFieldProps = {
  * React tidak ikut campur mencocokkan ulang DOM contentEditable saat mengetik.
  */
 export const VariableMessageField = React.forwardRef<VariableMessageFieldHandle, VariableMessageFieldProps>(
-  function VariableMessageField({ body, variables, ariaLabel, placeholder, className }, ref) {
+  function VariableMessageField({ body, variables, ariaLabel, placeholder, className, maxLength = 1000 }, ref) {
     const editorRef = React.useRef<HTMLDivElement>(null)
     const [presentKeys, setPresentKeys] = React.useState<Set<string>>(new Set())
+    const [length, setLength] = React.useState(0)
+    const isOverLimit = length > maxLength
 
     const syncState = React.useCallback(() => {
       const el = editorRef.current
@@ -40,6 +45,9 @@ export const VariableMessageField = React.forwardRef<VariableMessageFieldHandle,
         if (el?.querySelector(`[data-variable="${v.key}"]`)) next.add(v.key)
       })
       setPresentKeys(next)
+      // Array.from (bukan .length mentah) supaya emoji dihitung 1 karakter, bukan
+      // 2 — .length menghitung unit UTF-16, emoji astral pakai 2 unit (surrogate pair).
+      setLength(Array.from(el?.innerText ?? "").length)
     }, [variables])
 
     React.useEffect(() => {
@@ -53,6 +61,7 @@ export const VariableMessageField = React.forwardRef<VariableMessageFieldHandle,
 
     React.useImperativeHandle(ref, () => ({
       getRawText: () => (editorRef.current ? extractRawText(editorRef.current) : ""),
+      isOverLimit: () => isOverLimit,
     }))
 
     const insertVariable = (variable: TemplateVariable) => {
@@ -80,20 +89,39 @@ export const VariableMessageField = React.forwardRef<VariableMessageFieldHandle,
 
     return (
       <div className="space-y-2">
-        <div
-          ref={editorRef}
-          contentEditable
-          suppressContentEditableWarning
-          onInput={syncState}
-          role="textbox"
-          aria-multiline="true"
-          aria-label={ariaLabel}
-          data-placeholder={placeholder}
-          className={cn(
-            "min-h-28 w-full resize-none whitespace-pre-wrap rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 empty:before:text-zinc-400 empty:before:content-[attr(data-placeholder)]",
-            className,
-          )}
-        />
+        <div className="relative">
+          <div
+            ref={editorRef}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={syncState}
+            onKeyDown={(e) => {
+              if (e.key !== "Backspace" && e.key !== "Delete") return
+              const el = editorRef.current
+              if (el && deleteSelectionAcrossChips(el)) {
+                e.preventDefault()
+                syncState()
+              }
+            }}
+            role="textbox"
+            aria-multiline="true"
+            aria-label={ariaLabel}
+            data-placeholder={placeholder}
+            className={cn(
+              "min-h-28 w-full resize-none whitespace-pre-wrap rounded-xl border px-3 py-2.5 pb-7 text-sm text-zinc-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 empty:before:text-zinc-400 empty:before:content-[attr(data-placeholder)]",
+              isOverLimit ? "border-red-400" : "border-zinc-200",
+              className,
+            )}
+          />
+          <span
+            className={cn(
+              "pointer-events-none absolute bottom-2 right-3 text-xs",
+              isOverLimit ? "font-medium text-red-500" : "text-zinc-400",
+            )}
+          >
+            {length}/{maxLength}
+          </span>
+        </div>
         <div className="flex flex-wrap gap-2">
           {variables.map((variable) => {
             const hasVariable = presentKeys.has(variable.key)

@@ -670,7 +670,7 @@
           "save": "Simpan",
           "savedToast": "Template pesan berhasil disimpan",
           "copiedToast": "Pesan berhasil disalin",
-          "tooLongToast": "Pesan melebihi 200 karakter dan tidak bisa disimpan",
+          "tooLongToast": "Pesan melebihi 1000 karakter dan tidak bisa disimpan",
           "loadError": "Gagal memuat template pesan.",
           "variables": {
             "guestName": "Nama Tamu",
@@ -738,6 +738,7 @@
         "recipientSubtitle": "Pilih tamu undangan lalu bagikan catatan acara Anda.",
         "recipientsLoadError": "Gagal memuat daftar tamu. Periksa koneksi kamu.",
         "savedToast": "Catatan acara berhasil disimpan",
+        "tooLongToast": "Pesan melebihi 1000 karakter dan tidak bisa disimpan",
         "copiedToast": "Pesan berhasil disalin",
         "actionError": "Terjadi kesalahan. Coba lagi."
       },
