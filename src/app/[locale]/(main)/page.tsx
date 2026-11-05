@@ -8,6 +8,7 @@ import { CreateNowBanner } from "@/components/landing/CreateNowBanner"
 import { FaqSection } from "@/components/landing/FaqSection"
 import { TestimonialSection } from "@/components/landing/TestimonialSection"
 import { getLandingPage } from "@/lib/api/landing-page/landing-page.service"
+import { isTestimonialsEnabled } from "@/lib/feature-flags"
 import AuthCallbackClient from "@/components/auth/AuthCallbackClient"
 
 // Ensure the OAuth callback branch (?code=...) is always evaluated server-side
@@ -86,7 +87,7 @@ export default async function HomePage({ params, searchParams }: Props) {
           <CatalogSection catalogs={landingPage?.catalogs} />
         </div>
       </div>
-      <TestimonialSection testimonials={landingPage?.testimonials} />
+      {isTestimonialsEnabled && <TestimonialSection testimonials={landingPage?.testimonials} />}
       <FaqSection faqs={landingPage?.faqs} locale={locale} />
       <CreateNowBanner />
     </main>

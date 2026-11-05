@@ -14,12 +14,13 @@ import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/com
 import { routing } from "@/i18n/routing"
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { useLogout } from "@/hooks/auth/useLogout"
+import { isTestimonialsEnabled } from "@/lib/feature-flags"
 
 type SectionItem = {
   id: "home" | "about" | "features" | "catalog" | "review" | "faq"
 }
 
-const sectionItems: SectionItem[] = [
+const allSectionItems: SectionItem[] = [
   { id: "home" },
   { id: "about" },
   { id: "features" },
@@ -27,6 +28,10 @@ const sectionItems: SectionItem[] = [
   { id: "review" },
   { id: "faq" },
 ]
+
+// "Review" menunjuk ke section testimoni — ikut disembunyikan kalau section-nya dimatikan,
+// supaya tidak ada menu yang kalau diklik tidak scroll ke mana-mana.
+const sectionItems = allSectionItems.filter((item) => item.id !== "review" || isTestimonialsEnabled)
 
 const localeLabels: Record<(typeof routing.locales)[number], string> = {
   id: "ID",
