@@ -5,7 +5,7 @@ import Image from "next/image"
 import { WandSparkles, PenTool, Feather, LayoutGrid } from "lucide-react"
 import { motion } from "framer-motion"
 import { useTranslations } from "next-intl"
-import AboutUsImage from "@/assets/llandingpage/about-us.svg"
+import AboutUsImage from "@/assets/llandingpage/about-us.webp"
 
 export function AboutSection() {
   // ── Semua hooks dideklarasikan di atas, berurutan ──
