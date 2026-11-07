@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useTranslations } from "next-intl"
 import { MessageCircle } from "lucide-react"
+import { Link } from "@/i18n/navigation"
 
 const WHATSAPP_NUMBER = "628561114275"
 
@@ -76,6 +77,24 @@ export function Footer() {
             <MessageCircle className="h-4 w-4 shrink-0" />
             <span>{t("contactUs")}: {t("whatsappNumber")}</span>
           </a>
+          <nav
+            aria-label={t("legalLinks")}
+            className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium text-white/90 md:text-base"
+          >
+            <span>{t("legalLinks")}:</span>
+            <Link
+              href="/terms-of-service"
+              className="underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              {t("termsOfService")}
+            </Link>
+            <Link
+              href="/privacy-policy"
+              className="underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              {t("privacyPolicy")}
+            </Link>
+          </nav>
           <p
             className="text-center text-sm font-semibold text-white/90 md:text-base"
             style={{ fontFamily: "var(--font-geist-sans)" }}
