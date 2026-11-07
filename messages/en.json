@@ -81,7 +81,57 @@
     "sourceCode": "The source code is available on",
     "github": "GitHub",
     "contactUs": "Need help? Contact us on WhatsApp",
-    "whatsappNumber": "+62 856-1114-275"
+    "whatsappNumber": "+62 856-1114-275",
+    "legalLinks": "Legal",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms of Service"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "sections": [
+        {
+          "title": "Scope",
+          "body": [
+            "This Privacy Policy describes how Momenia handles Google-derived data when you use Momenia's visible sign-in, account, profile, and payment functions."
+          ]
+        },
+        {
+          "title": "Google Data Received",
+          "body": [
+            "Momenia receives a verified email address, name, profile-picture URL, and only an available Google-verified primary phone number. The phone request is optional, and sign-in continues if Google denies it."
+          ]
+        },
+        {
+          "title": "Purpose of Use",
+          "body": [
+            "Your email address identifies your account. Your name and profile picture populate your profile. A new user record stores your email address, name, profile-picture URL, sign-in provider, and an available phone number."
+          ]
+        },
+        {
+          "title": "Storage",
+          "body": [
+            "Momenia stores the account information described above to provide its visible sign-in, account, profile, and payment functions. Your profile page visibly displays and lets you edit your phone number."
+          ]
+        },
+        {
+          "title": "Payment-Provider Disclosure",
+          "body": [
+            "When you initiate a payment, Momenia conditionally sends your account name, email address, and phone number to Duitku or Midtrans to process that payment."
+          ]
+        },
+        {
+          "title": "Google API Data Policy and Contact",
+          "body": [
+            "Momenia uses Google-derived data only for its visible sign-in, account, profile, and payment functions and in accordance with the Google API Services User Data Policy, including its Limited Use requirements.",
+            "Momenia shares this information only to provide the service, at your request, as applicable law requires, or as permitted by the Terms. For privacy questions, contact Momenia on WhatsApp at +62 856-1114-275."
+          ]
+        }
+      ]
+    }
   },
   "home": {
     "demoTitle": "Hello from Framer Motion!",
@@ -115,6 +165,7 @@
     "signUp": "Sign up",
     "termsText": "By clicking Login, you agree to our",
     "termsOfService": "Terms of Service",
+    "termsConnector": "and",
     "privacyPolicy": "Privacy Policy"
   },
   "register": {
@@ -125,6 +176,7 @@
     "login": "Log in",
     "termsText": "By clicking sign up, you agree to our",
     "termsOfService": "Terms of Service",
+    "termsConnector": "and",
     "privacyPolicy": "Privacy Policy"
   },
   "dashboard": {

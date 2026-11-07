@@ -4,6 +4,8 @@ import { routing } from "@/i18n/routing"
 
 const handleI18nRouting = createMiddleware(routing)
 
+const LEGAL_PATHS = ["/privacy-policy", "/terms-of-service"] as const
+
 export function middleware(request: NextRequest) {
   const isPromoMode = process.env.NEXT_PUBLIC_PROMOTIONAL_PAGE === "true"
 
@@ -19,8 +21,11 @@ export function middleware(request: NextRequest) {
     const normalizedPath = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname
     const isAlreadyOnPromo = normalizedPath === promoPath
     const isApiRoute = pathname.startsWith("/api/")
+    const isLegalRoute = LEGAL_PATHS.some(
+      (path) => normalizedPath === path || normalizedPath === `/${locale}${path}`,
+    )
 
-    if (!isAlreadyOnPromo && !isApiRoute) {
+    if (!isAlreadyOnPromo && !isApiRoute && !isLegalRoute) {
       const url = request.nextUrl.clone()
       url.pathname = promoPath
       return NextResponse.redirect(url)
