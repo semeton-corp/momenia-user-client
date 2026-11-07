@@ -16,6 +16,8 @@ import { useZoomScale } from "@/hooks/use-zoom-scale"
 import MobileFrame from "@/assets/dashboard/mobile.svg"
 import DesktopFrame from "@/assets/dashboard/laptop.png"
 import { useInvitationDurations } from "@/hooks/useInvitationDurations"
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
+import { useAuthGate } from "@/components/dashboard/DashboardAuthGate"
 import { openInvitationPreview } from "@/lib/invitation-preview"
 import type { InvitationTemplate } from "@/lib/api/invitation-template/invitation-template.types"
 
@@ -58,6 +60,8 @@ type Props = {
 
 export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, onClose }: Props) {
   const { data: durations = [], isLoading: isDurationsLoading } = useInvitationDurations()
+  const { isLoggedIn, isLoading: isUserLoading } = useCurrentUser()
+  const { requestAccess } = useAuthGate()
   const t = useTranslations("dashboard.modal")
   const locale = useLocale()
   const scale = useZoomScale()
@@ -88,6 +92,15 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
 
   const selectedDurationPrice = Number(durations.find((d) => d.id === selectedDuration)?.price ?? 0)
   const totalPrice = (template?.price ?? 0) + selectedDurationPrice
+
+  const handleOpenAddOns = () => {
+    if (isUserLoading) return
+    if (!isLoggedIn) {
+      requestAccess()
+      return
+    }
+    setStep("addons")
+  }
 
   // Demo opens the same /preview route the editor uses, rather than a bespoke viewer —
   // one renderer means the catalog demo can't drift from what the couple actually gets.
@@ -416,7 +429,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                     lineHeight: "20px",
                     color: "var(--primary-foreground)",
                   }}
-                  onClick={() => setStep("addons")}
+                  onClick={handleOpenAddOns}
                 >
                   {t("seeAddOns")}
                 </button>
@@ -619,7 +632,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   type="button"
                   className="w-full cursor-pointer rounded-xl transition-colors hover:opacity-90"
                   style={{ height: "52px", backgroundColor: "var(--primary)", fontSize: "15px", fontWeight: 600, lineHeight: "20px", color: "var(--primary-foreground)" }}
-                  onClick={() => setStep("addons")}
+                  onClick={handleOpenAddOns}
                 >
                   {t("seeAddOns")}
                 </button>
