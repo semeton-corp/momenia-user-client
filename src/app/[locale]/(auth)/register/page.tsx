@@ -89,11 +89,21 @@ export default function LoginPage() {
               </Link>
             </p>
 
-            <p className="text-xs text-gray-400 ">
+            <p className="text-xs text-gray-400">
               {t("termsText")}{" "}
-              <span className="underline">{t("termsOfService")}</span>{" "}
-              and{" "}
-              <span className="underline">{t("privacyPolicy")}</span>
+              <Link
+                href="/terms-of-service"
+                className="underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                {t("termsOfService")}
+              </Link>{" "}
+              {t("termsConnector")}{" "}
+              <Link
+                href="/privacy-policy"
+                className="underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                {t("privacyPolicy")}
+              </Link>
             </p>
           </div>
         </div>

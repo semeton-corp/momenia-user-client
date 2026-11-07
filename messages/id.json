@@ -81,7 +81,57 @@
     "sourceCode": "Kode sumber tersedia di",
     "github": "GitHub",
     "contactUs": "Butuh bantuan? Hubungi kami via WhatsApp",
-    "whatsappNumber": "+62 856-1114-275"
+    "whatsappNumber": "+62 856-1114-275",
+    "legalLinks": "Legal",
+    "termsOfService": "Syarat dan Ketentuan",
+    "privacyPolicy": "Kebijakan Privasi"
+  },
+  "legal": {
+    "terms": {
+      "title": "Syarat dan Ketentuan"
+    },
+    "privacy": {
+      "title": "Kebijakan Privasi",
+      "sections": [
+        {
+          "title": "Lingkup",
+          "body": [
+            "Kebijakan Privasi ini menjelaskan bagaimana Momenia menangani data yang berasal dari Google saat Anda menggunakan fungsi masuk, akun, profil, dan pembayaran Momenia yang terlihat."
+          ]
+        },
+        {
+          "title": "Data Google yang Diterima",
+          "body": [
+            "Momenia menerima alamat email terverifikasi, nama, URL foto profil, dan hanya nomor telepon utama yang terverifikasi Google apabila tersedia. Permintaan nomor telepon bersifat opsional, dan proses masuk tetap berjalan jika Google menolaknya."
+          ]
+        },
+        {
+          "title": "Tujuan Penggunaan",
+          "body": [
+            "Alamat email Anda mengidentifikasi akun Anda. Nama dan foto profil Anda mengisi profil Anda. Catatan pengguna baru menyimpan alamat email, nama, URL foto profil, penyedia masuk, dan nomor telepon yang tersedia."
+          ]
+        },
+        {
+          "title": "Penyimpanan",
+          "body": [
+            "Momenia menyimpan informasi akun di atas untuk menyediakan fungsi masuk, akun, profil, dan pembayaran yang terlihat. Halaman profil Anda menampilkan nomor telepon secara jelas dan memungkinkan Anda mengeditnya."
+          ]
+        },
+        {
+          "title": "Pengungkapan kepada Penyedia Pembayaran",
+          "body": [
+            "Saat Anda memulai pembayaran, Momenia secara bersyarat mengirim nama akun, alamat email, dan nomor telepon Anda kepada Duitku atau Midtrans untuk memproses pembayaran tersebut."
+          ]
+        },
+        {
+          "title": "Kebijakan Data Google API dan Kontak",
+          "body": [
+            "Momenia menggunakan data yang berasal dari Google hanya untuk fungsi masuk, akun, profil, dan pembayaran yang terlihat serta sesuai dengan Google API Services User Data Policy, termasuk persyaratan Limited Use-nya.",
+            "Momenia membagikan informasi ini hanya untuk menyediakan layanan, atas permintaan Anda, sebagaimana diwajibkan hukum yang berlaku, atau sebagaimana diizinkan oleh Ketentuan. Untuk pertanyaan privasi, hubungi Momenia melalui WhatsApp di +62 856-1114-275."
+          ]
+        }
+      ]
+    }
   },
   "home": {
     "demoTitle": "Halo dari Framer Motion!",
@@ -115,6 +165,7 @@
     "signUp": "Daftar",
     "termsText": "Dengan mengklik Masuk, Anda menyetujui",
     "termsOfService": "Syarat dan Ketentuan",
+    "termsConnector": "dan",
     "privacyPolicy": "Kebijakan Privasi"
   },
   "register": {
@@ -125,6 +176,7 @@
     "login": "Masuk",
     "termsText": "Dengan mengklik daftar, Anda menyetujui",
     "termsOfService": "Syarat dan Ketentuan",
+    "termsConnector": "dan",
     "privacyPolicy": "Kebijakan Privasi"
   },
   "dashboard": {
