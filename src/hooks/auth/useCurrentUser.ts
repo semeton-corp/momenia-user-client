@@ -13,6 +13,8 @@ type StoredSession = {
 
 function readStoredSession(): StoredSession {
     try {
+        // Clean up storage from the previous refresh-token authentication flow.
+        localStorage.removeItem("refreshToken")
         const token = localStorage.getItem("accessToken")
         const raw = localStorage.getItem("user")
         const storedUser = raw ? (JSON.parse(raw) as UserProfile) : null

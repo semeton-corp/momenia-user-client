@@ -1,4 +1,3 @@
-import { sanitizeToken } from "./auth-header"
 import { routing } from "@/i18n/routing"
 
 const BASE_URL = typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_API_URL
@@ -11,13 +10,8 @@ function needsIdempotencyKey(method?: string): boolean {
     return !!method && IDEMPOTENT_KEY_METHODS.has(method.toUpperCase())
 }
 
-// Satu refresh berjalan bersama untuk semua request yang 401 berbarengan.
-let refreshPromise: Promise<boolean> | null = null
-
-// Sesi benar-benar habis (refresh token ditolak). Tanpa ini user ditinggal di
-// halaman dashboard yang terus melempar 401 tanpa penjelasan — lempar balik ke
-// /dashboard, biar auth gate di sana yang menampilkan modal login.
-// Hard redirect (bukan router.push) supaya cache React Query yang sudah basi ikut hilang.
+// An expired access token ends the session. Return dashboard users to the
+// dashboard entry point so its authentication gate can handle signing in again.
 function redirectAfterSessionEnd(): void {
     if (typeof window === "undefined") return
 
@@ -34,53 +28,6 @@ function redirectAfterSessionEnd(): void {
     const target = `/${locale}/dashboard`
     if (path === target) return
     window.location.replace(target)
-}
-
-async function tryRefreshSession(): Promise<boolean> {
-    if (typeof window === "undefined") return false
-    const rawRefreshToken = localStorage.getItem("refreshToken")
-    const refreshToken = rawRefreshToken ? sanitizeToken(rawRefreshToken) : null
-    if (
-        !refreshToken ||
-        refreshToken.toLowerCase() === "undefined" ||
-        refreshToken.toLowerCase() === "null"
-    ) {
-        // Older auth callbacks may have stored a missing token as the literal
-        // string "undefined". Remove placeholders instead of sending them to the API.
-        if (rawRefreshToken) localStorage.removeItem("refreshToken")
-        return false
-    }
-
-    refreshPromise ??= (async () => {
-        try {
-            const res = await fetch(`${BASE_URL}/api/v1/sessions/refresh`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Idempotency-Key": crypto.randomUUID(),
-                },
-                body: JSON.stringify({ refreshToken, userAgent: navigator.userAgent }),
-            })
-            if (!res.ok) {
-                // Refresh token ikut mati → sesi benar-benar berakhir, bersihkan.
-                localStorage.removeItem("accessToken")
-                localStorage.removeItem("refreshToken")
-                localStorage.removeItem("user")
-                redirectAfterSessionEnd()
-                return false
-            }
-            const data: { accessToken: string; refreshToken: string } = await res.json()
-            localStorage.setItem("accessToken", data.accessToken)
-            if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken)
-            return true
-        } catch {
-            return false
-        } finally {
-            refreshPromise = null
-        }
-    })()
-
-    return refreshPromise
 }
 
 export async function http<T>(
@@ -102,17 +49,14 @@ export async function http<T>(
             signal: options?.signal ?? AbortSignal.timeout(10_000),
         })
 
-    let headers = buildHeaders()
-    let res = await doFetch(headers)
+    const headers = buildHeaders()
+    const res = await doFetch(headers)
 
-    // Access token kadaluarsa → refresh sekali, lalu ulangi request dengan token baru.
     if (res.status === 401 && headers.Authorization && typeof window !== "undefined") {
-        const refreshed = await tryRefreshSession()
-        if (refreshed) {
-            const rawToken = localStorage.getItem("accessToken") ?? ""
-            headers = { ...headers, Authorization: `Bearer ${sanitizeToken(rawToken)}` }
-            res = await doFetch(headers)
-        }
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
+        localStorage.removeItem("user")
+        redirectAfterSessionEnd()
     }
 
     if (!res.ok) {

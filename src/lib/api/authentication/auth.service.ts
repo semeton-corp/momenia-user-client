@@ -5,8 +5,6 @@ import {
     GoogleAuthRequest,
     AuthResponse,
     OAuthResponse,
-    RefreshTokenRequest,
-    RefreshTokenResponse,
     LogoutResponse,
     UserProfile,
     Account,
@@ -69,15 +67,6 @@ export const getOauthSignUpGoogle = async (): Promise<OAuthResponse> => {
 
 export const getOauthSignInGoogle = async (): Promise<OAuthResponse> => {
     return startGoogleOAuth(`${BASE_USERS}/signin/google`)
-}
-
-export const refreshToken = async (
-    data: RefreshTokenRequest
-): Promise<RefreshTokenResponse> => {
-    return http(`${BASE_SESSIONS}/refresh`, {
-        method: "POST",
-        body: JSON.stringify(data),
-    })
 }
 
 export const logout = async (): Promise<LogoutResponse> => {
