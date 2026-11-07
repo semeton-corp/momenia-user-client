@@ -10,6 +10,7 @@ import ReactMarkdown, { type Components } from "react-markdown"
 
 import { Button } from "@/components/ui/button"
 import { RadioDot } from "@/components/ui/radio-dot"
+import { FreeTemplateBadge } from "@/components/dashboard/FreeTemplateBadge"
 import { cn } from "@/lib/utils"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
 import MobileFrame from "@/assets/dashboard/mobile.svg"
@@ -124,12 +125,15 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
 
         <DialogPrimitive.Content
           aria-describedby={undefined}
-          className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[24px] bg-white shadow-2xl focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-[24px] bg-white shadow-2xl focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
           style={(isDesktop
             ? { zoom: scale, width: step === "detail" ? "1268px" : "1278px", height: step === "detail" ? "799px" : "860px", maxWidth: "calc(100vw - 2rem)", padding: step === "detail" ? "60px" : "0 60px 60px 60px" }
             : { width: "calc(100vw - 2rem)", maxWidth: "440px", height: "88vh", maxHeight: "88vh", padding: 0 }) as React.CSSProperties}
         >
           <DialogPrimitive.Title className="sr-only">{template?.title}</DialogPrimitive.Title>
+          {template?.price === 0 && (
+            <FreeTemplateBadge size="card" className="absolute -left-4 -top-10 z-[60] xl:-top-4" />
+          )}
 
 
           {template && step === "detail" && (

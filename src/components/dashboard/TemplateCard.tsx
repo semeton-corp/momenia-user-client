@@ -5,6 +5,7 @@ import { Heart } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
+import { FreeTemplateBadge } from "@/components/dashboard/FreeTemplateBadge"
 
 type TemplateCardProps = {
   id: string | number
@@ -32,7 +33,7 @@ export function TemplateCard({
   return (
     <div
       onClick={() => onClick?.(id)}
-      className="flex w-full cursor-pointer flex-col rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)] xl:border xl:border-border xl:bg-card xl:shadow-none"
+      className="relative flex w-full cursor-pointer flex-col rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)] xl:border xl:border-border xl:bg-card xl:shadow-none"
     >
       <div className="p-3.5 pb-0">
         <div
@@ -52,6 +53,8 @@ export function TemplateCard({
           />
         </div>
       </div>
+
+      {price === 0 && <FreeTemplateBadge className="absolute -left-2.5 -top-2.5 z-20" />}
 
       <div className="flex flex-col gap-1 p-3.5 pt-3">
         <div className="flex items-start justify-between gap-2">
