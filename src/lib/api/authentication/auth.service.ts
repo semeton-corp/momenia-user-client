@@ -41,16 +41,34 @@ export const getGoogleOAuth = async (): Promise<OAuthResponse> => {
     })
 }
 
-export const getOauthSignUpGoogle = async (): Promise<OAuthResponse> => {
-    return http(`${BASE_USERS}/signup/google`, {
+// Google mengembalikan user ke host API, jadi cookie oauth_state harus diset oleh host
+// API itu sendiri. Lewat rewrite Next (http()), browser malah menyimpannya untuk host
+// frontend dan callback ditolak "not started by this browser". Makanya dua request
+// "mulai OAuth" ini langsung ke NEXT_PUBLIC_API_URL dengan credentials (kalau tidak,
+// browser membuang Set-Cookie-nya); endpoint lain tetap lewat rewrite. Sengaja fetch
+// polos tanpa header tambahan supaya tetap simple request (tanpa preflight CORS).
+async function startGoogleOAuth(path: string): Promise<OAuthResponse> {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
         method: "GET",
+        credentials: "include",
+        signal: AbortSignal.timeout(10_000),
     })
+
+    if (!res.ok) {
+        const error = new Error((await res.text()) || "API Error") as Error & { status?: number }
+        error.status = res.status
+        throw error
+    }
+
+    return res.json()
+}
+
+export const getOauthSignUpGoogle = async (): Promise<OAuthResponse> => {
+    return startGoogleOAuth(`${BASE_USERS}/signup/google`)
 }
 
 export const getOauthSignInGoogle = async (): Promise<OAuthResponse> => {
-    return http(`${BASE_USERS}/signin/google`, {
-        method: "GET",
-    })
+    return startGoogleOAuth(`${BASE_USERS}/signin/google`)
 }
 
 export const refreshToken = async (
