@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import QrisIcon from "@/assets/logo/Qris-icon.svg"
@@ -11,7 +11,7 @@ import { useRouter } from "@/i18n/navigation"
 import { useCreateTransaction } from "@/hooks/useCreateTransaction"
 import { PaymentModal } from "./PaymentModal"
 import { TermsAndConditionsModal } from "./TermsAndConditionsModal"
-import type { CreateTransactionResponse } from "@/lib/api/transaction/transaction.types"
+import { clearPendingTransaction, getPendingTransaction, type PendingTransaction } from "@/lib/api/transaction/pending-transaction"
 
 const FEATURE_ADDONS = [
   { key: "instagramFilter", price: 10000 },
@@ -35,9 +35,10 @@ export function PaymentContent() {
   const searchParams = useSearchParams()
   const t = useTranslations("dashboard.payment")
   const tModal = useTranslations("dashboard.modal")
-  const { mutate: createTransaction, isPending, data: transactionData } = useCreateTransaction()
+  const { mutate: createTransaction, isPending } = useCreateTransaction()
+  const currentSelection = useRef("")
 
-  const [pendingTransaction, setPendingTransaction] = useState<CreateTransactionResponse | null>(null)
+  const [savedTransaction, setPendingTransaction] = useState<PendingTransaction | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [showTermsModal, setShowTermsModal] = useState(false)
@@ -48,32 +49,20 @@ export function PaymentContent() {
   const image = searchParams.get("image") ?? ""
   const category = searchParams.get("category") ?? ""
   const durationKey = searchParams.get("duration") ?? ""
+  currentSelection.current = JSON.stringify([templateId, durationKey])
+  const pendingTransaction = savedTransaction?.invitationTemplateId === templateId &&
+    savedTransaction?.invitationDurationId === durationKey ? savedTransaction : null
   const durationLabel = searchParams.get("durationLabel") ?? ""
   const durationPrice = Number(searchParams.get("durationPrice") ?? 0)
   const featuresParam = searchParams.get("features") ?? ""
   const selectedFeatures = featuresParam ? featuresParam.split(",").filter(Boolean) : []
 
-  // Restore transaction from localStorage on mount
+  // Resume only the payment for this template and duration selection.
   useEffect(() => {
-    const stored = localStorage.getItem("pendingTransaction")
-    if (stored) {
-      try {
-        const transaction = JSON.parse(stored)
-        setPendingTransaction(transaction)
-        setShowModal(true)
-      } catch {
-        localStorage.removeItem("pendingTransaction")
-      }
-    }
-  }, [])
-
-  // Show modal when new transaction is created
-  useEffect(() => {
-    if (transactionData) {
-      setPendingTransaction(transactionData)
-      setShowModal(true)
-    }
-  }, [transactionData])
+    const transaction = getPendingTransaction(templateId, durationKey)
+    setPendingTransaction(transaction)
+    setShowModal(!!transaction)
+  }, [templateId, durationKey])
 
   const featurePrices = selectedFeatures.map((key) => {
     const addon = FEATURE_ADDONS.find((a) => a.key === key)
@@ -292,13 +281,22 @@ export function PaymentContent() {
               <Button
                 className="w-full rounded-2xl text-lg font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale disabled:shadow-none"
                 style={{ height: "56px" }}
-                disabled={isPending || !!pendingTransaction || !agreedToTerms}
+                disabled={isPending || !agreedToTerms}
                 onClick={() => {
                   if (!pendingTransaction) {
                     createTransaction({
                       invitationTemplateId: templateId,
                       invitationDurationId: durationKey,
                       paymentMethod: "qris",
+                    }, {
+                      onSuccess: (data, request) => {
+                        if (currentSelection.current !== JSON.stringify([request.invitationTemplateId, request.invitationDurationId])) return
+                        setPendingTransaction({ ...data,
+                          invitationTemplateId: request.invitationTemplateId,
+                          invitationDurationId: request.invitationDurationId,
+                        })
+                        setShowModal(true)
+                      },
                     })
                   } else {
                     setShowModal(true)
@@ -339,7 +337,7 @@ export function PaymentContent() {
           onClose={() => {
             setShowModal(false)
             setPendingTransaction(null)
-            localStorage.removeItem("pendingTransaction")
+            clearPendingTransaction(pendingTransaction.transactionId)
           }}
         />
       )}

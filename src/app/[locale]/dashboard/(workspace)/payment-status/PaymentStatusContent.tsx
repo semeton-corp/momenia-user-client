@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "@/i18n/navigation"
 import { useQueryClient } from "@tanstack/react-query"
+import { clearPendingTransaction } from "@/lib/api/transaction/pending-transaction"
 import { getTransactionStatus } from "@/lib/api/transaction/transaction.service"
 import type { CreateTransactionResponse, TransactionStatusResponse } from "@/lib/api/transaction/transaction.types"
 import { useToast } from "@/providers/ToastProvider"
@@ -52,7 +53,7 @@ export function PaymentStatusContent() {
           setPolling(false)
           toast("Payment successful!", "success")
           // Clear stored transaction
-          localStorage.removeItem("pendingTransaction")
+          clearPendingTransaction(transactionId)
           // Invalidate queries, then hold on the success animation before redirecting —
           // PaymentSuccessOverlay's onDone (below) fires the actual navigation once it's
           // played through, not immediately here.
@@ -81,7 +82,15 @@ export function PaymentStatusContent() {
     )
   }
 
-  const qrImageUrl = transaction.qris.paymentUrl[0]?.url || ""
+  const paymentQrUrl = transaction.payment?.metadata?.qrUrl
+  const paymentUrls = transaction.qris?.paymentUrl
+  const legacyQrUrl = Array.isArray(paymentUrls)
+    ? paymentUrls.find((item) => typeof item?.url === "string" && item.url)?.url
+    : undefined
+  const qrImageUrl =
+    (typeof paymentQrUrl === "string" && paymentQrUrl.trim() ? paymentQrUrl.trim() : "") ||
+    legacyQrUrl ||
+    ""
 
   return (
     <>
@@ -95,8 +104,15 @@ export function PaymentStatusContent() {
 
         {/* QR Code */}
         <div className="mb-8 flex justify-center rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50 p-6">
-          {qrImageUrl && (
+          {qrImageUrl ? (
             <img src={qrImageUrl} alt="QRIS QR Code" className="h-64 w-64 object-contain" />
+          ) : (
+            <div role="alert" className="max-w-xs py-8 text-center">
+              <p className="font-semibold text-zinc-900">QR pembayaran belum tersedia</p>
+              <p className="mt-2 text-sm text-zinc-600">
+                Status transaksi tetap diperiksa. Jika kode QR tidak muncul, silakan hubungi dukungan.
+              </p>
+            </div>
           )}
         </div>
 

@@ -9,19 +9,30 @@ export type CreateTransactionResponse = {
     transactionId: string
     orderNumber: string
     paymentType: string
-    currency: string
+    currency?: string
     status: string
     amount: string
-    qris: {
-        paymentUrl: Array<{ method: string; url: string }>
-        qrString: string
-    }
-    paymentDuration: {
+    payment?: {
+        type: string
+        provider: string
+        qrString?: string | null
+        metadata?: {
+            midtransTransactionId?: string
+            qrUrl?: string | null
+        } | null
+    } | null
+    // Legacy response shape kept for transactions saved before the payment
+    // response was changed to `payment.metadata.qrUrl`.
+    qris?: {
+        paymentUrl?: Array<{ method: string; url: string }> | null
+        qrString?: string | null
+    } | null
+    paymentDuration?: {
         unit: string
         expiryDuration: number
         orderTime: string
         expireAt: string
-    }
+    } | null
 }
 
 export type TransactionStatusResponse = {

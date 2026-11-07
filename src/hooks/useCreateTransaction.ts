@@ -2,14 +2,13 @@
 
 import { useMutation } from "@tanstack/react-query"
 import { createTransaction } from "@/lib/api/transaction/transaction.service"
-import type { CreateTransactionResponse } from "@/lib/api/transaction/transaction.types"
+import { savePendingTransaction } from "@/lib/api/transaction/pending-transaction"
 
 export const useCreateTransaction = () => {
     return useMutation({
         mutationFn: createTransaction,
-        onSuccess: (data: CreateTransactionResponse) => {
-            // Store transaction data for the payment modal
-            localStorage.setItem("pendingTransaction", JSON.stringify(data))
+        onSuccess: (data, request) => {
+            savePendingTransaction(data, request)
         },
     })
 }

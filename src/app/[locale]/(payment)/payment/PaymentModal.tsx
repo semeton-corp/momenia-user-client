@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { X, Clock } from "lucide-react"
+import { clearPendingTransaction } from "@/lib/api/transaction/pending-transaction"
 import { getTransactionStatus } from "@/lib/api/transaction/transaction.service"
 import type { CreateTransactionResponse, TransactionStatusResponse } from "@/lib/api/transaction/transaction.types"
 import { useToast } from "@/providers/ToastProvider"
@@ -20,23 +21,37 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
   const { toast } = useToast()
 
   const [status, setStatus] = useState<TransactionStatusResponse | null>(null)
-  const [polling, setPolling] = useState(true)
+  const [polling, setPolling] = useState(transaction.status !== "success")
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [showConfirmClose, setShowConfirmClose] = useState(false)
   const [showExpiredModal, setShowExpiredModal] = useState(false)
-  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false)
+  const isSuccessful = transaction.status === "success" || status?.status === "success"
+  const completedTransaction = useRef<string | null>(null)
+  const expiresAt = transaction.paymentDuration?.expireAt
+
+  // Both immediately completed free orders and confirmed paid orders use this flow.
+  useEffect(() => {
+    if (!isSuccessful || completedTransaction.current === transaction.transactionId) return
+    completedTransaction.current = transaction.transactionId
+    clearPendingTransaction(transaction.transactionId)
+    toast("Payment successful!", "success")
+    void queryClient.invalidateQueries({ queryKey: ["user-invitations"] })
+    void queryClient.invalidateQueries({ queryKey: ["user-invitation-overview"] })
+  }, [isSuccessful, transaction.transactionId, queryClient, toast])
 
   // Initialize time left based on expireAt
   useEffect(() => {
-    const expireAt = new Date(transaction.paymentDuration.expireAt).getTime()
+    if (isSuccessful || !expiresAt) return
+    const expireAt = Date.parse(expiresAt)
+    if (!Number.isFinite(expireAt)) return
     const now = Date.now()
     const remaining = Math.max(0, Math.floor((expireAt - now) / 1000))
     setTimeLeft(remaining)
-  }, [transaction.paymentDuration.expireAt])
+  }, [expiresAt, isSuccessful])
 
   // Countdown timer
   useEffect(() => {
-    if (timeLeft === null) return
+    if (isSuccessful || timeLeft === null) return
 
     if (timeLeft <= 0) {
       setPolling(false)
@@ -56,11 +71,11 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [timeLeft])
+  }, [timeLeft, isSuccessful])
 
   // Poll status every 5 seconds
   useEffect(() => {
-    if (!polling) return
+    if (!polling || isSuccessful) return
 
     const checkStatus = async () => {
       try {
@@ -69,14 +84,6 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
 
         if (result.status === "success") {
           setPolling(false)
-          toast("Payment successful!", "success")
-          localStorage.removeItem("pendingTransaction")
-          await queryClient.invalidateQueries({ queryKey: ["user-invitations"] })
-          await queryClient.invalidateQueries({ queryKey: ["user-invitation-overview"] })
-          // Modal stays mounted (no onClose() here) so PaymentSuccessOverlay below has
-          // something to render on top of — the actual close + redirect happen from its
-          // onDone, once the animation has actually played through.
-          setShowSuccessAnimation(true)
         }
       } catch (err) {
         console.error("Failed to check status:", err)
@@ -86,7 +93,7 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
     checkStatus()
     const interval = setInterval(checkStatus, 5000)
     return () => clearInterval(interval)
-  }, [polling, transaction.transactionId, queryClient, router, toast, onClose])
+  }, [polling, isSuccessful, transaction.transactionId])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -99,13 +106,32 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
   }
 
   const handleConfirmClose = () => {
-    localStorage.removeItem("pendingTransaction")
+    clearPendingTransaction(transaction.transactionId)
     setShowConfirmClose(false)
     onClose()
     toast("Pembayaran dibatalkan", "info")
   }
 
-  const qrImageUrl = transaction.qris.paymentUrl[0]?.url || ""
+  if (isSuccessful) {
+    return (
+      <PaymentSuccessOverlay
+        onDone={() => {
+          onClose()
+          router.push("/dashboard/my-invitation")
+        }}
+      />
+    )
+  }
+
+  const paymentQrUrl = transaction.payment?.metadata?.qrUrl
+  const paymentUrls = transaction.qris?.paymentUrl
+  const legacyQrUrl = Array.isArray(paymentUrls)
+    ? paymentUrls.find((item) => typeof item?.url === "string" && item.url)?.url
+    : undefined
+  const qrImageUrl =
+    (typeof paymentQrUrl === "string" && paymentQrUrl.trim() ? paymentQrUrl.trim() : "") ||
+    legacyQrUrl ||
+    ""
   const isExpired = timeLeft === 0
 
   return (
@@ -135,8 +161,15 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
 
         {/* QR Code */}
         <div className="mb-8 flex justify-center rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50 p-6">
-          {qrImageUrl && (
+          {qrImageUrl ? (
             <img src={qrImageUrl} alt="QRIS QR Code" className="h-64 w-64 object-contain" />
+          ) : (
+            <div role="alert" className="max-w-xs py-8 text-center">
+              <p className="font-semibold text-zinc-900">QR pembayaran belum tersedia</p>
+              <p className="mt-2 text-sm text-zinc-600">
+                Status transaksi tetap diperiksa. Jika kode QR tidak muncul, tutup transaksi ini dan coba lagi.
+              </p>
+            </div>
           )}
         </div>
 
@@ -204,7 +237,7 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
               <button
                 type="button"
                 onClick={() => {
-                  localStorage.removeItem("pendingTransaction")
+                  clearPendingTransaction(transaction.transactionId)
                   onClose()
                   toast("Pesanan dibatalkan", "info")
                 }}
@@ -245,14 +278,7 @@ export function PaymentModal({ transaction, onClose }: PaymentModalProps) {
         </div>
       )}
 
-      {showSuccessAnimation && (
-        <PaymentSuccessOverlay
-          onDone={() => {
-            onClose()
-            router.push("/dashboard/my-invitation")
-          }}
-        />
-      )}
+
     </div>
   )
 }
