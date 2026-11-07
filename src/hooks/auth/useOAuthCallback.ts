@@ -77,8 +77,29 @@ export const useOAuthCallback = () => {
                         ? await signUpWithGoogle(payload)
                         : await signInWithGoogle(payload)
 
-                localStorage.setItem("accessToken", result.session.accessToken)
-                localStorage.setItem("refreshToken", result.session.refreshToken)
+                const accessToken = result?.session?.accessToken
+                const refreshToken = result?.session?.refreshToken
+
+                // AuthResponse is only a TypeScript contract; the staging API can
+                // still return a different or incomplete payload at runtime. Never
+                // let Storage coerce a missing refresh token into the string
+                // "undefined", since that value would be sent to /sessions/refresh.
+                if (
+                    typeof accessToken !== "string" ||
+                    !accessToken.trim() ||
+                    typeof refreshToken !== "string" ||
+                    !refreshToken.trim()
+                ) {
+                    localStorage.removeItem("accessToken")
+                    localStorage.removeItem("refreshToken")
+                    localStorage.removeItem("user")
+                    throw new Error(
+                        "Google authentication returned an incomplete session. Please try again."
+                    )
+                }
+
+                localStorage.setItem("accessToken", accessToken)
+                localStorage.setItem("refreshToken", refreshToken)
                 localStorage.removeItem("auth_type")
 
                 // The login response already carries the user profile — persist it and

@@ -40,7 +40,16 @@ async function tryRefreshSession(): Promise<boolean> {
     if (typeof window === "undefined") return false
     const rawRefreshToken = localStorage.getItem("refreshToken")
     const refreshToken = rawRefreshToken ? sanitizeToken(rawRefreshToken) : null
-    if (!refreshToken) return false
+    if (
+        !refreshToken ||
+        refreshToken.toLowerCase() === "undefined" ||
+        refreshToken.toLowerCase() === "null"
+    ) {
+        // Older auth callbacks may have stored a missing token as the literal
+        // string "undefined". Remove placeholders instead of sending them to the API.
+        if (rawRefreshToken) localStorage.removeItem("refreshToken")
+        return false
+    }
 
     refreshPromise ??= (async () => {
         try {
