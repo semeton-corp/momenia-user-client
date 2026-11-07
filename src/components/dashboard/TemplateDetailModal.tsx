@@ -7,6 +7,7 @@ import { Heart, Smartphone, Monitor, Eye, X, ArrowLeft, Clock } from "lucide-rea
 import { AnimatePresence, motion } from "framer-motion"
 import { useTranslations, useLocale } from "next-intl"
 import ReactMarkdown, { type Components } from "react-markdown"
+import { useRouter } from "@/i18n/navigation"
 
 import { Button } from "@/components/ui/button"
 import { RadioDot } from "@/components/ui/radio-dot"
@@ -64,6 +65,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
   const { requestAccess } = useAuthGate()
   const t = useTranslations("dashboard.modal")
   const locale = useLocale()
+  const router = useRouter()
   const scale = useZoomScale()
   const [isDesktop, setIsDesktop] = React.useState(false)
   const [view, setView] = React.useState<"mobile" | "desktop">("mobile")
@@ -128,7 +130,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
       durationPrice: String(durationPrice),
     })
     if (template.originalPrice) params.set("originalPrice", String(template.originalPrice))
-    window.open(`/${locale}/payment?${params.toString()}`, "_blank")
+    router.push(`/payment?${params.toString()}`)
   }
 
   return (
