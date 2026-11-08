@@ -14,6 +14,9 @@ import {
 const BASE_USERS = "/api/v1/users"
 const BASE_SESSIONS = "/api/v1/sessions"
 const BASE_ACCOUNTS = "/api/v1/accounts"
+// Google authentication includes backend-to-Google requests. Allow more time
+// than ordinary API reads without automatically replaying a single-use code.
+const GOOGLE_AUTH_TIMEOUT_MS = 60_000
 
 export const signUpWithGoogle = async (
     data: GoogleAuthRequest
@@ -21,6 +24,7 @@ export const signUpWithGoogle = async (
     return http(`${BASE_USERS}/signup/google`, {
         method: "POST",
         body: JSON.stringify(data),
+        signal: AbortSignal.timeout(GOOGLE_AUTH_TIMEOUT_MS),
     })
 }
 
@@ -30,6 +34,7 @@ export const signInWithGoogle = async (
     return http(`${BASE_USERS}/signin/google`, {
         method: "POST",
         body: JSON.stringify(data),
+        signal: AbortSignal.timeout(GOOGLE_AUTH_TIMEOUT_MS),
     })
 }
 
@@ -49,7 +54,7 @@ async function startGoogleOAuth(path: string): Promise<OAuthResponse> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
         method: "GET",
         credentials: "include",
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(GOOGLE_AUTH_TIMEOUT_MS),
     })
 
     if (!res.ok) {
