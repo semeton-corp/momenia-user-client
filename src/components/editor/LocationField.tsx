@@ -19,10 +19,26 @@ type Resolved = { name: string | null; q: string }
 
 function parseFullMapsUrl(value: string): Resolved | null {
   const coords = EXACT_COORDS.exec(value) ?? VIEWPORT_COORDS.exec(value)
-  if (!coords) return null
-  const place = PLACE_NAME.exec(value)
-  const name = place ? decodeURIComponent(place[1].replace(/\+/g, " ")) : null
-  return { name, q: `${coords[1]},${coords[2]}` }
+  if (coords) {
+    const place = PLACE_NAME.exec(value)
+    const name = place ? decodeURIComponent(place[1].replace(/\+/g, " ")) : null
+    return { name, q: `${coords[1]},${coords[2]}` }
+  }
+
+  try {
+    const url = new URL(value)
+    const isMapsHost = /^maps\.google\.(?:com|co\.id)$/i.test(url.hostname)
+    const isMapsPath = /^(?:www\.)?google\.(?:com|co\.id)$/i.test(url.hostname) &&
+      (url.pathname === "/maps" || url.pathname.startsWith("/maps/"))
+    if (!isMapsHost && !isMapsPath) return null
+
+    // URLSearchParams decodes percent escapes and '+' in shared search links.
+    const query = url.searchParams.get("q")?.trim() || url.searchParams.get("query")?.trim()
+    if (!query) return null
+    return { name: PLAIN_COORDS.test(query) ? null : query, q: query }
+  } catch {
+    return null
+  }
 }
 
 function LocationTooltip() {

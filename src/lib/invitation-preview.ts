@@ -50,6 +50,24 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
+// Location values inside a Google Maps query need URL encoding before HTML
+// escaping, otherwise characters such as '&' become separate query parameters.
+function isGoogleMapsQueryAttribute(tagBeforeValue: string): boolean {
+  const attribute = /\b(?:src|href)\s*=\s*["']([^"']*)$/i.exec(tagBeforeValue)
+  if (!attribute) return false
+  const prefix = attribute[1].replace(/&amp;/gi, "&")
+  if (!/[?&](?:q|query)=$/i.test(prefix)) return false
+
+  try {
+    const url = new URL(`${prefix}placeholder`)
+    return /^maps\.google\.(?:com|co\.id)$/i.test(url.hostname) ||
+      (/^(?:www\.)?google\.(?:com|co\.id)$/i.test(url.hostname) &&
+        (url.pathname === "/maps" || url.pathname.startsWith("/maps/")))
+  } catch {
+    return false
+  }
+}
+
 // "2026-08-31" → "August 31, 2026" / "31 Agustus 2026", depending on the invitation
 // page's own /id or /en route — not the guest's browser language, which would make the
 // same link read differently for two guests. Falls back to the raw value on anything
@@ -109,7 +127,10 @@ export function buildInvitationHtml(
       // the nearest angle bracket: an unclosed `<` means we're still inside a tag.
       const before = source.slice(0, offset)
       const insideTag = before.lastIndexOf("<") > before.lastIndexOf(">")
-      if (insideTag) return escapeAttr(value)
+      if (insideTag) {
+        const tagBeforeValue = before.slice(before.lastIndexOf("<"))
+        return escapeAttr(isGoogleMapsQueryAttribute(tagBeforeValue) ? encodeURIComponent(value) : value)
+      }
 
       // Body context: wrap so `memoriaUpdate` can retarget it as the user types. The
       // template supplies data-field-img on its own <img>, so images never need this.
