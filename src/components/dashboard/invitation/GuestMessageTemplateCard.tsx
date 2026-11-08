@@ -14,6 +14,7 @@ import { WorkspaceCard } from "./WorkspaceCard"
 
 export type { TemplateVariable }
 export { stripLoneSurrogates } from "@/lib/template-editor"
+export const GUEST_MESSAGE_MAX_LENGTH = 500
 
 type GuestMessageTemplateCardProps = {
   title: string
@@ -49,7 +50,7 @@ export function GuestMessageTemplateCard({
   onSave,
   onExceedsLimit,
   isSaving,
-  maxLength = 200,
+  maxLength = GUEST_MESSAGE_MAX_LENGTH,
 }: GuestMessageTemplateCardProps) {
   const editorRef = React.useRef<HTMLDivElement>(null)
   const [length, setLength] = React.useState(0)

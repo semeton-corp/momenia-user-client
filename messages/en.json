@@ -723,7 +723,7 @@
           "save": "Save",
           "savedToast": "Message template saved successfully",
           "copiedToast": "Message copied to clipboard",
-          "tooLongToast": "Message exceeds 200 characters and can't be saved",
+          "tooLongToast": "Message exceeds {maxLength} characters and can't be saved",
           "loadError": "Failed to load message template.",
           "variables": {
             "guestName": "Guest Name",

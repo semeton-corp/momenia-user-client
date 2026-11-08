@@ -15,7 +15,7 @@ import { useUserInvitationDetail } from "@/hooks/useUserInvitations"
 import type { GuestInvitation } from "@/lib/api/guest-invitation/guest-invitation.types"
 import { DeleteGuestConfirmDialog } from "./DeleteGuestConfirmDialog"
 import { GuestAddForm, type EditingGuest, type GuestFormValues } from "./GuestAddForm"
-import { GuestMessageTemplateCard, stripLoneSurrogates, type TemplateVariable } from "./GuestMessageTemplateCard"
+import { GUEST_MESSAGE_MAX_LENGTH, GuestMessageTemplateCard, stripLoneSurrogates, type TemplateVariable } from "./GuestMessageTemplateCard"
 import { GuestMessageTemplateCardSkeleton } from "./GuestMessageTemplateCardSkeleton"
 import { GuestsManagementTable } from "./GuestsManagementTable"
 import { GuestsManagementTableSkeleton } from "./GuestsManagementTableSkeleton"
@@ -317,7 +317,8 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
             helperText={t("guests.messageTemplate.helperText")}
             saveLabel={t("guests.messageTemplate.save")}
             onSave={handleSaveTemplate}
-            onExceedsLimit={() => toast(t("guests.messageTemplate.tooLongToast"), "error")}
+            maxLength={GUEST_MESSAGE_MAX_LENGTH}
+            onExceedsLimit={() => toast(t("guests.messageTemplate.tooLongToast", { maxLength: GUEST_MESSAGE_MAX_LENGTH }), "error")}
             isSaving={updateMessageMutation.isPending}
           />
         )}

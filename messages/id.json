@@ -723,7 +723,7 @@
           "save": "Simpan",
           "savedToast": "Template pesan berhasil disimpan",
           "copiedToast": "Pesan berhasil disalin",
-          "tooLongToast": "Pesan melebihi 200 karakter dan tidak bisa disimpan",
+          "tooLongToast": "Pesan melebihi {maxLength} karakter dan tidak bisa disimpan",
           "loadError": "Gagal memuat template pesan.",
           "variables": {
             "guestName": "Nama Tamu",
