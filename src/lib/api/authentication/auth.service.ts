@@ -1,4 +1,4 @@
-import { http } from "../http"
+import { http, responseError } from "../http"
 import { getAuthHeader as authHeader } from "../auth-header"
 import { resolveObjectUrl, toObjectKey } from "../object/object.service"
 import {
@@ -58,9 +58,7 @@ async function startGoogleOAuth(path: string): Promise<OAuthResponse> {
     })
 
     if (!res.ok) {
-        const error = new Error((await res.text()) || "API Error") as Error & { status?: number }
-        error.status = res.status
-        throw error
+        throw await responseError(res)
     }
 
     return res.json()

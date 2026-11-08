@@ -2,6 +2,22 @@ import { routing } from "@/i18n/routing"
 
 const BASE_URL = typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_API_URL
 
+// Proxy and gateway failures may return an entire HTML error page. Keep the
+// status for callers, but never use that markup as a user-facing message.
+export async function responseError(res: Response): Promise<Error & { status: number }> {
+    const body = await res.text()
+    const contentType = res.headers.get("content-type") ?? ""
+    const isHtml = /\btext\/html\b/i.test(contentType) || /^\s*(?:<!doctype\b|<html\b|<!--)/i.test(body)
+    const message = isHtml
+        ? res.status === 504
+            ? "The server took too long to respond. Please try again."
+            : "The server is temporarily unavailable. Please try again."
+        : body || "API Error"
+    const error = new Error(message) as Error & { status: number }
+    error.status = res.status
+    return error
+}
+
 // POST/PUT/PATCH butuh X-Idempotency-Key supaya backend bisa dedupe kalau client
 // kirim request yang sama dua kali bersamaan (mis. double-click).
 const IDEMPOTENT_KEY_METHODS = new Set(["POST", "PUT", "PATCH"])
@@ -60,10 +76,7 @@ export async function http<T>(
     }
 
     if (!res.ok) {
-        const message = await res.text()
-        const error = new Error(message || "API Error") as Error & { status?: number }
-        error.status = res.status
-        throw error
+        throw await responseError(res)
     }
 
     // Beberapa endpoint (mis. favourite/unfavourite) balas 200/204 dengan body kosong —

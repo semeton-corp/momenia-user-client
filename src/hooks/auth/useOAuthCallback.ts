@@ -107,13 +107,10 @@ export const useOAuthCallback = () => {
 
                 router.replace(`/${locale}/dashboard`)
             } catch (err) {
-                console.error(err)
                 setError(
                     err instanceof Error && err.name === "TimeoutError"
                         ? "Google sign-in took too long to complete. Please return to login and start a new sign-in."
-                        : err instanceof Error
-                        ? err.message
-                        : "Unable to finish Google authentication."
+                        : "Google sign-in could not be completed. Please return to login and try again."
                 )
             } finally {
                 setLoading(false)
