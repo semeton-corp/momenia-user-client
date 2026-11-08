@@ -129,7 +129,7 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
     })
   }
 
-  const handleSubmitForm = (values: GuestFormValues) => {
+  const handleSubmitForm = (values: GuestFormValues, onCreated: () => void) => {
     if (editingGuest) {
       updateMutation.mutate(
         {
@@ -152,7 +152,10 @@ export function GuestsWorkspaceClient({ invitationId }: Props) {
       createMutation.mutate(
         { ...values, userInvitationId: invitationId },
         {
-          onSuccess: () => toast(t("guests.addedToast"), "success"),
+          onSuccess: () => {
+            toast(t("guests.addedToast"), "success")
+            onCreated()
+          },
           onError: () => toast(t("guests.actionError"), "error"),
         }
       )

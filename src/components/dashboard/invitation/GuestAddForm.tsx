@@ -53,7 +53,7 @@ type GuestAddFormProps = {
   isDeletingCategory?: boolean
   editingGuest: EditingGuest | null
   onCancelEdit: () => void
-  onSubmit: (values: GuestFormValues) => void
+  onSubmit: (values: GuestFormValues, onCreated: () => void) => void
   isSubmitting?: boolean
 }
 
@@ -93,8 +93,10 @@ export function GuestAddForm({
 }: GuestAddFormProps) {
   const [values, setValues] = React.useState<GuestFormValues>(EMPTY_VALUES)
   const [errors, setErrors] = React.useState<Partial<Record<keyof GuestFormValues, string>>>({})
+  const editingGuestRef = React.useRef(editingGuest)
 
   React.useEffect(() => {
+    editingGuestRef.current = editingGuest
     setValues(
       editingGuest
         ? {
@@ -135,12 +137,25 @@ export function GuestAddForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    onSubmit({
-      name: values.name.trim(),
-      whatsAppNumber: values.whatsAppNumber.trim(),
-      email: values.email.trim(),
-      guestInvitationCategoryId: values.guestInvitationCategoryId,
-    })
+    onSubmit(
+      {
+        name: values.name.trim(),
+        whatsAppNumber: values.whatsAppNumber.trim(),
+        email: values.email.trim(),
+        guestInvitationCategoryId: values.guestInvitationCategoryId,
+      },
+      () => {
+        // Keep the selected category and any new edits made while saving.
+        if (editingGuestRef.current) return
+        setValues((current) => ({
+          ...current,
+          name: current.name === values.name ? "" : current.name,
+          whatsAppNumber: current.whatsAppNumber === values.whatsAppNumber ? "" : current.whatsAppNumber,
+          email: current.email === values.email ? "" : current.email,
+        }))
+        setErrors({})
+      }
+    )
   }
 
   return (
