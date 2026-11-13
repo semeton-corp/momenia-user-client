@@ -24,6 +24,7 @@
     "sheetTitle": "Navigation",
     "sheetLabel": "Nav",
     "language": "Language",
+    "requestTemplate": "Request Template",
     "signUp": "Sign Up",
     "login": "Login",
     "dashboard": "Dashboard",
@@ -75,6 +76,41 @@
       "subtitle": "Powerful features designed to make your invitation effortless."
     }
   },
+  "customTemplate": {
+    "title": "Can't find your template?",
+    "titleHighlight": "We'll make it.",
+    "instagram": "Follow us on Instagram",
+    "subtitle": "Browse the catalog first. If nothing feels like you, send us a brief and we'll design one for your event.",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Alya Putri",
+      "nameRequired": "Please enter your name",
+      "event": "Event",
+      "eventDate": "Event date",
+      "optional": "optional",
+      "idea": "What do you have in mind?",
+      "ideaPlaceholder": "Colors, mood, motifs, a venue, a story behind it...",
+      "submit": "Send"
+    },
+    "events": {
+      "wedding": "Wedding",
+      "engagement": "Engagement",
+      "birthday": "Birthday",
+      "other": "Other"
+    },
+    "whatsapp": {
+      "intro": "Hello momenia.id, I'd like to request a custom invitation template.",
+      "name": "Name",
+      "event": "Event",
+      "eventDate": "Event date",
+      "idea": "What I have in mind"
+    },
+    "fab": {
+      "label": "Custom Template",
+      "panelTitle": "Request a custom template",
+      "minimize": "Minimize"
+    }
+  },
   "footer": {
     "copyright": "© 2026 Momenia. All rights reserved. Designed to make your moments memorable.",
     "builtBy": "Built by",
@@ -82,6 +118,7 @@
     "github": "GitHub",
     "contactUs": "Need help? Contact us on WhatsApp",
     "whatsappNumber": "+62 856-1114-275",
+    "whatsappMessage": "Hello momenia.id, I'd like to ask about your digital invitations.",
     "legalLinks": "Legal",
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy"
