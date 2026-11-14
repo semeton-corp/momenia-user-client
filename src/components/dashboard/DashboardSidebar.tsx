@@ -48,7 +48,7 @@ export function DashboardSidebar() {
       }}
     >
       {/* Logo */}
-      <Link href="/dashboard" className="flex items-center justify-center" style={{ marginBottom: "46px" }}>
+      <Link href="/" locale="id" className="flex items-center justify-center" style={{ marginBottom: "46px" }}>
         <Image src={LogoIcon} alt="Momenia" style={{ width: "45px", height: "61.15px" }} />
       </Link>
 
