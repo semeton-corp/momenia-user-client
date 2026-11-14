@@ -86,8 +86,6 @@
       "namePlaceholder": "Alya Putri",
       "nameRequired": "Please enter your name",
       "event": "Event",
-      "eventDate": "Event date",
-      "optional": "optional",
       "idea": "What do you have in mind?",
       "ideaPlaceholder": "Colors, mood, motifs, a venue, a story behind it...",
       "submit": "Send"
@@ -102,7 +100,6 @@
       "intro": "Hello momenia.id, I'd like to request a custom invitation template.",
       "name": "Name",
       "event": "Event",
-      "eventDate": "Event date",
       "idea": "What I have in mind"
     },
     "fab": {

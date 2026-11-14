@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useLocale, useTranslations } from "next-intl"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import { buildWhatsAppUrl } from "@/lib/whatsapp"
 
@@ -10,7 +10,6 @@ type EventKey = (typeof EVENT_KEYS)[number]
 
 const S = {
   label: "text-zinc-800",
-  optional: "text-zinc-400",
   field: "border-zinc-200 bg-white text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-primary/30",
   chip: "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50",
   chipActive: "border-primary bg-primary text-primary-foreground",
@@ -34,13 +33,11 @@ type CustomTemplateFormProps = {
  */
 export function CustomTemplateForm({ onSubmitted, className }: CustomTemplateFormProps) {
   const t = useTranslations("customTemplate")
-  const locale = useLocale()
   const s = S
   const uid = React.useId()
 
   const [name, setName] = React.useState("")
   const [eventKey, setEventKey] = React.useState<EventKey>("wedding")
-  const [eventDate, setEventDate] = React.useState("")
   const [idea, setIdea] = React.useState("")
   const [showError, setShowError] = React.useState(false)
 
@@ -57,17 +54,6 @@ export function CustomTemplateForm({ onSubmitted, className }: CustomTemplateFor
       `${t("whatsapp.name")}: ${name.trim()}`,
       `${t("whatsapp.event")}: ${t(`events.${eventKey}`)}`,
     ]
-    if (eventDate) {
-      // Tanggal dari <input type="date"> berformat YYYY-MM-DD — dibuat sebagai tanggal lokal
-      // (bukan new Date("YYYY-MM-DD") yang dibaca UTC) supaya tidak mundur sehari.
-      const [y, m, d] = eventDate.split("-").map(Number)
-      const formatted = new Date(y, m - 1, d).toLocaleDateString(locale, {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-      lines.push(`${t("whatsapp.eventDate")}: ${formatted}`)
-    }
     if (idea.trim()) lines.push(`${t("whatsapp.idea")}: ${idea.trim()}`)
 
     window.open(buildWhatsAppUrl(lines.join("\n")), "_blank", "noopener,noreferrer")
@@ -114,19 +100,6 @@ export function CustomTemplateForm({ onSubmitted, className }: CustomTemplateFor
             </button>
           ))}
         </div>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${uid}-date`} className={cn("text-xs font-semibold", s.label)}>
-          {t("form.eventDate")} <span className={cn("font-normal", s.optional)}>· {t("form.optional")}</span>
-        </label>
-        <input
-          id={`${uid}-date`}
-          type="date"
-          value={eventDate}
-          onChange={(e) => setEventDate(e.target.value)}
-          className={cn(FIELD_BASE, s.field)}
-        />
       </div>
 
       <div className="flex flex-col gap-1.5">

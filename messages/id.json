@@ -86,8 +86,6 @@
       "namePlaceholder": "Alya Putri",
       "nameRequired": "Nama wajib diisi",
       "event": "Jenis acara",
-      "eventDate": "Tanggal acara",
-      "optional": "opsional",
       "idea": "Apa yang ada di pikiranmu?",
       "ideaPlaceholder": "Warna, suasana, motif, lokasi, cerita di baliknya...",
       "submit": "Kirim"
@@ -102,7 +100,6 @@
       "intro": "Halo momenia.id, saya ingin request custom template undangan.",
       "name": "Nama",
       "event": "Jenis acara",
-      "eventDate": "Tanggal acara",
       "idea": "Yang ada di pikiran saya"
     },
     "fab": {
