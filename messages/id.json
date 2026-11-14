@@ -82,6 +82,7 @@
     "instagram": "Ikuti kami di Instagram",
     "subtitle": "Lihat katalog dulu. Kalau belum ada yang cocok, kirim brief singkat dan kami desain khusus untuk acaramu.",
     "form": {
+      "title": "Request custom template",
       "name": "Nama",
       "namePlaceholder": "Alya Putri",
       "nameRequired": "Nama wajib diisi",
@@ -104,7 +105,6 @@
     },
     "fab": {
       "label": "Custom Template",
-      "panelTitle": "Request custom template",
       "minimize": "Kecilkan"
     }
   },

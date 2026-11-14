@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Instagram } from "lucide-react"
+import { Instagram, WandSparkles } from "lucide-react"
 import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/social"
 import { useTranslations } from "next-intl"
 import TemplateWall from "@/assets/llandingpage/template-wall.png"
@@ -20,7 +20,7 @@ export function CustomTemplateSection() {
     <section
       id="custom-template"
       aria-label={t("title")}
-      className="relative isolate w-full overflow-hidden bg-white"
+      className="relative isolate w-full touch-manipulation overflow-hidden bg-white"
     >
       {/* Gambar jadi background di belakang teks + form (form menimpa gambar). Mobile/tablet:
           dibatasi di bagian atas section lalu pudar ke putih; desktop (lg+): mengisi seluruh
@@ -68,6 +68,12 @@ export function CustomTemplateSection() {
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
         >
+          <div className="mb-5 flex items-center gap-3 border-b border-zinc-100 pb-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <WandSparkles className="h-5 w-5" />
+            </span>
+            <h3 className="text-lg font-semibold text-foreground md:text-xl">{t("form.title")}</h3>
+          </div>
           <CustomTemplateForm />
         </motion.div>
       </div>

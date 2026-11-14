@@ -82,6 +82,7 @@
     "instagram": "Follow us on Instagram",
     "subtitle": "Browse the catalog first. If nothing feels like you, send us a brief and we'll design one for your event.",
     "form": {
+      "title": "Request a custom template",
       "name": "Name",
       "namePlaceholder": "Alya Putri",
       "nameRequired": "Please enter your name",
@@ -104,7 +105,6 @@
     },
     "fab": {
       "label": "Custom Template",
-      "panelTitle": "Request a custom template",
       "minimize": "Minimize"
     }
   },
