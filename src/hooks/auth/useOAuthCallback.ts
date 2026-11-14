@@ -81,14 +81,15 @@ export const useOAuthCallback = () => {
 
                 // Validate the access-token-only session returned by the API.
                 if (typeof accessToken !== "string" || !accessToken.trim()) {
-                    localStorage.removeItem("accessToken")
-                    localStorage.removeItem("refreshToken")
-                    localStorage.removeItem("user")
                     throw new Error(
                         "Google authentication did not return an access token. Please try again."
                     )
                 }
 
+                // Stop profile reads from the previous session before installing
+                // the new login and seeding its profile cache.
+                await queryClient.cancelQueries({ queryKey: ["currentUser"] })
+                queryClient.removeQueries({ queryKey: ["currentUser"] })
                 localStorage.setItem("accessToken", accessToken)
                 // Remove tokens left over from the previous authentication contract.
                 localStorage.removeItem("refreshToken")
@@ -104,6 +105,7 @@ export const useOAuthCallback = () => {
                 }
                 localStorage.setItem("user", JSON.stringify(profile))
                 queryClient.setQueryData(["currentUser"], profile)
+                window.dispatchEvent(new Event("auth-session-changed"))
 
                 router.replace(`/${locale}/dashboard`)
             } catch (err) {

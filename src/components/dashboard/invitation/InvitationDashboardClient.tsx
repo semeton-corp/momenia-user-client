@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { notFound } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { BookOpenCheck, Check, Copy, Info, Loader2, MessageSquareText, Palette, PencilLine, SquarePen, TableProperties, UserPlus, Users, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ import { EventTimePickerField } from "@/components/dashboard/invitation/EventTim
 import { InvitationDashboardSkeleton } from "@/components/dashboard/invitation/InvitationDashboardSkeleton"
 import { InvitationPhonePreview } from "@/components/dashboard/invitation/InvitationPhonePreview"
 import { PublishConfirmDialog } from "@/components/dashboard/invitation/PublishConfirmDialog"
+import { FeedbackDialog, type InvitationFeedback } from "@/components/dashboard/invitation/FeedbackDialog"
 import { WorkspaceActionCard } from "@/components/dashboard/invitation/WorkspaceActionCard"
 import { WorkspaceCard } from "@/components/dashboard/invitation/WorkspaceCard"
 import { typography } from "@/lib/typography"
@@ -22,6 +24,8 @@ import { applyEventDateTime } from "@/lib/event-time"
 import { useCheckPathUrl, useUpdateUserInvitation, useUserInvitationDetail } from "@/hooks/useUserInvitations"
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { useToast } from "@/providers/ToastProvider"
+import type { TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import { findTemplateMetadataInSources, getTemplateMetadataForTemplate } from "@/lib/template-metadata-cache"
 
 const INDIGO_DEEP = "#1F1B74"
 const SLUG_PATTERN = /^[a-z0-9-]+$/
@@ -39,12 +43,15 @@ function computeCountdown(target: Date) {
 type Props = {
   invitationId: string
   locale: string
+  templateIdFromUrl?: string
+  templateNameFromUrl?: string
 }
 
-export function InvitationDashboardClient({ invitationId, locale }: Props) {
+export function InvitationDashboardClient({ invitationId, locale, templateIdFromUrl, templateNameFromUrl }: Props) {
   const t = useTranslations("dashboard.workspace")
   const { toast } = useToast()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { isLoggedIn, isLoading: isAuthLoading } = useCurrentUser()
 
   // Belum login → lempar ke /login (rute ini sama sekali tidak dijaga sebelumnya).
@@ -85,6 +92,8 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
   const [titleDraft, setTitleDraft] = React.useState("")
   const [isSavingTitle, setIsSavingTitle] = React.useState(false)
   const [isPublishConfirmOpen, setIsPublishConfirmOpen] = React.useState(false)
+  const [isFeedbackOpen, setIsFeedbackOpen] = React.useState(false)
+  const [feedbackTemplateMetadata, setFeedbackTemplateMetadata] = React.useState<{ id: string | null; name: string | null }>({ id: null, name: null })
   const [isEditingLink, setIsEditingLink] = React.useState(false)
   const [isEditingEventDate, setIsEditingEventDate] = React.useState(false)
   const [eventDateDraft, setEventDateDraft] = React.useState("")
@@ -247,6 +256,42 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
     )
   }
 
+  const submitFeedback = async (feedback: InvitationFeedback) => {
+    const response = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(feedback),
+    })
+    const result = await response.json().catch(() => null) as { ok?: boolean; error?: string } | null
+
+    if (!response.ok && result?.error === "not_configured") {
+      throw new Error("feedback_not_configured")
+    }
+    if (!response.ok || !result?.ok) {
+      throw new Error("feedback_submission_failed")
+    }
+
+    toast(t("overview.feedbackSentToast"), "success")
+  }
+
+  const openFeedback = () => {
+    const cachedDetails = queryClient
+      .getQueriesData<TemplateDetailResponse>({ queryKey: ["invitation-templates", "detail"] })
+      .map(([, detail]) => detail)
+    const matchingDetail = findTemplateMetadataInSources(data.template, cachedDetails)
+    const storedMetadata = getTemplateMetadataForTemplate(data.template)
+    const directTemplateId = data.invitationTemplateId?.trim()
+    const directTemplateName = data.invitationTemplateName?.trim()
+    const pageTemplateId = templateIdFromUrl?.trim()
+    const pageTemplateName = templateNameFromUrl?.trim()
+
+    setFeedbackTemplateMetadata({
+      id: pageTemplateId || directTemplateId || matchingDetail?.id || storedMetadata?.id || null,
+      name: pageTemplateName || directTemplateName || matchingDetail?.name || storedMetadata?.name || null,
+    })
+    setIsFeedbackOpen(true)
+  }
+
   const startEditingTitle = () => {
     setTitleDraft(title)
     setIsEditingTitle(true)
@@ -370,12 +415,14 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
             planName={planName}
             activeUntilLabel={activeUntilLabel}
             publishLabel={t("overview.publishNow")}
+            feedbackLabel={t("overview.feedbackButton")}
             publishedLabel={t("overview.published")}
             publishingLabel={t("overview.publishing")}
             notActiveWarning={t("overview.notActiveWarning")}
             isPublished={isPublished}
             isPublishing={publishMutation.isPending}
             onPublish={handlePublish}
+            onFeedback={openFeedback}
             editLabel={t("overview.editTemplate")}
             guestsLabel={t("overview.manageGuests")}
             editHref={`${basePath}/edit`}
@@ -754,6 +801,15 @@ export function InvitationDashboardClient({ invitationId, locale }: Props) {
         onOpenChange={setIsPublishConfirmOpen}
         onConfirm={confirmPublish}
         isPublishing={publishMutation.isPending}
+      />
+      <FeedbackDialog
+        open={isFeedbackOpen}
+        onOpenChange={setIsFeedbackOpen}
+        invitationId={invitationId}
+        locale={locale}
+        templateId={feedbackTemplateMetadata.id ?? templateIdFromUrl ?? (data.invitationTemplateId?.trim() || undefined)}
+        templateName={feedbackTemplateMetadata.name ?? templateNameFromUrl ?? (data.invitationTemplateName?.trim() || undefined)}
+        onSubmit={submitFeedback}
       />
     </div>
   )

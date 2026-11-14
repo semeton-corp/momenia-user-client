@@ -1,3 +1,4 @@
+import { getAuthHeader } from "./auth-header"
 import { routing } from "@/i18n/routing"
 
 const BASE_URL = typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_API_URL
@@ -46,19 +47,44 @@ function redirectAfterSessionEnd(): void {
     window.location.replace(target)
 }
 
+// Confirm session rejection independently of the endpoint that failed. Share the
+// check across concurrent failures, and never clear a different/newer login.
+const sessionChecks = new Map<string, Promise<boolean>>()
+async function isSessionRejected(authorization: string): Promise<boolean> {
+    const existing = sessionChecks.get(authorization)
+    if (existing) return existing
+    const check = (async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/api/v1/accounts/me`, {
+                headers: { Authorization: authorization },
+                cache: "no-store",
+                signal: AbortSignal.timeout(10_000),
+            })
+            return response.status === 401
+        } catch {
+            return false
+        }
+    })()
+    sessionChecks.set(authorization, check)
+    try { return await check } finally { sessionChecks.delete(authorization) }
+}
+
 export async function http<T>(
     endpoint: string,
     options?: RequestInit
 ): Promise<T> {
-    const buildHeaders = (): Record<string, string> => ({
-        "Content-Type": "application/json",
-        ...(needsIdempotencyKey(options?.method) ? { "X-Idempotency-Key": crypto.randomUUID() } : {}),
-        ...((options?.headers as Record<string, string>) || {}),
-    })
+    const buildHeaders = (): Headers => {
+        const headers = new Headers(options?.headers)
+        if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json")
+        if (needsIdempotencyKey(options?.method) && !headers.has("X-Idempotency-Key")) {
+            headers.set("X-Idempotency-Key", crypto.randomUUID())
+        }
+        return headers
+    }
 
     // Tanpa timeout, request yang macet (mis. backend tidak reachable saat SSG build)
     // akan menggantung sampai worker timeout Next.js (60s x beberapa retry) baru gagal.
-    const doFetch = (headers: Record<string, string>) =>
+    const doFetch = (headers: Headers) =>
         fetch(`${BASE_URL}${endpoint}`, {
             ...options,
             headers,
@@ -68,11 +94,16 @@ export async function http<T>(
     const headers = buildHeaders()
     const res = await doFetch(headers)
 
-    if (res.status === 401 && headers.Authorization && typeof window !== "undefined") {
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("refreshToken")
-        localStorage.removeItem("user")
-        redirectAfterSessionEnd()
+    const authorization = headers.get("Authorization")
+    if (res.status === 401 && authorization && typeof window !== "undefined") {
+        const rejected = await isSessionRejected(authorization)
+        if (rejected && getAuthHeader().Authorization === authorization) {
+            localStorage.removeItem("accessToken")
+            localStorage.removeItem("refreshToken")
+            localStorage.removeItem("user")
+            window.dispatchEvent(new Event("auth-session-changed"))
+            redirectAfterSessionEnd()
+        }
     }
 
     if (!res.ok) {

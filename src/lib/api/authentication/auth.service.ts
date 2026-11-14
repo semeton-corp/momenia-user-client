@@ -82,8 +82,10 @@ export const logout = async (): Promise<LogoutResponse> => {
     })
 }
 
-export const getMe = async (): Promise<UserProfile> => {
+export const getMe = async (signal?: AbortSignal): Promise<UserProfile> => {
     return http(`${BASE_ACCOUNTS}/me`, {
+        signal,
+        cache: "no-store",
         method: "GET",
         headers: authHeader(),
     })

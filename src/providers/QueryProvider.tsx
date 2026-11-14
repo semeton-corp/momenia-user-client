@@ -14,9 +14,9 @@ export default function QueryProvider({
                 defaultOptions: {
                     queries: {
                         retry: (failureCount, error) => {
-                            // http() sudah mencoba refresh token sebelum melempar — kalau
-                            // tetap 401/403, mengulang cuma menghasilkan request gagal
-                            // beruntun yang memenuhi Network tab tanpa pernah berhasil.
+                            // http() confirms session rejection before clearing the token. If
+                            // a request still returns 401/403, retries only generate failed requests.
+                            // Reauthentication is handled by the existing authentication gate.
                             // 404 juga final — resource memang tidak ada/bukan milik user.
                             const status = (error as Error & { status?: number }).status
                             if (status === 401 || status === 403 || status === 404) return false
