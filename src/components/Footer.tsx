@@ -4,8 +4,7 @@ import * as React from "react"
 import { useTranslations } from "next-intl"
 import { MessageCircle } from "lucide-react"
 import { Link } from "@/i18n/navigation"
-
-const WHATSAPP_NUMBER = "628561114275"
+import { buildWhatsAppUrl } from "@/lib/whatsapp"
 
 export function Footer() {
   // ── Semua hooks dideklarasikan di atas, berurutan ──
@@ -68,7 +67,7 @@ export function Footer() {
       >
         <div className="mx-auto w-full max-w-[1600px] px-4 md:px-12">
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}`}
+            href={buildWhatsAppUrl(t("whatsappMessage"))}
             target="_blank"
             rel="noopener noreferrer"
             className="mb-3 flex items-center justify-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white md:text-base"

@@ -20,6 +20,9 @@ type SectionItem = {
   id: "home" | "about" | "features" | "catalog" | "review" | "faq"
 }
 
+// Target scroll: section navbar biasa + section "Custom Template" (tombol Request Template).
+type ScrollTarget = SectionItem["id"] | "custom-template"
+
 const allSectionItems: SectionItem[] = [
   { id: "home" },
   { id: "about" },
@@ -147,7 +150,7 @@ export function Navbar() {
     return () => mediaQuery.removeEventListener("change", update)
   }, [])
 
-  const scrollToSection = (id: SectionItem["id"]) => {
+  const scrollToSection = (id: ScrollTarget) => {
   const headerOffset = globalThis.innerWidth >= 1024 ? 80 : 64
     const extraOffset = 12
 
@@ -163,7 +166,7 @@ export function Navbar() {
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" })
   }
 
-  const handleSectionClick = (id: SectionItem["id"]) => {
+  const handleSectionClick = (id: ScrollTarget) => {
     setIsOpen(false)
     setMobileLocaleMenuOpen(false)
     requestAnimationFrame(() => scrollToSection(id))
@@ -196,7 +199,9 @@ export function Navbar() {
             <Image src={LogoMemoria} alt="Momenia" className="h-8 w-auto lg:h-9" />
           </button>
         </div>
-        <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-10 text-sm lg:text-base">
+        {/* flex-1 + justify-center (bukan absolute di tengah) supaya menu tidak menabrak
+            grup tombol kanan yang sekarang lebih lebar karena ada "Request Template". */}
+        <nav className="hidden flex-1 items-center justify-center gap-5 px-4 text-sm lg:flex lg:text-base xl:gap-10">
           {sectionItems.map((item) => (
             <button
               key={item.id}
@@ -327,6 +332,13 @@ export function Navbar() {
 
                 <div className="my-5 h-px w-full max-w-[230px] bg-border" />
                 <div className="flex flex-col gap-3">
+                  <Button
+                    type="button"
+                    onClick={() => handleSectionClick("custom-template")}
+                    className="w-full bg-primary/10 font-semibold text-primary hover:bg-primary/15"
+                  >
+                    {tNavbar("requestTemplate")}
+                  </Button>
                   {isLoggedIn ? (
                     <>
                       <Link href="/dashboard" onClick={() => setIsOpen(false)}>
@@ -366,6 +378,13 @@ export function Navbar() {
         </Sheet>
 
     <div className="hidden lg:flex ml-auto items-center gap-3 lg:gap-4">
+          <Button
+            type="button"
+            onClick={() => handleSectionClick("custom-template")}
+            className="h-9 rounded-xl bg-primary px-3 font-semibold text-primary-foreground hover:bg-primary/90 lg:h-10 xl:px-5"
+          >
+            {tNavbar("requestTemplate")}
+          </Button>
           <div className="relative" ref={menuRef}>
             <Button
               variant="outline"

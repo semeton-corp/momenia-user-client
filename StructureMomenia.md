@@ -67,6 +67,7 @@ src/
 │   ├── ui/                       # shadcn primitives (button, input, label, sheet, …)
 │   ├── auth/                     # LoginForm, RegisterForm, OAuthHandler, AuthCallbackClient
 │   ├── landing/                  # Section landing page (+ skeletons/)
+│   ├── custom-template/          # CustomTemplateForm (brief → dibuka di WhatsApp; dipakai landing + dashboard)
 │   ├── promo/                    # Halaman coming-soon
 │   ├── dashboard/                # Komponen area dashboard
 │   │   ├── DashboardSidebar.tsx          # Sidebar desktop (hidden, xl:flex)

@@ -5,6 +5,7 @@ import { DashboardAuthGateProvider } from "@/components/dashboard/DashboardAuthG
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar"
 import { DashboardMobileHeader } from "@/components/dashboard/DashboardMobileHeader"
 import { DashboardMobileNav } from "@/components/dashboard/DashboardMobileNav"
+import { CustomTemplateFab } from "@/components/dashboard/CustomTemplateFab"
 import { useZoomScale } from "@/hooks/use-zoom-scale"
 
 type Props = {
@@ -25,6 +26,7 @@ export default function DashboardLayout({ children }: Props) {
           </main>
         </div>
         <DashboardMobileNav />
+        <CustomTemplateFab />
       </DashboardAuthGateProvider>
     </div>
   )

@@ -24,6 +24,7 @@
     "sheetTitle": "Navigasi",
     "sheetLabel": "Navigasi",
     "language": "Bahasa",
+    "requestTemplate": "Request Template",
     "signUp": "Daftar",
     "login": "Masuk",
     "dashboard": "Dashboard",
@@ -75,6 +76,38 @@
       "subtitle": "Fitur-fitur canggih yang dirancang untuk membuat undanganmu tak terlupakan."
     }
   },
+  "customTemplate": {
+    "title": "Template yang kamu cari tidak ada?",
+    "titleHighlight": "Kami buatkan.",
+    "instagram": "Ikuti kami di Instagram",
+    "subtitle": "Lihat katalog dulu. Kalau belum ada yang cocok, kirim brief singkat dan kami desain khusus untuk acaramu.",
+    "form": {
+      "title": "Request custom template",
+      "name": "Nama",
+      "namePlaceholder": "Alya Putri",
+      "nameRequired": "Nama wajib diisi",
+      "event": "Jenis acara",
+      "idea": "Apa yang ada di pikiranmu?",
+      "ideaPlaceholder": "Warna, suasana, motif, lokasi, cerita di baliknya...",
+      "submit": "Kirim"
+    },
+    "events": {
+      "wedding": "Pernikahan",
+      "engagement": "Lamaran",
+      "birthday": "Ulang Tahun",
+      "other": "Lainnya"
+    },
+    "whatsapp": {
+      "intro": "Halo momenia.id, saya ingin request custom template undangan.",
+      "name": "Nama",
+      "event": "Jenis acara",
+      "idea": "Yang ada di pikiran saya"
+    },
+    "fab": {
+      "label": "Custom Template",
+      "minimize": "Kecilkan"
+    }
+  },
   "footer": {
     "copyright": "© 2026 Momenia. Hak cipta dilindungi. Dirancang untuk membuat momenmu lebih berkesan.",
     "builtBy": "Dibuat oleh",
@@ -82,6 +115,7 @@
     "github": "GitHub",
     "contactUs": "Butuh bantuan? Hubungi kami via WhatsApp",
     "whatsappNumber": "+62 856-1114-275",
+    "whatsappMessage": "Halo momenia.id, saya ingin bertanya tentang undangan digital.",
     "legalLinks": "Legal",
     "termsOfService": "Syarat dan Ketentuan",
     "privacyPolicy": "Kebijakan Privasi"

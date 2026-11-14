@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/landing/HeroSection"
 import { AboutSection } from "@/components/landing/AboutSection"
 import { CatalogSection } from "@/components/landing/CatalogSection"
 import { CreateNowBanner } from "@/components/landing/CreateNowBanner"
+import { CustomTemplateSection } from "@/components/landing/CustomTemplateSection"
 import { FaqSection } from "@/components/landing/FaqSection"
 import { TestimonialSection } from "@/components/landing/TestimonialSection"
 import { getLandingPage } from "@/lib/api/landing-page/landing-page.service"
@@ -90,6 +91,7 @@ export default async function HomePage({ params, searchParams }: Props) {
       {isTestimonialsEnabled && <TestimonialSection testimonials={landingPage?.testimonials} />}
       <FaqSection faqs={landingPage?.faqs} locale={locale} />
       <CreateNowBanner />
+      <CustomTemplateSection />
     </main>
   )
 }
