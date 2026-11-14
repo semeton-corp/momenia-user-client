@@ -1,5 +1,6 @@
 import { http } from "../http"
 import { getAuthHeader as authHeader } from "../auth-header"
+import { rememberTemplateMetadata } from "@/lib/template-metadata-cache"
 import type {
   GetFavouritesParams,
   GetTemplatesParams,
@@ -37,7 +38,9 @@ export async function getInvitationTemplates(params: GetTemplatesParams = {}): P
 }
 
 export async function getInvitationTemplateById(id: string): Promise<TemplateDetailResponse> {
-  return http(`${BASE}/${id}`, { headers: authHeader() })
+  const detail = await http<TemplateDetailResponse>(`${BASE}/${id}`, { headers: authHeader() })
+  rememberTemplateMetadata(detail)
+  return detail
 }
 
 export async function getInvitationTemplateTags(keyword?: string): Promise<InvitationTemplateTag[]> {

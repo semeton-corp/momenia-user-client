@@ -21,6 +21,7 @@ import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { useAuthGate } from "@/components/dashboard/DashboardAuthGate"
 import { openInvitationPreview } from "@/lib/invitation-preview"
 import type { InvitationTemplate } from "@/lib/api/invitation-template/invitation-template.types"
+import { rememberTemplateMetadataSource } from "@/lib/template-metadata-cache"
 
 // Styling tiap elemen markdown supaya deskripsi template (bold/heading/list)
 // tampil rapi, bukan cuma teks mentah dengan tanda ** dan ### kelihatan.
@@ -114,6 +115,9 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
 
   const handleContinueToPayment = () => {
     if (!template) return
+    if (template.template) {
+      rememberTemplateMetadataSource(String(template.id), template.title, template.template)
+    }
     const selectedDurationObj = durations.find((d) => d.id === selectedDuration)
     const durationPrice = selectedDurationObj ? Number(selectedDurationObj.price) : 0
     const durationLabel = selectedDurationObj

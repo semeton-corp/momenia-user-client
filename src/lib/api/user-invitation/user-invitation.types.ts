@@ -39,6 +39,10 @@ export type UpdateUserInvitationRequest = {
 
 export type UserInvitationDetail = {
     id: string
+    // Used to attribute dashboard feedback to the catalog template when the API
+    // includes this association in the invitation detail response.
+    invitationTemplateId?: string
+    invitationTemplateName?: string
     name: string
     slug: string
     status: "published" | "draft" | "expired"
