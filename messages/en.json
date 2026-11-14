@@ -675,7 +675,6 @@
         "accessDeniedToast": "You don't have access to this invitation",
         "publishedToast": "Invitation published successfully",
         "feedbackSentToast": "Thanks for sharing your feedback!",
-        "feedbackButton": "Share feedback",
         "activeUntilLabel": "Active until {date}",
         "slugRequired": "Invitation link is required",
         "slugInvalid": "Only lowercase letters, numbers, and hyphens are allowed",
