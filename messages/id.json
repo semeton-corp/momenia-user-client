@@ -641,7 +641,6 @@
         "accessDeniedToast": "Kamu tidak punya akses ke undangan ini",
         "publishedToast": "Undangan berhasil dipublish",
         "feedbackSentToast": "Terima kasih sudah berbagi masukan!",
-        "feedbackButton": "Bagikan masukan",
         "activeUntilLabel": "Aktif s/d {date}",
         "slugRequired": "Link undangan wajib diisi",
         "slugInvalid": "Hanya boleh huruf kecil, angka, dan tanda hubung",

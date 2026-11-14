@@ -13,14 +13,12 @@ type InvitationPhonePreviewProps = {
   planName: string
   activeUntilLabel: string
   publishLabel: string
-  feedbackLabel: string
   publishedLabel: string
   publishingLabel: string
   notActiveWarning: string
   isPublished: boolean
   isPublishing?: boolean
   onPublish: () => void
-  onFeedback: () => void
   editLabel: string
   guestsLabel: string
   editHref: string
@@ -34,14 +32,12 @@ export function InvitationPhonePreview({
   planName,
   activeUntilLabel,
   publishLabel,
-  feedbackLabel,
   publishedLabel,
   publishingLabel,
   notActiveWarning,
   isPublished,
   isPublishing,
   onPublish,
-  onFeedback,
   editLabel,
   guestsLabel,
   editHref,
@@ -110,17 +106,6 @@ export function InvitationPhonePreview({
           ) : (
             publishLabel
           )}
-        </Button>
-      </div>
-
-      <div className="mx-auto mt-3 w-[264px] sm:w-80 xl:mx-0 xl:w-[312px]">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onFeedback}
-          className="h-11 w-full rounded-[10px] border-primary text-primary hover:bg-primary/5 hover:text-primary xl:rounded-xl"
-        >
-          {feedbackLabel}
         </Button>
       </div>
 

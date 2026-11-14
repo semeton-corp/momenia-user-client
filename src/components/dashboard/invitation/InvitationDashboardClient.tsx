@@ -250,6 +250,7 @@ export function InvitationDashboardClient({ invitationId, locale, templateIdFrom
         onSuccess: () => {
           toast(t("overview.publishedToast"), "success")
           setIsPublishConfirmOpen(false)
+          openFeedback()
         },
         onError: () => toast(t("overview.actionError"), "error"),
       }
@@ -415,14 +416,12 @@ export function InvitationDashboardClient({ invitationId, locale, templateIdFrom
             planName={planName}
             activeUntilLabel={activeUntilLabel}
             publishLabel={t("overview.publishNow")}
-            feedbackLabel={t("overview.feedbackButton")}
             publishedLabel={t("overview.published")}
             publishingLabel={t("overview.publishing")}
             notActiveWarning={t("overview.notActiveWarning")}
             isPublished={isPublished}
             isPublishing={publishMutation.isPending}
             onPublish={handlePublish}
-            onFeedback={openFeedback}
             editLabel={t("overview.editTemplate")}
             guestsLabel={t("overview.manageGuests")}
             editHref={`${basePath}/edit`}

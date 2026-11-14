@@ -1,4 +1,4 @@
-import type { InvitationTemplate, TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
+import type { TemplateDetailResponse } from "@/lib/api/invitation-template/invitation-template.types"
 
 const STORAGE_KEY = "momenia:feedback-template-metadata:v1"
 const MAX_ENTRIES = 100
@@ -15,8 +15,22 @@ type StoredTemplateMetadata = TemplateMetadata & {
   savedAt: number
 }
 
+// Invitation templates come from two API models: the catalog constrains schema
+// field types to a union, while user invitations currently expose them as string.
+// Metadata matching only needs these shared structural fields.
+type TemplateMetadataTemplate = {
+  pages: Array<{
+    id: string
+    sections: Array<{ id: string; section_type_id: string }>
+  }>
+  schema: {
+    fields: Array<{ key: string; type: string; section: string }>
+  }
+  sectionTypes: Record<string, unknown>
+}
+
 type TemplateMetadataSource = TemplateMetadata & {
-  template: InvitationTemplate
+  template: TemplateMetadataTemplate
 }
 
 function stableSerialize(value: unknown): string {
@@ -30,7 +44,7 @@ function stableSerialize(value: unknown): string {
     .join(",")}}`
 }
 
-function fingerprintTemplate(template: InvitationTemplate): string {
+function fingerprintTemplate(template: TemplateMetadataTemplate): string {
   const serialized = stableSerialize(template)
   let first = 0x811c9dc5
   let second = 0x9e3779b9
@@ -47,7 +61,7 @@ function fingerprintTemplate(template: InvitationTemplate): string {
 // Invitations can retain the selected template's page/section structure while
 // editable styling and markup differ from the catalog response. Use this
 // conservative fallback only when it points to one unique catalog template.
-function fingerprintTemplateStructure(template: InvitationTemplate): string {
+function fingerprintTemplateStructure(template: TemplateMetadataTemplate): string {
   return stableSerialize({
     pages: template.pages.map((page) => ({
       id: page.id,
@@ -60,7 +74,7 @@ function fingerprintTemplateStructure(template: InvitationTemplate): string {
 // Some invitation records regenerate page and section instance IDs. Match the
 // reusable layout and schema as a final local fallback, still requiring a unique
 // candidate so we never attribute feedback to an arbitrary template.
-function fingerprintTemplateLayout(template: InvitationTemplate): string {
+function fingerprintTemplateLayout(template: TemplateMetadataTemplate): string {
   return stableSerialize({
     pages: template.pages.map((page) => page.sections.map((section) => section.section_type_id)),
     fields: template.schema.fields.map((field) => ({ key: field.key, type: field.type, section: field.section })),
@@ -91,7 +105,7 @@ export function rememberTemplateMetadata(detail: TemplateDetailResponse): void {
   rememberTemplateMetadataSource(detail.id, detail.name, detail.template)
 }
 
-export function rememberTemplateMetadataSource(id: string, name: string, template: InvitationTemplate): void {
+export function rememberTemplateMetadataSource(id: string, name: string, template: TemplateMetadataTemplate): void {
   const normalizedId = typeof id === "string" ? id.trim() : ""
   const normalizedName = typeof name === "string" ? name.trim() : ""
   if (typeof window === "undefined" || !normalizedId || !normalizedName || !template) return
@@ -118,7 +132,7 @@ export function rememberTemplateMetadataSource(id: string, name: string, templat
   }
 }
 
-export function getTemplateMetadataForTemplate(template: InvitationTemplate): TemplateMetadata | null {
+export function getTemplateMetadataForTemplate(template: TemplateMetadataTemplate): TemplateMetadata | null {
   const fingerprint = fingerprintTemplate(template)
   const stored = readStoredMetadata()
   const exact = uniqueMetadata(stored.filter((entry) => entry.fingerprint === fingerprint))
@@ -133,7 +147,7 @@ export function getTemplateMetadataForTemplate(template: InvitationTemplate): Te
 }
 
 export function findTemplateMetadataInSources(
-  template: InvitationTemplate,
+  template: TemplateMetadataTemplate,
   sources: Array<TemplateMetadataSource | undefined>,
 ): TemplateMetadataSource | null {
   const fingerprint = fingerprintTemplate(template)
