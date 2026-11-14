@@ -17,11 +17,20 @@ function readStoredSession(): StoredSession {
         localStorage.removeItem("refreshToken")
         const token = localStorage.getItem("accessToken")
         const raw = localStorage.getItem("user")
-        const storedUser = raw ? (JSON.parse(raw) as UserProfile) : null
+        let storedUser: UserProfile | null = null
+        try {
+            const parsed = raw ? JSON.parse(raw) : null
+            if (parsed && typeof parsed.email === "string" && typeof parsed.name === "string") {
+                storedUser = parsed as UserProfile
+            }
+        } catch {
+            // A damaged profile cache must not discard a valid token.
+            localStorage.removeItem("user")
+        }
         // profilePicture bisa berupa key objek mentah (mis. "avatar/ava_xxx")
         // kalau tersimpan sebelum normalisasi service diterapkan — ubah ke URL
         // publik supaya next/image di sidebar/header tidak crash.
-        if (storedUser?.profilePicture) {
+        if (typeof storedUser?.profilePicture === "string" && storedUser.profilePicture) {
             storedUser.profilePicture = resolveObjectUrl(storedUser.profilePicture)
         }
         return { token, storedUser }
@@ -37,8 +46,21 @@ export function useCurrentUser() {
     const queryClient = useQueryClient()
 
     useEffect(() => {
-        setSession(readStoredSession())
-    }, [])
+        const syncSession = () => setSession(readStoredSession())
+        const syncStorage = (event: StorageEvent) => {
+            if (event.key !== "accessToken" && event.key !== null) return
+            void queryClient.cancelQueries({ queryKey: ["currentUser"] })
+            queryClient.removeQueries({ queryKey: ["currentUser"] })
+            syncSession()
+        }
+        syncSession()
+        window.addEventListener("storage", syncStorage)
+        window.addEventListener("auth-session-changed", syncSession)
+        return () => {
+            window.removeEventListener("storage", syncStorage)
+            window.removeEventListener("auth-session-changed", syncSession)
+        }
+    }, [queryClient])
 
     const mounted = session !== null
     const token = session?.token ?? null
@@ -46,7 +68,7 @@ export function useCurrentUser() {
 
     const query = useQuery({
         queryKey: ["currentUser"],
-        queryFn: getMe,
+        queryFn: ({ signal }) => getMe(signal),
         enabled: mounted && !!token,
         staleTime: 5 * 60 * 1000,
         retry: false,
@@ -55,26 +77,14 @@ export function useCurrentUser() {
 
     // Keep the cached profile in sync with the latest /me result.
     useEffect(() => {
-        if (query.data) {
+        if (query.data && token && localStorage.getItem("accessToken") === token) {
             globalThis.localStorage?.setItem("user", JSON.stringify(query.data))
         }
-    }, [query.data])
+    }, [query.data, token])
 
-    // Only sign the user out on a genuine auth failure (401), not on transient
-    // errors (network blips, a 404/500 from /me, etc.) — otherwise a freshly
-    // logged-in user gets wiped the moment a background refresh hiccups.
-    useEffect(() => {
-        const status = (query.error as (Error & { status?: number }) | null)?.status
-        if (query.isError && status === 401) {
-            globalThis.localStorage?.removeItem("accessToken")
-            globalThis.localStorage?.removeItem("refreshToken")
-            globalThis.localStorage?.removeItem("user")
-            queryClient.removeQueries({ queryKey: ["currentUser"] })
-            setSession({ token: null, storedUser: null })
-        }
-    }, [query.isError, query.error, queryClient])
-
-    const user = query.data ?? (token ? storedUser : null) ?? null
+    // Session invalidation is centralized in http(): only a confirmed rejection
+    // for the current token can clear storage. An endpoint's 401 alone cannot.
+    const user = token ? (query.data ?? storedUser ?? null) : null
 
     return {
         user,

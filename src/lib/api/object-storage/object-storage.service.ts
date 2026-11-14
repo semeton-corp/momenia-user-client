@@ -1,3 +1,4 @@
+import { getAuthHeader as authHeader } from "../auth-header"
 import { http } from "../http"
 import {
   ObjectCategory,
@@ -5,11 +6,6 @@ import {
   PresignedUploadResponse,
   PresignedUserInvitationContentUploadRequest,
 } from "./object-storage.types"
-
-function authHeader(): Record<string, string> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
 
 // Step 1 — ask the API for a presigned PUT url.
 // (http() auto-injects a valid X-Idempotency-Key for POST requests.)
