@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 import Image from "next/image"
 import { useRouter } from "@/i18n/navigation"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import DesktopFrame from "@/assets/dashboard/laptop.png"
 import {
   Pencil, Type, Palette, Music, ListOrdered, GripVertical, ChevronDown,
@@ -60,6 +60,7 @@ function UploadDropzone({ value, onChange, invitationId }: { value: string; onCh
   const [converting, setConverting] = useState(false)
   const [pendingImage, setPendingImage] = useState<{ src: string; fileName: string } | null>(null)
   const { toast } = useToast()
+  const t = useTranslations("editor")
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; e.target.value = ""
@@ -74,7 +75,7 @@ function UploadDropzone({ value, onChange, invitationId }: { value: string; onCh
       const src = URL.createObjectURL(displayable)
       setPendingImage({ src, fileName: displayable.name })
     } catch {
-      toast("Gagal membaca foto. Coba format JPG atau PNG.", "error")
+      toast(t("toast.readPhotoFailed"), "error")
     } finally {
       setConverting(false)
     }
@@ -92,9 +93,9 @@ function UploadDropzone({ value, onChange, invitationId }: { value: string; onCh
     try {
       const url = await uploadUserInvitationContent(croppedFile, invitationId)
       onChange(url)
-      toast("Image uploaded successfully", "success")
+      toast(t("toast.uploadSuccess"), "success")
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Failed to upload image", "error")
+      toast(err instanceof Error ? err.message : t("toast.uploadFailed"), "error")
     } finally {
       setLoading(false)
     }
@@ -117,15 +118,15 @@ function UploadDropzone({ value, onChange, invitationId }: { value: string; onCh
           {(loading || converting) && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/70">
               <span className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-500" />
-              {converting && <span className="text-xs font-medium text-zinc-600">Mengonversi foto...</span>}
+              {converting && <span className="text-xs font-medium text-zinc-600">{t("upload.converting")}</span>}
             </div>
           )}
           <div className="absolute inset-x-0 bottom-0 flex justify-between gap-2 bg-linear-to-t from-black/80 to-black/40 px-3 py-2">
             <button type="button" onClick={() => inputRef.current?.click()} className="flex-1 rounded bg-white/20 px-2 py-1.5 text-xs font-medium text-white transition-all hover:bg-white/30 backdrop-blur-sm">
-              Ganti
+              {t("upload.replace")}
             </button>
             <button type="button" onClick={() => onChange("")} className="flex-1 rounded bg-red-500/20 px-2 py-1.5 text-xs font-medium text-white transition-all hover:bg-red-500/40 backdrop-blur-sm">
-              Hapus
+              {t("upload.remove")}
             </button>
           </div>
         </div>
@@ -139,9 +140,9 @@ function UploadDropzone({ value, onChange, invitationId }: { value: string; onCh
           )}
           <div className="text-center">
             <p className="text-sm font-medium text-zinc-700">
-              {converting ? "Mengonversi foto..." : loading ? "Uploading..." : "Upload Photo"}
+              {converting ? t("upload.converting") : loading ? t("upload.uploading") : t("upload.uploadPhoto")}
             </p>
-            <p className="text-xs text-zinc-400">Upload a high-quality JPG, PNG, or HEIC image</p>
+            <p className="text-xs text-zinc-400">{t("upload.hint")}</p>
           </div>
         </button>
       )}
@@ -209,6 +210,7 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
   device: "mobile" | "desktop"
   onPageChange?: (pageId: string) => void
 }>(function PreviewFrame({ html, userData, theme, activePage, zoom, device, onPageChange }, ref) {
+  const t = useTranslations("editor")
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const loadedRef = useRef(false)
@@ -406,7 +408,7 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
       <iframe
         ref={iframeRef}
         sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        title="Invitation Preview"
+        title={t("previewTitle")}
         className="h-full shrink-0 border-0 shadow-2xl"
         style={{ width: `min(${DESKTOP_CARD_WIDTH}px, 100%)` }}
       />
@@ -435,7 +437,7 @@ const PreviewFrame = forwardRef<PreviewFrameHandle, {
           // opens a new tab; without escaping the sandbox that tab inherits our restrictions
           // and Google refuses to render it (ERR_BLOCKED_BY_RESPONSE).
           sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-          title="Invitation Preview"
+          title={t("previewTitle")}
           style={{
             width: VIEWPORT_W,
             height: VIEWPORT_H,
@@ -583,6 +585,7 @@ function buildWaveformPath(amplitudes: number[]): string {
 function WaveformSeekBar({ amplitudes, progress, onSeek, clipId, selected }: {
   amplitudes: number[]; progress: number; onSeek: (progress: number) => void; clipId: string; selected?: boolean
 }) {
+  const t = useTranslations("editor")
   const path = buildWaveformPath(amplitudes)
   const progressWidth = Math.min(100, Math.max(0, progress * 100))
 
@@ -595,7 +598,7 @@ function WaveformSeekBar({ amplitudes, progress, onSeek, clipId, selected }: {
   return (
     <button
       type="button"
-      aria-label="Seek audio"
+      aria-label={t("music.seek")}
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => { e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId); seekFromPointer(e) }}
       onPointerMove={(e) => { if (e.buttons === 1) seekFromPointer(e) }}
@@ -618,6 +621,7 @@ function WaveformSeekBar({ amplitudes, progress, onSeek, clipId, selected }: {
 // data, so a later edit to that catalog entry (title fix, re-encoded file) is picked up
 // automatically rather than leaving invitations stuck with a stale snapshot.
 function MusicPickerSection({ selectedId, onSelect }: { selectedId: string; onSelect: (id: string) => void }) {
+  const t = useTranslations("editor")
   const { data: tracks = [], isLoading } = useMusics()
   const [playingId, setPlayingId] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
@@ -682,7 +686,7 @@ function MusicPickerSection({ selectedId, onSelect }: { selectedId: string; onSe
             onClick={() => onSelect("")}
             className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
           >
-            Clear selection
+            {t("music.clearSelection")}
           </button>
         </div>
       )}
@@ -691,9 +695,9 @@ function MusicPickerSection({ selectedId, onSelect }: { selectedId: string; onSe
           scrolls internally past a handful of tracks instead. */}
       <div className="max-h-72 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 p-1.5">
         {isLoading ? (
-          <p className="p-2 text-xs text-zinc-400">Loading tracks...</p>
+          <p className="p-2 text-xs text-zinc-400">{t("music.loading")}</p>
         ) : activeTracks.length === 0 ? (
-          <p className="p-2 text-xs text-zinc-400">No tracks available.</p>
+          <p className="p-2 text-xs text-zinc-400">{t("music.empty")}</p>
         ) : (
           activeTracks.map((track) => {
             const isSelected = track.id === selectedId
@@ -748,30 +752,32 @@ function MusicPickerSection({ selectedId, onSelect }: { selectedId: string; onSe
 
 // ── Main Editor ───────────────────────────────────────────────────────────────
 
-// Month names for the "Last modified" stamp. (The event-date formatter that also used
-// these now lives in @/lib/event-time, shared with the invitation dashboard.)
-const MONTHS_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
-
-function formatLastModified(dateStr: string) {
+// "23 November 2026, 20:23" — date spelled out in the active locale, time always 24h.
+function formatLastModified(dateStr: string, locale: string) {
   const date = new Date(dateStr)
-  const month = MONTHS_ID[date.getMonth()]
-  const day = date.getDate()
-  const year = date.getFullYear()
+  const datePart = new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date)
   const hours = String(date.getHours()).padStart(2, "0")
   const minutes = String(date.getMinutes()).padStart(2, "0")
-  return `${day} ${month} ${year}, ${hours}:${minutes}`
+  return `${datePart}, ${hours}:${minutes}`
 }
 
-const SECTION_LABELS: Record<string, string> = {
-  cover_section: "Cover",
-  hero_section: "Hero Section",
-  couple_section: "Bride & Groom",
-  details_section: "Event Information",
+// Keys to try in `editor.sections`, most specific first. A section type id looks like
+// "cover_section", "couple_nocturne", "sb_story_section" — drop the template prefix/suffix,
+// then fall back to the first word ("cover_vintage_french" -> "cover").
+function sectionLabelKeys(typeId: string): string[] {
+  const rest = typeId.replace(/^(sb_|lk_|minimalist_)/, "").replace(/_section$/, "")
+  const first = rest.split("_")[0]
+  return rest === first ? [rest] : [rest, first]
 }
 
 function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; invitationId: string }) {
   const router = useRouter()
   const locale = useLocale()
+  const t = useTranslations("editor")
   const { toast } = useToast()
   const { template } = detail
   const { mutate: saveInvitation, isPending: isSaving } = useUpdateUserInvitation(invitationId)
@@ -1019,14 +1025,27 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     [template, sectionOrder, locale, selectedMusic?.musicUrl],
   )
 
+  // Label for a section type id, in the active language. Unknown types fall back to a
+  // prettified id so a brand-new template never shows an empty title.
+  const labelForSectionType = useCallback((typeId: string) => {
+    for (const key of sectionLabelKeys(typeId)) {
+      if (t.has(`sections.${key}`)) return t(`sections.${key}`)
+    }
+    return typeId.replace(/^minimalist_/, "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+  }, [t])
+
   // friendly label for a (possibly generated) section id, via its section_type_id
   const sectionLabel = useCallback((id: string) => {
-    if (SECTION_LABELS[id]) return SECTION_LABELS[id]
     const sec = template.pages.flatMap((p) => p.sections).find((s) => s.id === id)
-    const typeId = sec?.section_type_id ?? id
-    return (SECTION_LABELS[typeId] ?? typeId.replace(/^minimalist_/, "").replace(/_/g, " "))
-      .replace(/\b\w/g, (c) => c.toUpperCase())
-  }, [template.pages])
+    return labelForSectionType(sec?.section_type_id ?? id)
+  }, [template.pages, labelForSectionType])
+
+  // Field labels come from the template's own schema (written by the admin, mostly
+  // Indonesian). The few English ones are translated through `editor.fieldLabels`.
+  const fieldLabel = useCallback(
+    (label: string) => (t.has(`fieldLabels.${label}`) ? t(`fieldLabels.${label}`) : label),
+    [t],
+  )
 
   // the invitation navigated itself (e.g. its "Let's Party" button) — follow along so
   // the page indicator, content list and field groups all show that page
@@ -1070,7 +1089,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
     const slug = detail.slug || name.toLowerCase().replace(/\s+/g, "-")
 
     if (!slug) {
-      toast("Error: Please enter an invitation name", "error")
+      toast(t("toast.nameRequired"), "error")
       return
     }
 
@@ -1095,10 +1114,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         // Stays on the editor rather than redirecting — the checkmark animation is the
         // primary confirmation; the toast is a second, harder-to-miss signal alongside it.
         setShowSaveSuccess(true)
-        toast("Invitation saved successfully", "success")
+        toast(t("toast.saved"), "success")
       },
       onError: (err) => {
-        toast(err instanceof Error ? err.message : "Failed to save invitation", "error")
+        toast(err instanceof Error ? err.message : t("toast.saveFailed"), "error")
       },
     })
   }
@@ -1118,10 +1137,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
     return order.map((sectionId) => ({
       sectionId,
-      label: SECTION_LABELS[sectionId] ?? sectionId.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      label: labelForSectionType(sectionId),
       fields: bySection.get(sectionId)!,
     }))
-  }, [template.schema.fields])
+  }, [template.schema.fields, labelForSectionType])
 
   // Only show sections/fields that belong to the page currently shown in the preview,
   // so switching pages doesn't dump every field from every page on the user at once.
@@ -1193,15 +1212,15 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 onChange={(e) => setName(e.target.value)}
                 onBlur={() => setIsEditingName(false)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setIsEditingName(false) }}
-                placeholder="Untitled Invitation"
+                placeholder={t("untitledInvitation")}
                 className="min-w-0 rounded-lg border border-indigo-300 px-2 py-1 text-xl font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-100"
               />
             ) : (
               <>
                 <span className="truncate text-xl font-bold text-zinc-900">
-                  {name || "Untitled Invitation"}
+                  {name || t("untitledInvitation")}
                 </span>
-                <button onClick={() => setIsEditingName(true)} aria-label="Edit name">
+                <button onClick={() => setIsEditingName(true)} aria-label={t("editName")}>
                   <Pencil className="h-4 w-4 shrink-0 text-zinc-400 hover:text-indigo-500" />
                 </button>
               </>
@@ -1211,7 +1230,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             <span className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500">
               <Check className="h-2.5 w-2.5 text-white" />
             </span>
-            Last modified {detail.lastUpdatedAt && formatLastModified(detail.lastUpdatedAt)}
+            {detail.lastUpdatedAt ? t("lastModified", { date: formatLastModified(detail.lastUpdatedAt, locale) }) : null}
           </p>
         </div>
 
@@ -1225,7 +1244,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               previewDevice === "mobile" ? "bg-white text-indigo-700 shadow-sm" : "text-indigo-600/70 hover:text-indigo-700"
             }`}
           >
-            <Smartphone className="h-4 w-4" />Mobile
+            <Smartphone className="h-4 w-4" />{t("device.mobile")}
           </button>
           <button
             onClick={() => setPreviewDevice("desktop")}
@@ -1233,18 +1252,18 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               previewDevice === "desktop" ? "bg-white text-indigo-700 shadow-sm" : "text-indigo-600/70 hover:text-indigo-700"
             }`}
           >
-            <Monitor className="h-4 w-4" />Desktop
+            <Monitor className="h-4 w-4" />{t("device.desktop")}
           </button>
         </div>
 
         {/* actions — undo/redo move under the preview on mobile, Preview/Save into the
             bottom action bar, so this whole row is desktop-only. */}
         <div className="hidden items-center gap-2 lg:flex">
-          <button onClick={handleUndo} disabled={!canUndo} aria-label="Undo" title={canUndo ? "Undo" : "Nothing to undo"}
+          <button onClick={handleUndo} disabled={!canUndo} aria-label={t("actions.undo")} title={canUndo ? t("actions.undo") : t("actions.nothingToUndo")}
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed">
             <Undo2 className="h-4 w-4" />
           </button>
-          <button onClick={handleRedo} disabled={!canRedo} aria-label="Redo" title={canRedo ? "Redo" : "Nothing to redo"}
+          <button onClick={handleRedo} disabled={!canRedo} aria-label={t("actions.redo")} title={canRedo ? t("actions.redo") : t("actions.nothingToRedo")}
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed">
             <Redo2 className="h-4 w-4" />
           </button>
@@ -1255,7 +1274,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             }
             className="flex h-12 items-center gap-2 rounded-lg border border-zinc-200 px-5 text-base font-medium text-zinc-700 hover:bg-zinc-50"
           >
-            <Eye className="h-5 w-5" />Preview
+            <Eye className="h-5 w-5" />{t("actions.preview")}
           </button>
           <button onClick={handleSave} disabled={!isDirty || isSaving || showSaveSuccess} className="flex h-12 items-center gap-2 rounded-lg bg-indigo-600 px-6 text-base font-medium text-white hover:bg-indigo-700 disabled:opacity-60">
             {showSaveSuccess
@@ -1263,7 +1282,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               : isSaving
                 ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 : <Save className="h-5 w-5" />}
-            Save
+            {t("actions.save")}
           </button>
         </div>
       </div>
@@ -1288,7 +1307,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                   mobilePanel === tab ? "bg-indigo-100 text-indigo-700" : "text-zinc-500"
                 }`}
               >
-                {tab}
+                {t(`tabs.${tab}`)}
               </button>
             ))}
           </div>
@@ -1302,13 +1321,13 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         >
           {/* Header is redundant on mobile — the tab above already says "Design". */}
           <div className="hidden border-b border-zinc-100 px-5 py-4 lg:block">
-            <h2 className="text-lg font-bold text-zinc-900">Design</h2>
-            <p className="text-sm text-zinc-400">Customize the look and feel</p>
+            <h2 className="text-lg font-bold text-zinc-900">{t("design.title")}</h2>
+            <p className="text-sm text-zinc-400">{t("design.subtitle")}</p>
           </div>
           <div className="space-y-3 p-4 lg:flex-1 lg:overflow-y-auto">
-            <Section title="Typography" icon={<Type className="h-4 w-4 text-indigo-500" />}>
+            <Section title={t("design.typography")} icon={<Type className="h-4 w-4 text-indigo-500" />}>
               <div>
-                <FieldLabel>Heading Font</FieldLabel>
+                <FieldLabel>{t("design.headingFont")}</FieldLabel>
                 <div className="flex items-center gap-2">
                   <select value={theme.font_title} onChange={(e) => setTheme((p) => ({ ...p, font_title: e.target.value }))}
                     className="flex-1 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none">
@@ -1318,7 +1337,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 </div>
               </div>
               <div>
-                <FieldLabel>Body Font</FieldLabel>
+                <FieldLabel>{t("design.bodyFont")}</FieldLabel>
                 <div className="flex items-center gap-2">
                   <select value={theme.font_body} onChange={(e) => setTheme((p) => ({ ...p, font_body: e.target.value }))}
                     className="flex-1 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none">
@@ -1329,14 +1348,14 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               </div>
             </Section>
 
-            <Section title="Colors" icon={<Palette className="h-4 w-4 text-indigo-500" />}>
-              {swatch("color_primary", "Primary")}
-              {swatch("color_background", "Secondary")}
-              {swatch("color_accent", "Accent")}
+            <Section title={t("design.colors")} icon={<Palette className="h-4 w-4 text-indigo-500" />}>
+              {swatch("color_primary", t("design.primary"))}
+              {swatch("color_background", t("design.secondary"))}
+              {swatch("color_accent", t("design.accent"))}
             </Section>
 
             {process.env.NEXT_PUBLIC_FEATURE_MUSIC === "true" && (
-              <Section title="Music" icon={<Music className="h-4 w-4 text-indigo-500" />} defaultOpen={false}>
+              <Section title={t("design.music")} icon={<Music className="h-4 w-4 text-indigo-500" />} defaultOpen={false}>
                 <MusicPickerSection
                   selectedId={userData.background_music_id ?? ""}
                   onSelect={(id) => handleFieldChange("background_music_id", id)}
@@ -1344,10 +1363,10 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               </Section>
             )}
 
-            <Section title="Content List" icon={<ListOrdered className="h-4 w-4 text-indigo-500" />}>
+            <Section title={t("design.contentList")} icon={<ListOrdered className="h-4 w-4 text-indigo-500" />}>
               {activePage === "main" ? (
                 <>
-                  <p className="-mt-2 mb-1 text-xs text-zinc-400">Drag and drop to reorder section</p>
+                  <p className="-mt-2 mb-1 text-xs text-zinc-400">{t("design.dragToReorder")}</p>
                   {sectionOrder.map((id, idx) => (
                     <div key={id} className="relative">
                       {dragOverIndex === idx && (
@@ -1376,7 +1395,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 </>
               ) : (
                 <>
-                  <p className="-mt-2 mb-1 text-xs text-zinc-400">Sections in this page</p>
+                  <p className="-mt-2 mb-1 text-xs text-zinc-400">{t("design.sectionsInPage")}</p>
                   {(template.pages[activePageIdx]?.sections ?? []).map((s) => (
                     <div key={s.id} className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-sm text-zinc-700">
                       <span>{sectionLabel(s.id)}</span>
@@ -1394,7 +1413,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           <div className="flex shrink-0 items-center justify-center gap-1 border-b border-zinc-100 bg-white py-3 text-sm">
             <button disabled={activePageIdx === 0} onClick={() => setActivePageIdx((i) => Math.max(0, i - 1))}
               className="flex items-center gap-1 px-2 text-zinc-500 disabled:opacity-40">
-              <ChevronLeft className="h-4 w-4" />Previous
+              <ChevronLeft className="h-4 w-4" />{t("pager.previous")}
             </button>
             {template.pages.map((p, i) => (
               <button key={p.id} onClick={() => setActivePageIdx(i)}
@@ -1404,7 +1423,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             ))}
             <button disabled={activePageIdx === template.pages.length - 1} onClick={() => setActivePageIdx((i) => Math.min(template.pages.length - 1, i + 1))}
               className="flex items-center gap-1 px-2 text-zinc-500 disabled:opacity-40">
-              Next<ChevronRight className="h-4 w-4" />
+              {t("pager.next")}<ChevronRight className="h-4 w-4" />
             </button>
           </div>
 
@@ -1465,7 +1484,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             <div className="flex items-center gap-1 rounded-xl bg-indigo-100 p-1">
               <button
                 onClick={() => setPreviewDevice("mobile")}
-                aria-label="Mobile preview"
+                aria-label={t("device.mobilePreview")}
                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
                   previewDevice === "mobile" ? "bg-white text-indigo-700 shadow-sm" : "text-indigo-600/70"
                 }`}
@@ -1474,7 +1493,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               </button>
               <button
                 onClick={() => setPreviewDevice("desktop")}
-                aria-label="Desktop preview"
+                aria-label={t("device.desktopPreview")}
                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
                   previewDevice === "desktop" ? "bg-white text-indigo-700 shadow-sm" : "text-indigo-600/70"
                 }`}
@@ -1484,17 +1503,17 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={handleUndo} disabled={!canUndo} aria-label="Undo"
+              <button onClick={handleUndo} disabled={!canUndo} aria-label={t("actions.undo")}
                 className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 disabled:opacity-40">
                 <Undo2 className="h-4 w-4" />
               </button>
-              <button onClick={handleRedo} disabled={!canRedo} aria-label="Redo"
+              <button onClick={handleRedo} disabled={!canRedo} aria-label={t("actions.redo")}
                 className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 disabled:opacity-40">
                 <Redo2 className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setIsPreviewExpanded((v) => !v)}
-                aria-label={isPreviewExpanded ? "Exit fullscreen preview" : "Fullscreen preview"}
+                aria-label={isPreviewExpanded ? t("actions.exitFullscreen") : t("actions.fullscreen")}
                 aria-pressed={isPreviewExpanded}
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white"
               >
@@ -1506,9 +1525,9 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
           {/* zoom — each device mode tracks (and remembers) its own level. */}
           <div className="hidden shrink-0 items-center justify-center py-3 lg:flex">
             <div className="flex items-center gap-3 rounded-full border border-zinc-200 bg-white px-4 py-2 shadow-sm">
-              <button onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Minus className="h-4 w-4" /></button>
+              <button onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(1)))} aria-label={t("actions.zoomOut")} className="text-zinc-500 hover:text-zinc-800"><Minus className="h-4 w-4" /></button>
               <span className="flex items-center gap-1 text-sm font-medium text-zinc-600"><Search className="h-3.5 w-3.5" />{Math.round(zoom * 100)}%</span>
-              <button onClick={() => setZoom((z) => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="text-zinc-500 hover:text-zinc-800"><Plus className="h-4 w-4" /></button>
+              <button onClick={() => setZoom((z) => Math.min(1.5, +(z + 0.1).toFixed(1)))} aria-label={t("actions.zoomIn")} className="text-zinc-500 hover:text-zinc-800"><Plus className="h-4 w-4" /></button>
             </div>
           </div>
         </div>
@@ -1521,8 +1540,8 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
         >
           {/* Header is redundant on mobile — the tab above already says "Content". */}
           <div className="hidden border-b border-zinc-100 px-5 py-4 lg:block">
-            <h2 className="text-lg font-bold text-zinc-900">Content</h2>
-            <p className="text-sm text-zinc-400">Update content and setting</p>
+            <h2 className="text-lg font-bold text-zinc-900">{t("content.title")}</h2>
+            <p className="text-sm text-zinc-400">{t("content.subtitle")}</p>
           </div>
           <div className="space-y-3 p-4 lg:flex-1 lg:overflow-y-auto">
             {visibleGroups.map((group, gi) => (
@@ -1537,7 +1556,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               >
                 {group.fields.map((field) => (
                   <div key={field.key}>
-                    <FieldLabel>{field.label}{field.required && <span className="ml-0.5 text-indigo-500">*</span>}</FieldLabel>
+                    <FieldLabel>{fieldLabel(field.label)}{field.required && <span className="ml-0.5 text-indigo-500">*</span>}</FieldLabel>
                     {field.type === "image" ? (
                       <UploadDropzone value={userData[field.key] ?? ""} onChange={(v) => handleFieldChange(field.key, v)} invitationId={invitationId} />
                     ) : field.type === "date" ? (
@@ -1558,7 +1577,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                     ) : field.type === "select" ? (
                       <Select value={userData[field.key] ?? ""} onValueChange={(v) => handleFieldChange(field.key, v)}>
                         <SelectTrigger className="w-full rounded-xl border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-                          <SelectValue placeholder={field.placeholder || "Choose one"} />
+                          <SelectValue placeholder={field.placeholder || t("content.chooseOne")} />
                         </SelectTrigger>
                         <SelectContent>
                           {/* Admin hand-writes this schema as raw JSON — sanitizeOptions guards
@@ -1583,12 +1602,12 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 it applies to the whole invitation; repeating it per page would just be noise. */}
             {activePageIdx === 0 && (
               <Section
-                title={desktopBackgroundField?.label || "Background Desktop"}
+                title={desktopBackgroundField?.label ? fieldLabel(desktopBackgroundField.label) : t("content.backgroundDesktop")}
                 defaultOpen={false}
                 icon={<span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100"><Monitor className="h-4 w-4 text-indigo-600" /></span>}
               >
                 <p className="-mt-2 mb-1 text-xs text-zinc-400">
-                  Tampil di belakang undangan saat dibuka lewat layar desktop.
+                  {t("content.backgroundDesktopHint")}
                 </p>
                 <UploadDropzone
                   value={userData[DESKTOP_BACKGROUND_FIELD_KEY] ?? ""}
@@ -1611,7 +1630,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
               }
               className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700"
             >
-              <Eye className="h-4 w-4" />Preview
+              <Eye className="h-4 w-4" />{t("actions.preview")}
             </button>
             <button
               onClick={handleSave}
@@ -1623,7 +1642,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
                 : isSaving
                   ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   : <Save className="h-4 w-4" />}
-              Save
+              {t("actions.save")}
             </button>
           </div>
         )}
@@ -1645,6 +1664,7 @@ function EditorLoaded({ detail, invitationId }: { detail: UserInvitationDetail; 
 
 export default function InvitationEditorClient({ invitationId }: { invitationId: string }) {
   const router = useRouter()
+  const t = useTranslations("editor")
   const { data, isLoading, error } = useUserInvitationDetail(invitationId)
   const status = (error as (Error & { status?: number }) | null)?.status
 
@@ -1663,7 +1683,7 @@ export default function InvitationEditorClient({ invitationId }: { invitationId:
     return null
   }
   if (error || !data) {
-    return <div className="flex h-96 items-center justify-center gap-2 text-sm text-red-400"><CheckCircle2 className="h-4 w-4" />Failed to load invitation.</div>
+    return <div className="flex h-96 items-center justify-center gap-2 text-sm text-red-400"><CheckCircle2 className="h-4 w-4" />{t("loadFailed")}</div>
   }
   return <EditorLoaded detail={data} invitationId={invitationId} />
 }
