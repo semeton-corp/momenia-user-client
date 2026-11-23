@@ -1,10 +1,9 @@
-import { http, responseError } from "../http"
+import { http } from "../http"
 import { getAuthHeader as authHeader } from "../auth-header"
 import { resolveObjectUrl, toObjectKey } from "../object/object.service"
 import {
     GoogleAuthRequest,
     AuthResponse,
-    OAuthResponse,
     LogoutResponse,
     UserProfile,
     Account,
@@ -14,6 +13,10 @@ import {
 const BASE_USERS = "/api/v1/users"
 const BASE_SESSIONS = "/api/v1/sessions"
 const BASE_ACCOUNTS = "/api/v1/accounts"
+// Sign-in/up go straight to the API host (CORS + credentials), like the admin client,
+// so the HttpOnly refresh_token cookie is stored for the API host — where
+// /sessions/refresh (also called directly, see http.ts) can read it.
+const DIRECT_USERS = `${process.env.NEXT_PUBLIC_API_URL}${BASE_USERS}`
 // Google authentication includes backend-to-Google requests. Allow more time
 // than ordinary API reads without automatically replaying a single-use code.
 const GOOGLE_AUTH_TIMEOUT_MS = 60_000
@@ -21,8 +24,9 @@ const GOOGLE_AUTH_TIMEOUT_MS = 60_000
 export const signUpWithGoogle = async (
     data: GoogleAuthRequest
 ): Promise<AuthResponse> => {
-    return http(`${BASE_USERS}/signup/google`, {
+    return http(`${DIRECT_USERS}/signup/google`, {
         method: "POST",
+        credentials: "include",
         body: JSON.stringify(data),
         signal: AbortSignal.timeout(GOOGLE_AUTH_TIMEOUT_MS),
     })
@@ -31,45 +35,23 @@ export const signUpWithGoogle = async (
 export const signInWithGoogle = async (
     data: GoogleAuthRequest
 ): Promise<AuthResponse> => {
-    return http(`${BASE_USERS}/signin/google`, {
+    return http(`${DIRECT_USERS}/signin/google`, {
         method: "POST",
+        credentials: "include",
         body: JSON.stringify(data),
         signal: AbortSignal.timeout(GOOGLE_AUTH_TIMEOUT_MS),
     })
 }
 
-export const getGoogleOAuth = async (): Promise<OAuthResponse> => {
-    return http(`${BASE_USERS}/oauth/google`, {
-        method: "GET",
-    })
-}
-
 // Google mengembalikan user ke host API, jadi cookie oauth_state harus diset oleh host
-// API itu sendiri. Lewat rewrite Next (http()), browser malah menyimpannya untuk host
-// frontend dan callback ditolak "not started by this browser". Makanya dua request
-// "mulai OAuth" ini langsung ke NEXT_PUBLIC_API_URL dengan credentials (kalau tidak,
-// browser membuang Set-Cookie-nya); endpoint lain tetap lewat rewrite. Sengaja fetch
-// polos tanpa header tambahan supaya tetap simple request (tanpa preflight CORS).
-async function startGoogleOAuth(path: string): Promise<OAuthResponse> {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
-        method: "GET",
-        credentials: "include",
-        signal: AbortSignal.timeout(GOOGLE_AUTH_TIMEOUT_MS),
-    })
-
-    if (!res.ok) {
-        throw await responseError(res)
-    }
-
-    return res.json()
-}
-
-export const getOauthSignUpGoogle = async (): Promise<OAuthResponse> => {
-    return startGoogleOAuth(`${BASE_USERS}/signup/google`)
-}
-
-export const getOauthSignInGoogle = async (): Promise<OAuthResponse> => {
-    return startGoogleOAuth(`${BASE_USERS}/signin/google`)
+// API itu sendiri. Navigasi top-level ke endpoint /redirect membuat API menyetel cookie
+// itu sebagai first-party lalu me-redirect ke Google — tanpa fetch cross-origin. Callback
+// kemudian kembali ke redirect_origin (origin ini, harus ada di CORS_ALLOWED_ORIGINS
+// server), jadi localhost tidak dilempar ke situs staging.
+export function googleOAuthStartUrl(action: "signin" | "signup"): string {
+    const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}${BASE_USERS}/${action}/google/redirect`)
+    url.searchParams.set("redirect_origin", window.location.origin)
+    return url.toString()
 }
 
 export const logout = async (): Promise<LogoutResponse> => {

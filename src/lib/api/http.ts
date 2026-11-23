@@ -27,7 +27,7 @@ function needsIdempotencyKey(method?: string): boolean {
     return !!method && IDEMPOTENT_KEY_METHODS.has(method.toUpperCase())
 }
 
-// An expired access token ends the session. Return dashboard users to the
+// A rejected refresh ends the session. Return dashboard users to the
 // dashboard entry point so its authentication gate can handle signing in again.
 function redirectAfterSessionEnd(): void {
     if (typeof window === "undefined") return
@@ -69,6 +69,65 @@ async function isSessionRejected(authorization: string): Promise<boolean> {
     try { return await check } finally { sessionChecks.delete(authorization) }
 }
 
+type RefreshOutcome = "refreshed" | "rejected" | "failed" | "ended"
+
+// The refresh token lives in an HttpOnly cookie (path /api/v1/sessions) on the API
+// host — sign-in calls the API directly — so refresh must too, with credentials
+// (CORS allows this origin with credentials). The server rotates it on
+// every use and revokes the whole family if an old one is replayed — so all tabs
+// must refresh one at a time and reuse a token another tab already obtained.
+const refreshes = new Map<string, Promise<RefreshOutcome>>()
+function refreshSession(staleAuthorization: string): Promise<RefreshOutcome> {
+    const existing = refreshes.get(staleAuthorization)
+    if (existing) return existing
+
+    const run = async (): Promise<RefreshOutcome> => {
+        const current = getAuthHeader().Authorization
+        // Another tab refreshed (or the user logged out) while we waited.
+        if (current !== staleAuthorization) return current ? "refreshed" : "ended"
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/sessions/refresh`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Idempotency-Key": crypto.randomUUID(),
+                },
+                body: JSON.stringify({ userAgent: navigator.userAgent }),
+                credentials: "include",
+                cache: "no-store",
+                signal: AbortSignal.timeout(10_000),
+            })
+            if (res.status === 401) return "rejected"
+            if (!res.ok) return "failed"
+            const data = (await res.json()) as { accessToken?: unknown }
+            if (typeof data.accessToken !== "string" || !data.accessToken.trim()) return "failed"
+            // Never overwrite a session that changed during the request.
+            if (getAuthHeader().Authorization !== staleAuthorization) return "ended"
+            localStorage.setItem("accessToken", data.accessToken)
+            window.dispatchEvent(new Event("auth-session-changed"))
+            return "refreshed"
+        } catch {
+            return "failed"
+        }
+    }
+
+    const promise = (async (): Promise<RefreshOutcome> =>
+        navigator.locks
+            ? await navigator.locks.request("momenia-session-refresh", run)
+            : run()
+    )().finally(() => refreshes.delete(staleAuthorization))
+    refreshes.set(staleAuthorization, promise)
+    return promise
+}
+
+function clearSession(): void {
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+    localStorage.removeItem("user")
+    window.dispatchEvent(new Event("auth-session-changed"))
+    redirectAfterSessionEnd()
+}
+
 export async function http<T>(
     endpoint: string,
     options?: RequestInit
@@ -92,17 +151,23 @@ export async function http<T>(
         })
 
     const headers = buildHeaders()
-    const res = await doFetch(headers)
+    let res = await doFetch(headers)
 
     const authorization = headers.get("Authorization")
     if (res.status === 401 && authorization && typeof window !== "undefined") {
-        const rejected = await isSessionRejected(authorization)
-        if (rejected && getAuthHeader().Authorization === authorization) {
-            localStorage.removeItem("accessToken")
-            localStorage.removeItem("refreshToken")
-            localStorage.removeItem("user")
-            window.dispatchEvent(new Event("auth-session-changed"))
-            redirectAfterSessionEnd()
+        const outcome = await refreshSession(authorization)
+        const fresh = getAuthHeader().Authorization
+        if (outcome === "refreshed" && fresh) {
+            // Fresh idempotency key too: the 401 attempt never ran the handler.
+            const retryHeaders = buildHeaders()
+            retryHeaders.set("Authorization", fresh)
+            res = await doFetch(retryHeaders)
+        } else if (
+            outcome === "rejected" &&
+            (await isSessionRejected(authorization)) &&
+            getAuthHeader().Authorization === authorization
+        ) {
+            clearSession()
         }
     }
 
