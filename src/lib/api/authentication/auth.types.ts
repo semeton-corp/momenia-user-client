@@ -12,10 +12,6 @@ export type AuthResponse = {
     }
 }
 
-export type OAuthResponse = {
-    redirectUrl: string
-}
-
 // logout has no body (204)
 export type LogoutResponse = void
 

@@ -1,25 +1,16 @@
 "use client"
 
-import { getOauthSignInGoogle, getOauthSignUpGoogle } from "@/lib/api/authentication/auth.service"
+import { googleOAuthStartUrl } from "@/lib/api/authentication/auth.service"
 import { useMutation } from "@tanstack/react-query"
 
+const startGoogleOAuth = (action: "signin" | "signup") => async () => {
+    window.location.assign(googleOAuthStartUrl(action))
+}
 
 export const useSignInGoogleOAuth = () => {
-    return useMutation({
-        mutationFn: getOauthSignInGoogle,
-
-        onSuccess: (data) => {
-            window.location.href = data.redirectUrl
-        },
-    })
+    return useMutation({ mutationFn: startGoogleOAuth("signin") })
 }
 
 export const useSignUpGoogleOAuth = () => {
-    return useMutation({
-        mutationFn: getOauthSignUpGoogle,
-
-        onSuccess: (data) => {
-            window.location.href = data.redirectUrl
-        },
-    })
+    return useMutation({ mutationFn: startGoogleOAuth("signup") })
 }
