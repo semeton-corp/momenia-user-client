@@ -1,14 +1,16 @@
 "use client"
 
 import { useState, useRef, useCallback } from "react"
+import { useTranslations } from "next-intl"
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from "react-image-crop"
 import "react-image-crop/dist/ReactCrop.css"
 import { X, Check, ImageOff } from "lucide-react"
 
-type AspectOption = { label: string; value: number | undefined }
+// `label: null` = the translated "Free" option; the rest are ratio names, same in every language.
+type AspectOption = { label: string | null; value: number | undefined }
 
 const ASPECT_OPTIONS: AspectOption[] = [
-  { label: "Free", value: undefined },
+  { label: null, value: undefined },
   { label: "1:1", value: 1 },
   { label: "4:3", value: 4 / 3 },
   { label: "16:9", value: 16 / 9 },
@@ -71,6 +73,7 @@ export function ImageCropModal({
   onCancel: () => void
   onConfirm: (file: File) => void
 }) {
+  const t = useTranslations("editor.crop")
   const imgRef = useRef<HTMLImageElement>(null)
   const [aspect, setAspect] = useState<number | undefined>(undefined)
   const [crop, setCrop] = useState<Crop>()
@@ -114,8 +117,8 @@ export function ImageCropModal({
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 px-4">
       <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
-          <h2 className="text-base font-semibold text-zinc-900">Crop Image</h2>
-          <button onClick={onCancel} aria-label="Close" className="text-zinc-400 hover:text-zinc-600">
+          <h2 className="text-base font-semibold text-zinc-900">{t("title")}</h2>
+          <button onClick={onCancel} aria-label={t("close")} className="text-zinc-400 hover:text-zinc-600">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -123,7 +126,7 @@ export function ImageCropModal({
         <div className={`flex items-center gap-2 border-b border-zinc-100 px-5 py-3 ${decodeFailed ? "hidden" : ""}`}>
           {ASPECT_OPTIONS.map((opt) => (
             <button
-              key={opt.label}
+              key={opt.label ?? "free"}
               type="button"
               onClick={() => handleAspectChange(opt.value)}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
@@ -132,7 +135,7 @@ export function ImageCropModal({
                   : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
               }`}
             >
-              {opt.label}
+              {opt.label ?? t("free")}
             </button>
           ))}
         </div>
@@ -142,11 +145,8 @@ export function ImageCropModal({
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
               <ImageOff className="h-6 w-6 text-amber-600" />
             </div>
-            <p className="text-sm font-semibold text-zinc-900">Foto ini tidak bisa dibuka</p>
-            <p className="max-w-sm text-sm text-zinc-500">
-              Browser kamu tidak mendukung format foto ini (biasanya HEIC dari iPhone).
-              Ubah dulu ke JPG atau PNG, lalu unggah kembali.
-            </p>
+            <p className="text-sm font-semibold text-zinc-900">{t("cannotOpenTitle")}</p>
+            <p className="max-w-sm text-sm text-zinc-500">{t("cannotOpenBody")}</p>
           </div>
         ) : (
           <div className="flex-1 overflow-auto bg-zinc-900 p-4">
@@ -176,7 +176,7 @@ export function ImageCropModal({
             onClick={onCancel}
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
           >
-            {decodeFailed ? "Tutup" : "Cancel"}
+            {decodeFailed ? t("close") : t("cancel")}
           </button>
           <button
             type="button"
@@ -190,7 +190,7 @@ export function ImageCropModal({
             ) : (
               <Check className="h-4 w-4" />
             )}
-            Apply
+            {t("apply")}
           </button>
         </div>
       </div>

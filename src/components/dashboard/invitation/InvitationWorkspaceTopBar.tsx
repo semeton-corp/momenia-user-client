@@ -3,10 +3,12 @@
 import * as React from "react"
 import { House, PencilLine } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Link } from "@/i18n/navigation"
+import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import { useUpdateUserInvitation, useUserInvitationDetail } from "@/hooks/useUserInvitations"
 import { useToast } from "@/providers/ToastProvider"
+import { useEditorDirty } from "@/contexts/EditorDirtyContext"
+import { UnsavedChangesModal } from "./UnsavedChangesModal"
 
 type Props = {
   readonly invitationId: string
@@ -19,7 +21,11 @@ type Props = {
 // Enter untuk simpan (PUT langsung ke API), Escape/blur untuk batal.
 export function InvitationWorkspaceTopBar({ invitationId }: Props) {
   const t = useTranslations("dashboard.workspace")
+  const tSidebar = useTranslations("dashboard.workspace.sidebar")
+  const router = useRouter()
   const { toast } = useToast()
+  const { isDirty } = useEditorDirty()
+  const [confirmLeave, setConfirmLeave] = React.useState(false)
   const { data } = useUserInvitationDetail(invitationId)
   const titleMutation = useUpdateUserInvitation(invitationId)
 
@@ -70,13 +76,22 @@ export function InvitationWorkspaceTopBar({ invitationId }: Props) {
   }
 
   return (
+    <>
     <header
       className="fixed left-0 right-0 top-0 z-40 flex items-center justify-center gap-1.5 lg:hidden"
       style={{ background: "#FAFAFA", borderBottom: "1px solid #E5E5E5", height: "60px" }}
     >
       {/* Home balik ke posisi tetap di kiri (di luar flow flex), TIDAK ikut ke tengah. */}
       <Link
-        href={`/dashboard/my-invitation/${invitationId}`}
+        href="/dashboard"
+        aria-label={tSidebar("home")}
+        onClick={(e) => {
+          // Same guard as the sidebar: leaving the editor with unsaved edits asks first.
+          if (isDirty) {
+            e.preventDefault()
+            setConfirmLeave(true)
+          }
+        }}
         className="absolute left-4 flex items-center justify-center"
       >
         <House className="h-6 w-6" style={{ color: "#4F46E5" }} />
@@ -130,5 +145,18 @@ export function InvitationWorkspaceTopBar({ invitationId }: Props) {
         <span className="size-8 shrink-0" aria-hidden="true" />
       )}
     </header>
+
+    {/* Di luar <header> dengan sengaja: header adalah stacking context z-40 sendiri,
+        jadi overlay di dalamnya akan tertutup bottom nav (juga z-40). */}
+    {confirmLeave && (
+      <UnsavedChangesModal
+        onConfirm={() => {
+          setConfirmLeave(false)
+          router.push("/dashboard")
+        }}
+        onCancel={() => setConfirmLeave(false)}
+      />
+    )}
+    </>
   )
 }

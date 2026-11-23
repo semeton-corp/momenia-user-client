@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { useTranslations } from "next-intl"
 import { HelpCircle, MapPin, TriangleAlert } from "lucide-react"
 
 // Google's Share button on mobile gives a short link that only a server can follow
@@ -12,8 +13,6 @@ const EXACT_COORDS = /!3d(-?\d{1,3}\.\d+)!4d(-?\d{1,3}\.\d+)/
 const VIEWPORT_COORDS = /@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/
 const PLACE_NAME = /\/maps\/place\/([^/@]+)/
 const PLAIN_COORDS = /^\s*-?\d{1,3}(?:\.\d+)?\s*,\s*-?\d{1,3}(?:\.\d+)?\s*$/
-
-const GENERIC_ERROR = "Link tidak dikenali. Coba tempel link Google Maps atau alamatnya."
 
 type Resolved = { name: string | null; q: string }
 
@@ -42,6 +41,7 @@ function parseFullMapsUrl(value: string): Resolved | null {
 }
 
 function LocationTooltip() {
+  const t = useTranslations("editor.location")
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -64,7 +64,7 @@ function LocationTooltip() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Cara mengisi lokasi"
+        aria-label={t("howToFill")}
         aria-expanded={open}
         className="flex h-4.5 w-4.5 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition-colors hover:border-indigo-400 hover:text-indigo-600"
       >
@@ -75,14 +75,14 @@ function LocationTooltip() {
           role="tooltip"
           className="absolute right-0 top-[calc(100%+8px)] z-20 w-64 rounded-xl bg-zinc-900 p-3.5 text-white shadow-xl"
         >
-          <p className="mb-2 text-[11.5px] font-semibold">Ambil link dari Google Maps</p>
+          <p className="mb-2 text-[11.5px] font-semibold">{t("tooltipTitle")}</p>
           <ol className="flex flex-col gap-1.5 pl-4 text-[11.5px] leading-relaxed text-zinc-300 [&>li]:list-decimal">
-            <li>Buka Google Maps, cari lokasi acaramu</li>
-            <li>Tap tombol <strong className="text-white">Bagikan</strong></li>
-            <li>Pilih <strong className="text-white">Salin link</strong>, lalu tempel di sini</li>
+            <li>{t("step1")}</li>
+            <li>{t.rich("step2", { b: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
+            <li>{t.rich("step3", { b: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
           </ol>
           <p className="mt-2.5 border-t border-zinc-700 pt-2.5 text-[11px] leading-relaxed text-zinc-400">
-            Tidak punya link? Ketik saja nama gedung atau alamatnya.
+            {t("noLink")}
           </p>
         </div>
       )}
@@ -96,6 +96,7 @@ type LocationFieldProps = {
 }
 
 export function LocationField({ value, onChange }: LocationFieldProps) {
+  const t = useTranslations("editor.location")
   const [mode, setMode] = useState<"edit" | "loading" | "done">(value ? "done" : "edit")
   const [draft, setDraft] = useState(value)
   const [resolvedName, setResolvedName] = useState<string | null>(null)
@@ -132,10 +133,10 @@ export function LocationField({ value, onChange }: LocationFieldProps) {
       try {
         const res = await fetch(`/api/resolve-maps-link?url=${encodeURIComponent(v)}`)
         const data = await res.json()
-        if (!data.ok) { setError(GENERIC_ERROR); setMode("edit"); return }
+        if (!data.ok) { setError(t("errorGeneric")); setMode("edit"); return }
         commit({ name: data.name, q: `${data.lat},${data.lng}` })
       } catch {
-        setError("Gagal membaca link. Coba lagi.")
+        setError(t("errorRead"))
         setMode("edit")
       }
       return
@@ -144,7 +145,7 @@ export function LocationField({ value, onChange }: LocationFieldProps) {
     if (/^https?:\/\//i.test(v)) {
       const parsed = parseFullMapsUrl(v)
       if (parsed) { commit(parsed); return }
-      setError(GENERIC_ERROR)
+      setError(t("errorGeneric"))
       setMode("edit")
       return
     }
@@ -178,12 +179,12 @@ export function LocationField({ value, onChange }: LocationFieldProps) {
             onChange={(e) => setDraft(e.target.value)}
             onBlur={submit}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur() } }}
-            placeholder="Tempel link Google Maps, atau ketik alamatnya"
+            placeholder={t("placeholder")}
             className="w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
           />
           <p className="mt-1.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-zinc-500">
             <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-zinc-400" />
-            Link Google Maps, nama gedung, alamat, atau koordinat.
+            {t("hint")}
           </p>
         </>
       )}
@@ -191,7 +192,7 @@ export function LocationField({ value, onChange }: LocationFieldProps) {
       {mode === "loading" && (
         <div className="flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3">
           <span className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-zinc-300 border-t-indigo-500" />
-          <span className="text-xs text-zinc-600">Membaca link...</span>
+          <span className="text-xs text-zinc-600">{t("reading")}</span>
         </div>
       )}
 
@@ -202,10 +203,10 @@ export function LocationField({ value, onChange }: LocationFieldProps) {
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] font-semibold text-zinc-900">
-              {resolvedName || (isCoords ? "Titik koordinat" : value)}
+              {resolvedName || (isCoords ? t("coordinates") : value)}
             </p>
             <p className="truncate font-mono text-[11px] text-zinc-500">
-              {isCoords ? value.replace(",", ", ") : "Dicari sebagai alamat"}
+              {isCoords ? value.replace(",", ", ") : t("searchedAsAddress")}
             </p>
           </div>
           <button
@@ -213,7 +214,7 @@ export function LocationField({ value, onChange }: LocationFieldProps) {
             onClick={startEdit}
             className="shrink-0 rounded px-1 text-[11px] font-semibold text-indigo-600 hover:underline"
           >
-            Ubah
+            {t("change")}
           </button>
         </div>
       )}
@@ -231,7 +232,7 @@ export function LocationField({ value, onChange }: LocationFieldProps) {
             <iframe
               key={mapQuery}
               src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}
-              title="Pratinjau lokasi"
+              title={t("previewTitle")}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               className="h-full w-full border-0"
@@ -243,7 +244,7 @@ export function LocationField({ value, onChange }: LocationFieldProps) {
             rel="noopener noreferrer"
             className="mt-1.5 inline-block text-[11px] font-medium text-indigo-600 hover:underline"
           >
-            Cek di Google Maps
+            {t("openInMaps")}
           </a>
         </>
       )}
