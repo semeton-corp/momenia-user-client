@@ -778,6 +778,7 @@
     },
     "workspace": {
       "sidebar": {
+        "home": "Home",
         "dashboard": "Dashboard",
         "edit": "Edit",
         "guests": "Guests",

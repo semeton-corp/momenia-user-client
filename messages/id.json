@@ -778,6 +778,7 @@
     },
     "workspace": {
       "sidebar": {
+        "home": "Beranda",
         "dashboard": "Dashboard",
         "edit": "Edit",
         "guests": "Tamu",

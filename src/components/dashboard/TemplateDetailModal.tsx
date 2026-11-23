@@ -497,7 +497,7 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
               </div>
 
               {/* Body */}
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-5">
+              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-5 pb-5">
                 {/* Category badge */}
                 <span
                   className="mx-auto inline-flex shrink-0 items-center justify-center border shadow-xs"
@@ -621,10 +621,11 @@ export function TemplateDetailModal({ template, isFavourite, onFavouriteToggle, 
                   ))}
                 </div>
 
-                {/* Description */}
+                {/* Description — natural height; the whole body above scrolls instead, so the
+                    text is never squeezed into a tiny inner box on short phone screens. */}
                 <div
-                  className="mt-4 min-h-0 flex-1 overflow-y-auto rounded-xl border border-zinc-200 text-sm leading-relaxed text-foreground"
-                  style={{ padding: "16px", scrollbarGutter: "stable" }}
+                  className="mt-4 shrink-0 rounded-xl border border-zinc-200 text-sm leading-relaxed text-foreground"
+                  style={{ padding: "16px" }}
                 >
                   <div className="pr-1">
                     <ReactMarkdown components={descriptionMarkdownComponents}>{template.description}</ReactMarkdown>

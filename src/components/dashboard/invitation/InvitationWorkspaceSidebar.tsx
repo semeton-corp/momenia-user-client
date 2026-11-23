@@ -35,9 +35,9 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
   const t = useTranslations("dashboard.workspace.sidebar")
   const scale = useZoomScale()
   const basePath = `/dashboard/my-invitation/${invitationId}`
-  // Home leaves this invitation's workspace entirely, back to the invitation list —
+  // Home leaves this invitation's workspace entirely, back to the template dashboard —
   // the nav item below it is the one that goes to this invitation's dashboard.
-  const myInvitationsPath = "/dashboard/my-invitation"
+  const homePath = "/dashboard"
   const { isDirty } = useEditorDirty()
   const [pendingHref, setPendingHref] = useState<string | null>(null)
 
@@ -79,8 +79,9 @@ export function InvitationWorkspaceSidebar({ invitationId }: InvitationWorkspace
       >
         {/* Home — plain icon, no box */}
         <Link
-          href={myInvitationsPath}
-          onClick={(e) => handleNavClick(e, myInvitationsPath)}
+          href={homePath}
+          onClick={(e) => handleNavClick(e, homePath)}
+          aria-label={t("home")}
           className="mt-6 mb-12 flex items-center justify-center transition-all hover:opacity-70"
         >
           <House className="h-8 w-8" style={{ color: "#4F46E5" }} />

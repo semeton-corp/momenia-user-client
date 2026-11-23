@@ -21,7 +21,7 @@ export function DashboardMobileHeader() {
 
   return (
     <header className="flex items-center justify-between px-5 py-4 xl:hidden">
-      <Link href="/dashboard" className="flex items-center">
+      <Link href="/" locale="id" className="flex items-center">
         <Image src={LogoMemoria} alt="Momenia" className="h-9 w-auto" priority />
       </Link>
 
